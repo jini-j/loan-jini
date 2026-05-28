@@ -74,7 +74,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 .ctbl tr.hl td{background:var(--pl);font-weight:700;color:var(--p)}
 .abadge{display:inline-block;background:var(--p);color:#fff;padding:5px 13px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:8px}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+(function(){
+  function loadXlsxLib(urls, idx){
+    if(idx >= urls.length) return;
+    var s = document.createElement('script');
+    s.src = urls[idx];
+    s.onerror = function(){ loadXlsxLib(urls, idx+1); };
+    document.head.appendChild(s);
+  }
+  loadXlsxLib([
+    'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
+    'https://unpkg.com/xlsx@0.18.5/dist/xlsx.full.min.js'
+  ], 0);
+})();
+</script>
 </head>
 <body>
 
@@ -368,6 +383,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="mres" style="display:none">
     <div class="ct">📈 주담대 계산 결과</div>
     <div class="rg" id="mgrid"></div>
+    <button onclick="shareResult('mort')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    </button>
   </div>
 <div id="mort-compare" style="display:none;margin:0 12px 10px"></div>
 </div>
@@ -450,6 +468,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="jres" style="display:none">
     <div class="ct">📈 전세대출 계산 결과</div>
     <div class="rg" id="jgrid"></div>
+    <button onclick="shareResult('jeon')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    </button>
   </div>
 <div id="jeon-compare" style="display:none;margin:0 12px 10px"></div>
 </div>
@@ -1456,6 +1477,61 @@ function calcExDebt(){
   if(disp) disp.textContent = totalRound.toLocaleString() + ' 만원';
 }
 
+function shareResult(type){
+  var isMort = type === 'mort';
+  var gridId = isMort ? 'mgrid' : 'jgrid';
+  var cmpId  = isMort ? 'mort-compare' : 'jeon-compare';
+  var title  = isMort ? '🏦 주담대 계산 결과' : '🔑 전세대출 계산 결과';
+
+  // 그리드에서 텍스트 추출
+  var grid = document.getElementById(gridId);
+  var text = title + '\n';
+  text += '━━━━━━━━━━━━━━━━━\n';
+
+  if(grid){
+    var items = grid.querySelectorAll('.ri');
+    items.forEach(function(item){
+      var rl = item.querySelector('.rl');
+      var rv = item.querySelector('.rv');
+      if(rl && rv){
+        var label = rl.textContent.trim();
+        var val   = rv.textContent.trim().replace(/\s+/g,' ');
+        text += label + ': ' + val + '\n';
+      }
+    });
+    // 인라인 HTML 방식인 경우 전체 텍스트 추출
+    if(!items.length){
+      var raw = grid.innerText || grid.textContent;
+      text += raw.replace(/\s{2,}/g,'\n').trim() + '\n';
+    }
+  }
+
+  // 비교 결과 추가
+  var cmp = document.getElementById(cmpId);
+  if(cmp && cmp.style.display !== 'none' && cmp.innerText.trim()){
+    text += '\n📊 은행별 비교\n';
+    text += '━━━━━━━━━━━━━━━━━\n';
+    var rows = cmp.querySelectorAll('tr');
+    rows.forEach(function(row){
+      var cells = Array.from(row.querySelectorAll('th,td')).map(function(c){ return c.textContent.trim(); });
+      if(cells.length) text += cells.join(' | ') + '\n';
+    });
+  }
+
+  text += '\n━━━━━━━━━━━━━━━━━\n';
+  text += '📱 론 지니 대출 계산기';
+
+  if(navigator.share){
+    navigator.share({ title: '론 지니 계산 결과', text: text })
+      .catch(function(e){ if(e.name !== 'AbortError') alert('공유 실패: '+e.message); });
+  } else if(navigator.clipboard){
+    navigator.clipboard.writeText(text).then(function(){
+      alert('📋 결과가 클립보드에 복사됐습니다!\n카카오톡 대화창에 붙여넣기 하세요.');
+    }).catch(function(){ alert('공유 기능을 지원하지 않는 브라우저입니다.'); });
+  } else {
+    alert('공유 기능을 지원하지 않는 브라우저입니다.');
+  }
+}
 function doMort(){
   var inc  =parseFloat(document.getElementById('m-i').value)||0;
   var yrs  =parseFloat(document.getElementById('m-y').value)||30;
@@ -1673,7 +1749,29 @@ document.getElementById('inst-overlay').addEventListener('click',function(e){
 function dzOver(e){e.preventDefault();document.getElementById('drop-zone').style.borderColor='var(--p)';}
 function dzLeave(){document.getElementById('drop-zone').style.borderColor='var(--g3)';}
 function dzDrop(e){e.preventDefault();dzLeave();var f=e.dataTransfer.files[0];if(f)processXlsx(f);}
-function loadXlsx(input){if(input.files[0])processXlsx(input.files[0]);}
+function loadXlsx(input){
+  var file = input.files[0];
+  if(!file) return;
+  var st = document.getElementById('xlsx-status');
+  if(typeof XLSX !== 'undefined'){
+    processXlsx(file);
+    return;
+  }
+  // XLSX 아직 미로드 → 자동 대기 후 재시도
+  st.style.display = 'block';
+  st.innerHTML = '<span style="color:var(--g5)">⏳ 라이브러리 로딩 중... 잠시만 기다려 주세요.</span>';
+  var attempts = 0;
+  var timer = setInterval(function(){
+    attempts++;
+    if(typeof XLSX !== 'undefined'){
+      clearInterval(timer);
+      processXlsx(file);
+    } else if(attempts >= 20){
+      clearInterval(timer);
+      st.innerHTML = '<span style="color:var(--er)">❌ 라이브러리 로드 실패. 인터넷 연결을 확인하고 다시 시도해 주세요.</span>';
+    }
+  }, 500);
+}
 function processXlsx(file) {
   var st = document.getElementById('xlsx-status');
   st.style.display = 'block';
@@ -1689,29 +1787,31 @@ function processXlsx(file) {
       var wb = XLSX.read(e.target.result, { type: 'array' });
 
       // ⑤아파트조견표 시트 찾기
-      var sheetName = wb.SheetNames.find(function(n){ return n.indexOf('아파트조') >= 0 || n.indexOf('조견표') >= 0; });
+      // 시트명: 'Sheet1' 또는 '아파트조견표' 등 유연하게 탐색
+      var sheetName = wb.SheetNames.find(function(n){ return n.indexOf('아파트조') >= 0 || n.indexOf('조견표') >= 0; })
+                   || wb.SheetNames[0];
       if (!sheetName) {
-        st.innerHTML = '<span style="color:var(--er)">❌ ⑤아파트조견표 시트를 찾을 수 없습니다.</span>';
+        st.innerHTML = '<span style="color:var(--er)">❌ 시트를 찾을 수 없습니다.</span>';
         return;
       }
       var ws = wb.Sheets[sheetName];
       var rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-      // 파싱
+      // 파싱 (헤더 4행 스킵, 5행부터 데이터)
       var newData = { '서울특별시': {} };
       var TARGET_GU = ['서대문구', '은평구', '마포구'];
       var count = 0;
 
-      for (var i = 3; i < rows.length; i++) {
+      for (var i = 4; i < rows.length; i++) {
         var row = rows[i];
         if (!row || !row[0]) continue;
-        var sido   = String(row[0]).trim();
-        var sigungu = String(row[1]).trim();
-        var name   = row[3] ? String(row[3]).trim() : '';
-        var pyeong = row[6] ? Math.round(parseFloat(row[6]) * 10) / 10 : 0;
-        var lo = row[7] ? parseInt(row[7]) : 0;
-        var mi = row[8] ? parseInt(row[8]) : 0;
-        var hi = row[9] ? parseInt(row[9]) : 0;
+        var sido    = String(row[0]).trim();
+        var sigungu = String(row[1]).trim();  // '마포구 ' 공백 제거
+        var name    = row[3] ? String(row[3]).trim() : '';
+        var pyeong  = row[7] ? Math.round(parseFloat(row[7]) * 10) / 10 : 0;  // 구 평형
+        var lo = row[8]  ? parseInt(row[8])  : 0;  // 하한가
+        var mi = row[9]  ? parseInt(row[9])  : 0;  // 일반거래가
+        var hi = row[10] ? parseInt(row[10]) : 0;  // 상한가
         if (sido !== '서울특별시') continue;
         if (TARGET_GU.indexOf(sigungu) < 0) continue;
         if (!name || !mi) continue;
@@ -3662,10 +3762,10 @@ function doStampBond(){
       <div class="f">
         <label>시가표준액 / 공시가격 (만원)</label>
         <input type="number" id="b-std-price" placeholder="예: 45000 (KB시세의 약 60~80%)" inputmode="numeric">
-        <div class="hint">실거래가(매매가)가 아닌 공시가격 입력 · 통상 시세의 60~80% 수준</div>
+        <div class="hint">국토교통부 공시가격 기준 · 실거래가가 아닌 공시가격 입력</div>
         <button onclick="window.open('https://www.realtyprice.kr/notice/town/nfSiteLink.htm','_blank')"
           style="margin-top:7px;width:100%;height:40px;background:#ecfdf5;color:#059669;border:1.5px solid #059669;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">
-          🏠 공동주택 공시가격 조회 (국토교통부)
+          🏠 공동주택 공시가격 조회 (realtyprice.kr)
         </button>
       </div>
       <div class="f">
@@ -4093,4 +4193,31 @@ function doStampBond(){
             </tr>
             <tr id="fi-row-1" style="border-bottom:1px solid var(--g2);background:var(--g1)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 25~29</td>
-              <td style=
+              <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1996.05.26~2001.05.25</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">131.62%</td>
+            </tr>
+            <tr id="fi-row-2" style="border-bottom:1px solid var(--g2)">
+              <td style="padding:7px 6px;text-align:center;font-weight:600">만 30~34</td>
+              <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1991.05.26~1996.05.25</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">118.41%</td>
+            </tr>
+            <tr id="fi-row-3" style="border-bottom:1px solid var(--g2);background:var(--g1)">
+              <td style="padding:7px 6px;text-align:center;font-weight:600">만 35~39</td>
+              <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1986.05.26~1991.05.25</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">106.54%</td>
+            </tr>
+            <tr id="fi-row-4">
+              <td style="padding:7px 6px;text-align:center;font-weight:600">만 40~44</td>
+              <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1981.05.26~1986.05.25</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">101.62%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
