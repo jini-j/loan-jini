@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="apple-touch-icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADXklEQVR42u3cwVHrMBSGUUuTKpItaSmpkbQUtqSNsGXBgEnk2NJ/TgOPse+nKzPDK9NG7E/X+0SM2+VYtvBzFANPchDF0JMcQzH0JMdQDD7JIRSDT3II1fDTk9YzVgw+ydugGn6St0E1/CRHUAw+yVeiavhJ3gbV8JMcQTX8JEdQPS6S1dZFQU9boBp+kiOohp/kCHwD4BvA6U/qFqiGn+QIXIFwBXL6k7oFbABsAKc/qVvABsAGgPgAXH9IvAbZANgAEB2A6w+p1yAbABsABACBivs/NgAIAAQAAgABgABY2uf7m4cggOzhF4EA4k9+EQgg/tojAgGAAJI/em0BAcQOvwgEED/8IhBA/PCLQADxwy+C1/D3ABse/u8O54+X/QyP/ls2AIud3DaBAEAAiae/LSCA+OEXgQDih18EAogffhEIIH74RSCA+OEXgQBAAE5fW0AAhk4EAjBsIhBA/JCJQADxwyUCAcQPlQgEED9MIhAACMApigAMPwIw/AjA8CMAw48ADL8APAIEgNNfAIYfARh+BGD4EYDhRwCGHwEYfgQAAnD6e04C8FI9LwF4mZ6bALxEEQjAyxOBALw0EQgABOC0sgUE4CWJQABejggE4KWIQABehggE4CWIQAAevggEAAJw+tsCAjD8IhCA4RfBesr+dL17MfzkcP7wDQACAAGAAEAAIAAYwC79AbT4Vd+av2Lt/ee3AUAAIAAQAAgABAACAAGAAGABO4+gjTX+eMQf+dgAIAAQAAgABAACgDnifw3a+68S/SrUBgABgABAACAAEAAIAAQAAgABgABAACAABAACAAGAAEAAIAAQAAgABAACAAGAAGAAZX+63j0GbAAQAAgABAACAAHAwAHcLsfiMZDodjkWGwBXIBAApAbgO4DE+78NgA3gESAA1yACrz82ADaAR4AAXIMIvP7YANgAfxUCo57+NgA2wNxSYLTT/9cNIAJGH35XIFyBHi0Hej/9Z20AETDq8M++AomAEYffNwC+AVoXBb2c/v/eACJgpOF/6AokAkYZ/mmapqeG2X+tTq+D3+Qj2Dag5+F/OgAR0PPwP30FciWi18FvtgFsA3od/uYbwDagl8FfPAAh0MOt4qVXFjGwtav0and2MbCF78fNfLQKwsCv4QuhUXAPAjOwugAAAABJRU5ErkJggg==">
@@ -284,7 +287,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         <button class="chip on" onclick="updZone(this,'mzone')">조정대상지역</button>
         <button class="chip" onclick="updZone(this,'mzone')">비규제지역</button>
       </div>
-      <div class="hint" id="mzone-hint">서울 서대문·은평·마포 → 조정대상지역</div>
+      <div class="hint" id="mzone-hint">서울 전역 → 투기과열지구+조정대상지역 (10·15 삼중규제, 무주택 LTV 40%)</div>
     </div>
     <div class="f">
       <label>주택 가격 (만원)</label>
@@ -1403,24 +1406,32 @@ function showPriceRes(r){
 }
 function calcLTV(zone, housing, price) {
   if (housing === '2주택+' && zone !== '비규제지역') return { rate: 0, limit: 0, impossible: true };
+  // 10·15 대책(2025.10.16): 규제지역 유주택자 LTV 0%
+  if ((housing === '1주택' || housing === '2주택+') && zone !== '비규제지역') return { rate: 0, limit: 0, impossible: true };
   var rate;
   if (zone === '투기과열지구') {
-    rate = (housing === '2주택+') ? 0 : 0.50;
+    rate = 0.40;  // 10·15 이후 무주택 40%
   } else if (zone === '조정대상지역') {
-    rate = (housing === '무주택') ? 0.70 : (housing === '1주택') ? 0.60 : 0;
+    rate = 0.40;  // 10·15 이후 무주택 40%
   } else {
-    rate = 0.80;
+    rate = 0.80;  // 비규제지역
   }
-  if (rate === 0) return { rate: 0, limit: 0, impossible: true };
   if (!price || price <= 0) return { rate: rate, limit: null, impossible: false };
   var limit;
   if (zone !== '비규제지역' && price > 90000) {
-    // 9억 초과분은 LTV 20% 적용
     limit = Math.round(90000 * rate) + Math.round((price - 90000) * 0.20);
   } else {
     limit = Math.round(price * rate);
   }
   return { rate: rate, limit: limit, impossible: false };
+}
+
+// 10·15 대책: 규제지역 시가별 최대 대출 상한
+function get1015Cap(zone, price) {
+  if (zone === '비규제지역' || !price || price <= 0) return null;
+  if (price <= 150000) return 60000;   // 15억 이하 → 6억
+  if (price <= 250000) return 40000;   // 25억 이하 → 4억
+  return 20000;                         // 25억 초과 → 2억
 }
 
 
@@ -1573,6 +1584,14 @@ function doMort(){
     finalLimit0=dsrLimit0;
   }
 
+  // 10·15 대책 시가별 캡 적용
+  var cap1015 = get1015Cap(zone, price);
+  var capNote = '';
+  if(cap1015 !== null){
+    if(finalLimit > cap1015){ finalLimit = cap1015; capNote = '⚠️ 10·15 상한 적용'; }
+    if(finalLimit0 > cap1015){ finalLimit0 = cap1015; }
+  }
+
   var pymF =(finalLimit >0&&n>0&&rm>0)?finalLimit *rm*Math.pow(1+rm,n)/(Math.pow(1+rm,n)-1):0;
   var pymF0=(finalLimit0>0&&n>0&&rm>0)?finalLimit0*rm*Math.pow(1+rm,n)/(Math.pow(1+rm,n)-1):0;
   var existDsr=inc>0?(ext/inc*100):0;
@@ -1609,6 +1628,9 @@ function doMort(){
 
     '<div class="ri"><div class="rl">DSR 한도 기준액</div><div class="rv">'+fm(Math.round(dsrLimit))+'<span style="font-size:11px"> 만원</span></div></div>'+
     '<div class="ri"><div class="rl">LTV 한도</div><div class="rv">'+(ltv.limit!==null?fm(ltv.limit)+'<span style="font-size:11px"> 만원</span>':ltvDesc)+'</div></div>'+
+    (cap1015!==null?'<div class="ri" style="background:#fef9c3"><div class="rl" style="color:#854d0e">🏛️ 10·15 대책 상한</div>'+
+    '<div class="rv" style="color:#854d0e;font-size:15px">'+fm(cap1015)+'<span style="font-size:11px"> 만원</span></div>'+
+    '<div style="font-size:11px;color:#854d0e;margin-top:2px">'+(capNote||'✅ 상한 미적용 (한도 이내)')+'</div></div>':'')+
     '<div class="ri"><div class="rl">기존 부채 DSR</div>'+
     '<div class="rv '+(existDsr<=40?'ok':'er')+'">'+existDsr.toFixed(1)+'%</div></div>'+
     '<div class="ri"><div class="rl">스트레스 가산금리</div><div class="rv">+('+((st*100).toFixed(1))+'%)</div>'+
@@ -3385,7 +3407,7 @@ var FI_TABLE=[
 ];
 
 function icSwTab(i){
-  [0,1].forEach(function(j){
+  [0,1,2].forEach(function(j){
     var p=document.getElementById('ic-p'+j);
     var b=document.getElementById('ic-t'+j);
     if(p) p.style.display=(j===i)?'block':'none';
@@ -3424,18 +3446,23 @@ function fmtIncome(v){
 function calcIncome(){
   var insVal=parseFloat(document.getElementById('ic-ins').value);
   var cardVal=parseFloat(document.getElementById('ic-card').value);
+  var penVal=parseFloat(document.getElementById('ic-pension').value);
   var hasIns=!isNaN(insVal)&&insVal>0;
   var hasCard=!isNaN(cardVal)&&cardVal>0;
-  if(!hasIns&&!hasCard){
+  var hasPen=!isNaN(penVal)&&penVal>0;
+  if(!hasIns&&!hasCard&&!hasPen){
     document.getElementById('ic-result').style.display='none';
     return;
   }
   var incomeByIns=hasIns?icInterp(insVal,'ins','income'):null;
   var incomeByCard=hasCard?icInterp(cardVal,'card','income'):null;
-  var finalIncome=Math.max(incomeByIns||0, incomeByCard||0)||null;
+  // 국민연금: (월납부액 / 9.5% × 12) × 95%
+  var incomeByPen=hasPen?Math.round((penVal/0.095*12)*0.95/50)*50:null;
+  var finalIncome=Math.max(incomeByIns||0, incomeByCard||0, incomeByPen||0)||null;
 
   document.getElementById('ic-r-ins').textContent=hasIns?(incomeByIns?fmtIncome(incomeByIns):'범위 초과'):'미입력';
   document.getElementById('ic-r-card').textContent=hasCard?(incomeByCard?fmtIncome(incomeByCard):'범위 초과'):'미입력';
+  document.getElementById('ic-r-pension').textContent=hasPen?fmtIncome(incomeByPen):'미입력';
   document.getElementById('ic-r-final').textContent=finalIncome?fmtIncome(finalIncome):'산정 불가';
 
   var notes=[];
@@ -3444,6 +3471,20 @@ function calcIncome(){
   notes.push('※ 산정 금액은 참고용입니다. 실제 적용금액은 은행 심사 기준에 따라 다를 수 있습니다.');
   document.getElementById('ic-r-note').textContent=notes.join(' ');
   document.getElementById('ic-result').style.display='block';
+}
+
+function calcJeonseConv(){
+  var rent=parseFloat(document.getElementById('jt-rent').value)||0;
+  var dep=parseFloat(document.getElementById('jt-dep').value)||0;
+  if(!rent){
+    document.getElementById('jt-result').style.display='none';
+    return;
+  }
+  // (월세 × 12) / 6.4% + 보증금
+  var converted=Math.round((rent*12)/0.064)+dep;
+  document.getElementById('jt-r-conv').textContent=fm(converted)+'만원';
+  document.getElementById('jt-r-monthly').textContent=fm(Math.round(converted*0.064/12))+'만원/월';
+  document.getElementById('jt-result').style.display='block';
 }
 
 function calcFutureIncome(){
@@ -4054,11 +4095,15 @@ function doStampBond(){
         style="flex:1;height:38px;border:1.5px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-size:13px;font-weight:700;cursor:pointer">
         📈 장래예상소득
       </button>
+      <button id="ic-t2" onclick="icSwTab(2)"
+        style="flex:1;height:38px;border:1.5px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-size:13px;font-weight:700;cursor:pointer">
+        🔄 전월세전환
+      </button>
     </div>
 
     <!-- ── 인정소득 계산기 ── -->
     <div id="ic-p0">
-      <div style="font-size:12px;color:var(--g5);margin-bottom:12px">건강보험료 <strong>또는</strong> 연간 카드사용액 중 하나를 입력하세요. 두 값 모두 입력 시 더 높은 소득 기준이 적용됩니다.</div>
+      <div style="font-size:12px;color:var(--g5);margin-bottom:12px">건강보험료 · 국민연금 · 카드 중 하나 이상 입력 시 <strong>가장 높은 값</strong>을 인정소득으로 산정합니다.</div>
 
       <div class="frow">
         <div class="f">
@@ -4066,14 +4111,23 @@ function doStampBond(){
           <input type="number" id="ic-ins" step="0.1" inputmode="decimal" placeholder="예: 6.4"
             style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:15px;color:var(--g8);background:#fff;outline:none"
             oninput="calcIncome()">
-          <div style="font-size:10px;color:var(--g4);margin-top:3px">직장/지역 건보료 (최근 3개월 평균)</div>
+          <div style="font-size:10px;color:var(--g4);margin-top:3px">직장/지역 건보료 (최근 3개월 평균) · ÷3.595%×12×95%</div>
         </div>
+        <div class="f">
+          <label>월 국민연금 납부액 (만원)</label>
+          <input type="number" id="ic-pension" step="0.1" inputmode="decimal" placeholder="예: 9.5"
+            style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:15px;color:var(--g8);background:#fff;outline:none"
+            oninput="calcIncome()">
+          <div style="font-size:10px;color:var(--g4);margin-top:3px">최근 3개월 평균 납부액 · ÷9.5%×12×95%</div>
+        </div>
+      </div>
+      <div class="frow">
         <div class="f">
           <label>연간 카드사용액 (만원)</label>
           <input type="number" id="ic-card" step="10" inputmode="numeric" placeholder="예: 910"
             style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:15px;color:var(--g8);background:#fff;outline:none"
             oninput="calcIncome()">
-          <div style="font-size:10px;color:var(--g4);margin-top:3px">신용카드 + 체크카드 포함</div>
+          <div style="font-size:10px;color:var(--g4);margin-top:3px">신용카드 소득공제 대상액 · ÷40.9%×90%</div>
         </div>
       </div>
 
@@ -4081,18 +4135,22 @@ function doStampBond(){
       <div id="ic-result" style="display:none;margin-top:12px">
         <div style="background:var(--pl);border-radius:10px;padding:14px">
           <div style="font-size:11px;color:var(--p);font-weight:700;margin-bottom:10px">📊 인정소득 산정 결과</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px">
-            <div style="background:#fff;border-radius:8px;padding:10px;text-align:center">
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:10px">
+            <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
               <div style="font-size:10px;color:var(--g5);margin-bottom:3px">건보료 기준</div>
-              <div id="ic-r-ins" style="font-size:18px;font-weight:800;color:var(--g7)">-</div>
+              <div id="ic-r-ins" style="font-size:14px;font-weight:800;color:var(--g7)">-</div>
             </div>
-            <div style="background:#fff;border-radius:8px;padding:10px;text-align:center">
+            <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
+              <div style="font-size:10px;color:var(--g5);margin-bottom:3px">국민연금 기준</div>
+              <div id="ic-r-pension" style="font-size:14px;font-weight:800;color:var(--g7)">-</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:8px;text-align:center">
               <div style="font-size:10px;color:var(--g5);margin-bottom:3px">카드 기준</div>
-              <div id="ic-r-card" style="font-size:18px;font-weight:800;color:var(--g7)">-</div>
+              <div id="ic-r-card" style="font-size:14px;font-weight:800;color:var(--g7)">-</div>
             </div>
           </div>
           <div style="background:var(--p);border-radius:8px;padding:12px;text-align:center">
-            <div style="font-size:11px;color:rgba(255,255,255,.8);margin-bottom:4px">적용 인정소득 (높은 값 적용)</div>
+            <div style="font-size:11px;color:rgba(255,255,255,.8);margin-bottom:4px">적용 인정소득 (가장 높은 값 적용)</div>
             <div id="ic-r-final" style="font-size:26px;font-weight:800;color:#fff">-</div>
           </div>
           <div id="ic-r-note" style="margin-top:8px;font-size:11px;color:var(--g6);line-height:1.6"></div>
@@ -4186,6 +4244,7 @@ function doStampBond(){
             </tr>
           </thead>
           <tbody>
+           
             <tr id="fi-row-0" style="border-bottom:1px solid var(--g2)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 20~24</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">2005.05.26~2006.05.25</td>
@@ -4215,6 +4274,65 @@ function doStampBond(){
         </table>
       </div>
     </div>
+
+    <!-- ── 전월세전환 계산기 ── -->
+    <div id="ic-p2" style="display:none">
+      <div style="font-size:12px;color:var(--g5);margin-bottom:12px">
+        월세를 보증금으로 환산하거나, 시세 대비 대출 가능 여부를 판단할 때 활용합니다.<br>
+        <span style="color:var(--g4)">공식: (월세 × 12) ÷ 6.4% + 보증금</span>
+      </div>
+
+      <div class="frow">
+        <div class="f">
+          <label>월세 (만원)</label>
+          <input type="number" id="jt-rent" step="1" inputmode="numeric" placeholder="예: 80"
+            style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:15px;color:var(--g8);background:#fff;outline:none"
+            oninput="calcJeonseConv()">
+          <div style="font-size:10px;color:var(--g4);margin-top:3px">월 납부 월세액</div>
+        </div>
+        <div class="f">
+          <label>보증금 (만원)</label>
+          <input type="number" id="jt-dep" step="100" inputmode="numeric" placeholder="예: 5000"
+            style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:15px;color:var(--g8);background:#fff;outline:none"
+            oninput="calcJeonseConv()">
+          <div style="font-size:10px;color:var(--g4);margin-top:3px">현재 보증금 (없으면 0)</div>
+        </div>
+      </div>
+
+      <div id="jt-result" style="display:none;margin-top:12px">
+        <div style="background:var(--pl);border-radius:10px;padding:14px">
+          <div style="font-size:11px;color:var(--p);font-weight:700;margin-bottom:10px">🔄 전월세전환 결과</div>
+          <div style="background:var(--p);border-radius:8px;padding:14px;text-align:center;margin-bottom:10px">
+            <div style="font-size:11px;color:rgba(255,255,255,.8);margin-bottom:4px">보증금 환산액 (전세 기준)</div>
+            <div id="jt-r-conv" style="font-size:26px;font-weight:800;color:#fff">-</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div style="background:#fff;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:var(--g5);margin-bottom:3px">월 환산이자 (역산)</div>
+              <div id="jt-r-monthly" style="font-size:16px;font-weight:700;color:var(--g7)">-</div>
+            </div>
+            <div style="background:#fff;border-radius:8px;padding:10px;text-align:center">
+              <div style="font-size:10px;color:var(--g5);margin-bottom:3px">적용 전환율</div>
+              <div style="font-size:16px;font-weight:700;color:var(--g7)">6.4%</div>
+            </div>
+          </div>
+          <div style="margin-top:8px;font-size:11px;color:var(--g5);line-height:1.6">
+            ※ 전환율 6.4%는 금융결제원 기준입니다. 실제 계약은 상호 합의하에 결정됩니다.
+          </div>
+        </div>
+      </div>
+
+      <!-- 참고 안내 -->
+      <div style="margin-top:14px;background:#f0f9ff;border-radius:8px;padding:12px">
+        <div style="font-size:11px;font-weight:700;color:#0369a1;margin-bottom:6px">💡 전월세전환 활용 예시</div>
+        <div style="font-size:11px;color:#0369a1;line-height:1.8">
+          월세 80만원, 보증금 5,000만원<br>
+          → 전세 환산: (80 × 12) ÷ 6.4% + 5,000 = <strong>2억 5,000만원</strong><br>
+          전세대출 한도 산정 시 이 환산 보증금 기준으로 90% 적용
+        </div>
+      </div>
+    </div>
+
   </div>
 
 </div>
