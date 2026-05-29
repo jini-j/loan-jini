@@ -95,7 +95,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 </script>
 </head>
 <body>
-<!-- 탭순서 설정 모달 -->
 <div id="tab-sort-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;align-items:flex-end;justify-content:center">
   <div style="background:#fff;border-radius:20px 20px 0 0;padding:20px;width:100%;max-width:480px;max-height:80vh;overflow-y:auto">
     <div style="display:flex;align-items:center;margin-bottom:14px">
@@ -165,10 +164,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="ct">⚙️ 탭 순서 / 숨김 설정</div>
     <div style="font-size:12px;color:var(--g5);margin-bottom:12px">탭을 원하는 순서로 바꾸거나 자주 안 쓰는 탭을 숨길 수 있어요.</div>
     <div id="tab-sort-list" style="margin-bottom:12px"></div>
-    <div style="display:flex;gap:8px">
-      <button class="cbtn" style="flex:1" onclick="applyTabOrder()">✅ 적용</button>
-      <button class="cbtn" style="flex:1;background:var(--g2);color:var(--g6)" onclick="resetTabOrder()">↩️ 초기화</button>
-    </div>
+    <div style="display:flex;gap:8px"><button class="cbtn" style="flex:1" onclick="applyTabOrder()">✅ 적용</button><button class="cbtn" style="flex:1;background:var(--g2);color:var(--g6)" onclick="resetTabOrder()">↩️ 초기화</button></div>
     <div style="font-size:11px;color:var(--g4);margin-top:8px;text-align:center">적용 후 새로고침됩니다</div>
   </div>
 </div>
@@ -204,7 +200,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card">
     <div class="ct">🏠 아파트 시세 조회</div>
     <div class="f">
-      <label>구 선택 <span style="font-size:10px;color:var(--g4);font-weight:400">← 좌우 스크롤</span></label>
+      <label>구 선택 <span style="font-size:10px;color:var(--g4);font-weight:400">← 스크롤</span></label>
       <div class="gutabs">
         <button class="gt on" id="g0" onclick="selGu(0)">강남구</button>
         <button class="gt" id="g1" onclick="selGu(1)">강동구</button>
@@ -1037,7 +1033,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <button class="nb" id="nb10" onclick="swTab(11);dashInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📊</span><span>실적</span></button>
 
   <button class="nb" id="nb12" onclick="swTab(12)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--g4);font-size:10px;height:64px"><span style="font-size:20px">🗺️</span>영업지도</button>
-  <button onclick="openTabSort()" style="flex:none;width:36px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:none;background:none;cursor:pointer;color:var(--g4);font-size:9px;height:64px;border-left:1px solid var(--g3)"><span style="font-size:15px">⚙️</span>탭순서</button>
+  <button onclick="openTabSort()" style="flex:none;width:36px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--g4);font-size:9px;height:64px;border-left:1px solid var(--g3)"><span style="font-size:15px">⚙️</span>탭순서</button>
 </nav>
 
 <script>
@@ -1045,7 +1041,7 @@ var D={"서울특별시":{"마포구":{"공덕SK리더스뷰":[[26.8,180000,1885
 
 
 
-var GU=['강남구','강동구','강북구','강서구','관악구','광진구','구로구','금천구','노원구','도봉구','동대문구','동작구','마포구','서대문구','서초구','성동구','성북구','송파구','양천구','영등포구','용산구','은평구','종로구','중구','중랑구'];
+var GU=["강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구"];
 var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
 
@@ -1331,11 +1327,16 @@ function swDocTab(i){
 
 function swTab(i){
   if(i===10) initBondTab();
-  // 영업지도: 지도는 탐색 서브탭 열릴 때 초기화
+  if(i===12){
+    var frame=document.getElementById('jm-frame');
+    if(frame&&(frame.src==='about:blank'||!frame.src||frame.src.indexOf('about')>=0)){
+      frame.src='https://jini-j.github.io/loan-jini/sales-map.html';
+    }
+  }
   TABS.forEach(function(t,j){
     document.getElementById(t).classList.toggle('on',j===i);
-    var nbEl=document.getElementById('nb'+j);
-    if(nbEl) nbEl.classList.toggle('on',j===i);
+    var nb=document.getElementById('nb'+j);
+    if(nb) nb.classList.toggle('on',j===i);
   });
   var nb12=document.getElementById('nb12');
   if(nb12) nb12.classList.toggle('on',i===12);
@@ -1366,10 +1367,9 @@ function updG(){
 function selGu(i){
   curGu=i;
   GU.forEach(function(_,j){
-    var el=document.getElementById('g'+j);
-    if(el) el.classList.toggle('on',j===i);
-    // 선택된 버튼으로 스크롤
-    if(j===i&&el) el.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
+    var e=document.getElementById('g'+j);
+    if(e)e.classList.toggle('on',j===i);
+    if(j===i&&e)e.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});
   });
   clrApt();
 }
@@ -1880,7 +1880,7 @@ function processXlsx(file) {
 
       // 파싱 (헤더 4행 스킵, 5행부터 데이터)
       var newData = { '서울특별시': {} };
-      var TARGET_GU = null; // 서울 전 구 허용
+      var TARGET_GU = null;
       var count = 0;
 
       for (var i = 4; i < rows.length; i++) {
@@ -4394,156 +4394,14 @@ function doStampBond(){
 
 </div>
 
-
-<!-- ══════════════════════ 영업지도 탭 ══════════════════════ -->
-<div class="panel" id="tab-map">
-  <!-- 서브탭 -->
-  <div style="display:flex;gap:6px;margin-bottom:12px">
-    <button id="jm-t0" onclick="JM.swSub(0)" style="flex:1;height:36px;border:1.5px solid var(--p);border-radius:8px;background:var(--p);color:#fff;font-size:12px;font-weight:700;cursor:pointer">📊 거래분석</button>
-    <button id="jm-t1" onclick="JM.swSub(1)" style="flex:1;height:36px;border:1.5px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-size:12px;font-weight:700;cursor:pointer">🔍 탐색</button>
-    <button id="jm-t2" onclick="JM.swSub(2)" style="flex:1;height:36px;border:1.5px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-size:12px;font-weight:700;cursor:pointer">🧭 동선</button>
-    <button id="jm-t3" onclick="JM.swSub(3)" style="flex:1;height:36px;border:1.5px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-size:12px;font-weight:700;cursor:pointer">📋 관리</button>
-  </div>
-
-  <!-- 거래분석 -->
-  <div id="jm-p0">
-    <div class="card">
-      <div style="display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap">
-        <button class="chip on" id="jm-fm0" onclick="JM.setPeriod('m0')">이번달</button>
-        <button class="chip" id="jm-fm1" onclick="JM.setPeriod('m1')">지난달</button>
-        <button class="chip" id="jm-fm2" onclick="JM.setPeriod('m2')">2달전</button>
-        <button class="chip" id="jm-fw0" onclick="JM.setPeriod('w0')">최근1주</button>
-        <button class="chip" id="jm-fw1" onclick="JM.setPeriod('w1')">2주전</button>
-        <button class="chip" style="margin-left:auto" onclick="JM.loadByPeriod()">🔄</button>
-      </div>
-      <div style="display:flex;gap:5px;margin-bottom:8px">
-        <button class="chip on" id="jm-fall" onclick="JM.setType('all')">전체</button>
-        <button class="chip" id="jm-fbuy" onclick="JM.setType('buy')">🔵 매매</button>
-        <button class="chip" id="jm-frent" onclick="JM.setType('rent')">🟢 전세</button>
-      </div>
-      <div style="display:flex;gap:5px;align-items:center">
-        <span style="font-size:11px;color:var(--g5)">정렬</span>
-        <button class="chip on" id="jm-sdesc" onclick="JM.setSort(true)">많은순↓</button>
-        <button class="chip" id="jm-sasc" onclick="JM.setSort(false)">적은순↑</button>
-        <button class="chip" id="jm-bcmp" onclick="JM.toggleCmp()" style="margin-left:auto">전월비교</button>
-      </div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-        <span style="font-size:13px;font-weight:700;color:var(--g5)">🏆 서울 구별 거래량</span>
-        <span id="jm-dbadge" style="font-size:10px;font-weight:700;background:#fef3c7;color:var(--g6);padding:2px 8px;border-radius:20px">로딩중</span>
-      </div>
-      <div id="jm-rank-list"><div style="text-align:center;padding:28px;color:var(--g5)">🗺️ 영업지도 탭을 열면<br>자동으로 데이터를 불러옵니다</div></div>
-    </div>
-    <div class="card" id="jm-apt-card" style="display:none">
-      <div style="font-size:13px;font-weight:700;color:var(--g5);margin-bottom:8px">🏢 <span id="jm-apt-gu"></span> 거래 아파트 <span id="jm-apt-badge" style="font-size:10px;font-weight:700;background:var(--pl);color:var(--p);padding:2px 6px;border-radius:10px"></span></div>
-      <div id="jm-apt-list"></div>
-    </div>
-  </div>
-
-  <!-- 부동산탐색 -->
-  <div id="jm-p1" style="display:none">
-    <div class="card">
-      <div style="display:flex;gap:8px;margin-bottom:8px">
-        <input id="jm-kw" placeholder="아파트명 또는 주소" style="flex:1;height:42px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:14px;outline:none" onkeydown="if(event.key==='Enter')JM.searchAddr()">
-        <button onclick="JM.searchAddr()" style="height:42px;background:var(--g2);border:1.5px solid var(--g3);border-radius:8px;padding:0 14px;font-size:13px;font-weight:700;cursor:pointer">검색</button>
-      </div>
-      <button onclick="JM.useMyLoc()" style="width:100%;height:40px;background:#f0fdf4;color:var(--ok);border:1.5px solid #86efac;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">📍 현재 위치에서 찾기</button>
-    </div>
-    <div class="card" style="padding:10px 14px">
-      <div style="font-size:11px;color:var(--g5);margin-bottom:6px">탐색 반경</div>
-      <div style="display:flex;gap:6px">
-        <button class="chip" id="jm-r300" onclick="JM.setRadius(300)">300m</button>
-        <button class="chip on" id="jm-r500" onclick="JM.setRadius(500)">500m</button>
-        <button class="chip" id="jm-r1000" onclick="JM.setRadius(1000)">1km</button>
-        <button class="chip" id="jm-r2000" onclick="JM.setRadius(2000)">2km</button>
-      </div>
-    </div>
-    <div id="jm-map" style="width:100%;height:260px;border-radius:12px;overflow:hidden;margin-bottom:10px"></div>
-    <div class="card">
-      <div style="font-size:13px;font-weight:700;color:var(--g5);margin-bottom:8px" id="jm-est-count">주변 공인중개사</div>
-      <div id="jm-est-list"><div style="text-align:center;padding:32px;color:var(--g4)">📍 위치를 검색하거나 현재위치를 선택하세요</div></div>
-    </div>
-  </div>
-
-  <!-- 오늘동선 -->
-  <div id="jm-p2" style="display:none">
-    <div class="card" style="padding:11px 14px">
-      <div style="display:flex;gap:6px;align-items:center">
-        <span style="font-size:12px;color:var(--g5)">완료</span>
-        <span id="jm-done-cnt" style="font-weight:800;color:var(--ok)">0</span>
-        <span style="font-size:12px;color:var(--g4)">/</span>
-        <span id="jm-total-cnt" style="font-weight:800;color:var(--p)">0</span>
-        <span style="font-size:12px;color:var(--g5)">곳</span>
-        <span style="flex:1"></span>
-        <button onclick="JM.clearRoute()" style="height:26px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;padding:0 8px;border:1px solid var(--g3);background:none;color:var(--g5)">초기화</button>
-      </div>
-      <div style="margin-top:7px;height:5px;background:var(--g3);border-radius:3px;overflow:hidden">
-        <div id="jm-prog" style="height:5px;background:var(--ok);border-radius:3px;width:0%;transition:width .4s"></div>
-      </div>
-    </div>
-    <div id="jm-revisit-alert"></div>
-    <div class="card"><div id="jm-route-list"><div style="text-align:center;padding:32px;color:var(--g4)">🧭 탐색 탭에서 방문할 곳을 추가하세요</div></div></div>
-    <div id="jm-route-actions" style="display:none">
-      <div id="jm-route-map" style="width:100%;height:220px;border-radius:12px;overflow:hidden;margin-bottom:10px"></div>
-      <button onclick="JM.openNavi()" style="width:100%;height:44px;background:var(--p);border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;color:#fff">🚗 카카오맵으로 길찾기</button>
-    </div>
-  </div>
-
-  <!-- 영업관리 -->
-  <div id="jm-p3" style="display:none">
-    <div class="card"><div id="jm-mgmt-stats" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div></div>
-    <div class="card">
-      <div style="font-size:13px;font-weight:700;color:var(--g5);margin-bottom:8px">📅 재방문 예정 (7일 이내)</div>
-      <div id="jm-revisit-list"><div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">없음</div></div>
-    </div>
-    <div class="card">
-      <div style="font-size:13px;font-weight:700;color:var(--g5);margin-bottom:8px">⭐ 즐겨찾기</div>
-      <div id="jm-fav-list"><div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">즐겨찾기 없음<br><span style="font-size:10px">탐색 탭에서 ⭐ 버튼으로 추가</span></div></div>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
-        <span style="font-size:13px;font-weight:700;color:var(--g5)">📋 방문 이력</span>
-        <button onclick="if(confirm('이력 초기화?')){JM.visitHistory=[];JM.saveAll();JM.renderMgmt();}" style="height:26px;border-radius:6px;font-size:11px;cursor:pointer;padding:0 8px;border:1px solid var(--g3);background:none;color:var(--er)">초기화</button>
-      </div>
-      <div id="jm-hist-list"><div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">방문 이력 없음</div></div>
-    </div>
-  </div>
-
-  <!-- 실거래 상세 모달 -->
-  <div id="jm-apt-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:flex-end;justify-content:center">
-    <div style="background:#fff;border-radius:16px 16px 0 0;padding:18px;width:100%;max-height:84vh;overflow-y:auto;padding-bottom:28px">
-      <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:10px">
-        <div style="flex:1"><div id="jm-modal-name" style="font-size:16px;font-weight:800"></div><div id="jm-modal-dong" style="font-size:11px;color:var(--g5);margin-top:2px"></div></div>
-        <button onclick="JM.closeModal()" style="background:var(--g2);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer">✕</button>
-      </div>
-      <div id="jm-modal-summary" style="display:flex;gap:7px;margin-bottom:12px"></div>
-      <div id="jm-modal-buy-wrap"><div style="font-size:11px;font-weight:700;color:var(--p);margin-bottom:5px">🔵 매매 실거래</div><div id="jm-modal-buy"></div></div>
-      <div id="jm-modal-rent-wrap" style="margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:5px">🟢 전세 실거래</div><div id="jm-modal-rent"></div></div>
-      <div style="display:flex;gap:7px;margin-top:14px">
-        <button onclick="JM.closeModal()" style="flex:1;height:40px;background:var(--g2);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:var(--g6)">닫기</button>
-        <button id="jm-modal-nav" style="flex:2;height:40px;background:var(--p);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:#fff">📍 주변 부동산 찾기</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- 메모 모달 -->
-  <div id="jm-memo-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;align-items:flex-end;justify-content:center" onclick="if(event.target===this)JM.closeMemo()">
-    <div style="background:#fff;border-radius:16px 16px 0 0;padding:18px;width:100%">
-      <div style="font-size:15px;font-weight:800;margin-bottom:10px" id="jm-memo-title">메모</div>
-      <textarea id="jm-memo-text" style="width:100%;height:90px;border:1.5px solid var(--g3);border-radius:8px;padding:9px;font-size:13px;resize:none;outline:none" placeholder="방문 결과, 담당자명 등..."></textarea>
-      <div style="margin-top:8px"><label style="font-size:11px;color:var(--g5);display:block;margin-bottom:4px">재방문 예정일</label><input type="date" id="jm-memo-date" style="width:100%;height:38px;border:1.5px solid var(--g3);border-radius:8px;padding:0 11px;font-size:13px;outline:none"></div>
-      <div style="display:flex;gap:7px;margin-top:10px">
-        <button onclick="JM.closeMemo()" style="flex:1;height:42px;background:var(--g2);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:var(--g6)">취소</button>
-        <button onclick="JM.saveMemo()" style="flex:2;height:42px;background:var(--p);border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:#fff">저장</button>
-      </div>
-    </div>
-  </div>
-</div>
-<script>
-/* ═══════════════════════════════════════
-   탭 순서/숨김 커스터마이징
-═══════════════════════════════════════ */
+<!-- 영업지도 탭 -->
+<div class="panel" id="tab-map" style="padding:0;position:relative">
+  <iframe id="jm-frame" src="about:blank"
+    style="width:100%;height:calc(100vh - 64px);border:none;display:block"
+    allow="geolocation">
+  </iframe>
+</div><script>
+/* ═══ 탭 순서/숨김 커스터마이징 ═══ */
 var TAB_META=[
   {idx:0,label:'⚙️ 업데이트',nbId:'nb0'},
   {idx:1,label:'🏠 시세조회',nbId:'nb1'},
@@ -4560,647 +4418,52 @@ var TAB_META=[
   {idx:12,label:'🗺️ 영업지도',nbId:'nb12'}
 ];
 var _tabOrder=null,_tabHidden=null;
-function loadTabConfig(){
-  try{
-    _tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;
-    _tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};
-  }catch(e){_tabOrder=null;_tabHidden={};}
-}
+function loadTabConfig(){try{_tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;_tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};}catch(e){_tabOrder=null;_tabHidden={};}}
 function applyTabConfig(){
-  loadTabConfig();
-  if(!_tabOrder) return;
-  var nav=document.querySelector('.bnav');
-  if(!nav) return;
-  // nb 버튼들만 선택 (탭순서 버튼 제외)
-  var allBtns=Array.from(nav.querySelectorAll('button[id^="nb"]'));
+  loadTabConfig();if(!_tabOrder)return;
+  var nav=document.querySelector('.bnav');if(!nav)return;
+  var sortBtn=nav.querySelector('button:not([id^="nb"])');
   _tabOrder.forEach(function(idx){
-    var meta=TAB_META[idx];
-    if(!meta) return;
-    var btn=document.getElementById(meta.nbId);
-    if(!btn) return;
-    nav.insertBefore(btn, nav.querySelector('button:not([id^="nb"])'));
+    var meta=TAB_META[idx];if(!meta)return;
+    var btn=document.getElementById(meta.nbId);if(!btn)return;
+    nav.insertBefore(btn,sortBtn);
     btn.style.display=(_tabHidden[idx])?'none':'';
-  });
-  // 숨김 처리
-  Object.keys(_tabHidden).forEach(function(k){
-    var meta=TAB_META[parseInt(k)];
-    if(meta){var btn=document.getElementById(meta.nbId);if(btn)btn.style.display=_tabHidden[k]?'none':'';}
   });
 }
 function openTabSort(){
   loadTabConfig();
-  var order=_tabOrder||TAB_META.map(function(m){return m.idx;});
-  var hidden=_tabHidden||{};
-  var list=document.getElementById('tab-sort-modal-list');
-  if(!list) return;
-  list.innerHTML=order.map(function(idx,pos){
-    var meta=TAB_META[idx];
-    var isHidden=!!hidden[idx];
-    return '<div id="tsi-'+idx+'" data-idx="'+idx+'" style="display:flex;align-items:center;gap:8px;padding:10px;background:'+(isHidden?'var(--g1)':'#fff')+';border:1px solid var(--g3);border-radius:8px;margin-bottom:6px">'+
-      '<span style="font-size:15px;flex:1;font-weight:600;color:'+(isHidden?'var(--g4)':'var(--g7)')+'">'+meta.label+'</span>'+
-      '<button onclick="tsMoveUp('+pos+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↑</button>'+
-      '<button onclick="tsMoveDown('+pos+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↓</button>'+
-      '<button onclick="tsToggleHide('+idx+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:'+(isHidden?'var(--erl)':'var(--okl)')+';cursor:pointer;font-size:13px">'+(isHidden?'🙈':'👁')+'</button>'+
-    '</div>';
-  }).join('');
+  window._tsTempOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();
+  window._tsTempHidden=Object.assign({},(_tabHidden||{}));
+  _renderSortModal();
   document.getElementById('tab-sort-modal').style.display='flex';
-  // 현재 순서 임시 저장
-  window._tsTempOrder=order.slice();
-  window._tsTempHidden=Object.assign({},hidden);
 }
 function closeTabSort(){document.getElementById('tab-sort-modal').style.display='none';}
-function tsMoveUp(pos){
-  if(pos===0) return;
-  var arr=window._tsTempOrder;
-  var tmp=arr[pos-1]; arr[pos-1]=arr[pos]; arr[pos]=tmp;
-  window._tsTempOrder=arr;
-  openTabSortRefresh();
-}
-function tsMoveDown(pos){
-  var arr=window._tsTempOrder;
-  if(pos>=arr.length-1) return;
-  var tmp=arr[pos+1]; arr[pos+1]=arr[pos]; arr[pos]=tmp;
-  window._tsTempOrder=arr;
-  openTabSortRefresh();
-}
-function tsToggleHide(idx){
-  var h=window._tsTempHidden;
-  h[idx]=!h[idx];
-  window._tsTempHidden=h;
-  openTabSortRefresh();
-}
-function openTabSortRefresh(){
-  var order=window._tsTempOrder;
-  var hidden=window._tsTempHidden||{};
-  var list=document.getElementById('tab-sort-modal-list');
-  list.innerHTML=order.map(function(idx,pos){
-    var meta=TAB_META[idx];
-    var isHidden=!!hidden[idx];
-    return '<div style="display:flex;align-items:center;gap:8px;padding:10px;background:'+(isHidden?'var(--g1)':'#fff')+';border:1px solid var(--g3);border-radius:8px;margin-bottom:6px">'+
-      '<span style="font-size:15px;flex:1;font-weight:600;color:'+(isHidden?'var(--g4)':'var(--g7)')+'">'+meta.label+'</span>'+
-      '<button onclick="tsMoveUp('+pos+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↑</button>'+
-      '<button onclick="tsMoveDown('+pos+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↓</button>'+
-      '<button onclick="tsToggleHide('+idx+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:'+(isHidden?'var(--erl)':'var(--okl)')+';cursor:pointer;font-size:13px">'+(isHidden?'🙈':'👁')+'</button>'+
+function _renderSortModal(){
+  var order=window._tsTempOrder,hidden=window._tsTempHidden||{};
+  var html=order.map(function(idx,pos){
+    var m=TAB_META[idx],isH=!!hidden[idx];
+    return '<div style="display:flex;align-items:center;gap:8px;padding:10px;background:'+(isH?'var(--g1)':'#fff')+';border:1px solid var(--g3);border-radius:8px;margin-bottom:6px">'+
+      '<span style="font-size:14px;flex:1;font-weight:600;color:'+(isH?'var(--g4)':'var(--g7)')+'">'+m.label+'</span>'+
+      '<button onclick="_tsMv('+pos+',-1)" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer">↑</button>'+
+      '<button onclick="_tsMv('+pos+',1)" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer">↓</button>'+
+      '<button onclick="_tsHide('+idx+')" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:'+(isH?'var(--erl)':'var(--okl)')+';cursor:pointer">'+(isH?'🙈':'👁')+'</button>'+
     '</div>';
   }).join('');
-  // 설정 탭 내 목록도 업데이트
+  document.getElementById('tab-sort-modal-list').innerHTML=html;
   var sl=document.getElementById('tab-sort-list');
-  if(sl) sl.innerHTML=list.innerHTML;
+  if(sl)sl.innerHTML=html.replace(/_tsMv/g,'_tsMvS').replace(/_tsHide/g,'_tsHideS');
 }
-function applyTabOrder(){
-  localStorage.setItem('tabOrder',JSON.stringify(window._tsTempOrder||[]));
-  localStorage.setItem('tabHidden',JSON.stringify(window._tsTempHidden||{}));
-  closeTabSort();
-  location.reload();
-}
-function resetTabOrder(){
-  localStorage.removeItem('tabOrder');
-  localStorage.removeItem('tabHidden');
-  location.reload();
-}
+function _tsMv(pos,dir){var a=window._tsTempOrder,t=pos+dir;if(t<0||t>=a.length)return;var tmp=a[pos];a[pos]=a[t];a[t]=tmp;_renderSortModal();}
+function _tsMvS(pos,dir){_tsMv(pos,dir);}
+function _tsHide(idx){window._tsTempHidden[idx]=!window._tsTempHidden[idx];_renderSortModal();}
+function _tsHideS(idx){_tsHide(idx);}
+function applyTabOrder(){localStorage.setItem('tabOrder',JSON.stringify(window._tsTempOrder||[]));localStorage.setItem('tabHidden',JSON.stringify(window._tsTempHidden||{}));closeTabSort();location.reload();}
+function resetTabOrder(){localStorage.removeItem('tabOrder');localStorage.removeItem('tabHidden');location.reload();}
 function renderTabSortList(){
-  // _tsTempOrder가 없을 때만 초기화 (이미 수정 중이면 유지)
-  if(!window._tsTempOrder){
-    loadTabConfig();
-    var order=_tabOrder||TAB_META.map(function(m){return m.idx;});
-    window._tsTempOrder=order.slice();
-    window._tsTempHidden=Object.assign({},(_tabHidden||{}));
-  }
-  var order=window._tsTempOrder;
-  var hidden=window._tsTempHidden||{};
-  var sl=document.getElementById('tab-sort-list');
-  if(!sl) return;
-  sl.innerHTML=order.map(function(idx,pos){
-    var meta=TAB_META[idx];
-    var isHidden=!!hidden[idx];
-    return '<div style="display:flex;align-items:center;gap:8px;padding:10px;background:'+(isHidden?'var(--g1)':'#fff')+';border:1px solid var(--g3);border-radius:8px;margin-bottom:6px">'+
-      '<span style="font-size:14px;flex:1;font-weight:600;color:'+(isHidden?'var(--g4)':'var(--g7)')+'">'+meta.label+'</span>'+
-      '<button onclick="tsMoveUp('+pos+');renderTabSortList()" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↑</button>'+
-      '<button onclick="tsMoveDown('+pos+');renderTabSortList()" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:none;cursor:pointer;font-size:13px">↓</button>'+
-      '<button onclick="tsToggleHide('+idx+');renderTabSortList()" style="width:28px;height:28px;border:1px solid var(--g3);border-radius:6px;background:'+(isHidden?'var(--erl)':'var(--okl)')+';cursor:pointer;font-size:13px">'+(isHidden?'🙈':'👁')+'</button>'+
-    '</div>';
-  }).join('');
+  if(!window._tsTempOrder){loadTabConfig();window._tsTempOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();window._tsTempHidden=Object.assign({},(_tabHidden||{}));}
+  _renderSortModal();
 }
-
-/* ═══════════════════════════════════════
-   JM 영업지도 네임스페이스
-═══════════════════════════════════════ */
-var JM = (function(){
-  var API_KEY='309f2867723c36600c6c0b64a974752d51b0a08e629a82b2526d3b703742cfa7';
-  var SEOUL_GU=[
-    {name:'강남구',code:'11680'},{name:'강동구',code:'11740'},{name:'강북구',code:'11305'},
-    {name:'강서구',code:'11500'},{name:'관악구',code:'11620'},{name:'광진구',code:'11215'},
-    {name:'구로구',code:'11530'},{name:'금천구',code:'11545'},{name:'노원구',code:'11350'},
-    {name:'도봉구',code:'11320'},{name:'동대문구',code:'11230'},{name:'동작구',code:'11590'},
-    {name:'마포구',code:'11440'},{name:'서대문구',code:'11410'},{name:'서초구',code:'11650'},
-    {name:'성동구',code:'11200'},{name:'성북구',code:'11290'},{name:'송파구',code:'11710'},
-    {name:'양천구',code:'11470'},{name:'영등포구',code:'11560'},{name:'용산구',code:'11170'},
-    {name:'은평구',code:'11380'},{name:'종로구',code:'11110'},{name:'중구',code:'11140'},
-    {name:'중랑구',code:'11260'}
-  ];
-  var _map=null,_geocoder=null,_ps=null,_markers=[],_myLoc=null,_radius=500;
-  var _routeList=JSON.parse(localStorage.getItem('jm_rl')||'[]');
-  var _memos=JSON.parse(localStorage.getItem('jm_memos')||'{}');
-  var _rvDates=JSON.parse(localStorage.getItem('jm_rv')||'{}');
-  var _favs=JSON.parse(localStorage.getItem('jm_favs')||'{}');
-  var _pStatus=JSON.parse(localStorage.getItem('jm_ps')||'{}');
-  var _vHist=JSON.parse(localStorage.getItem('jm_vh')||'[]');
-  var _filterType='all',_period='m0',_sortDesc=true,_showCmp=false;
-  var _guData=[],_guPrev=[],_aptMap={},_curGu='',_curMemoId=null;
-  var _routeMap=null,_routeMarkers=[];
-  var _mapInited=false;
-
-  function saveAll(){
-    localStorage.setItem('jm_rl',JSON.stringify(_routeList));
-    localStorage.setItem('jm_memos',JSON.stringify(_memos));
-    localStorage.setItem('jm_rv',JSON.stringify(_rvDates));
-    localStorage.setItem('jm_favs',JSON.stringify(_favs));
-    localStorage.setItem('jm_ps',JSON.stringify(_pStatus));
-    localStorage.setItem('jm_vh',JSON.stringify(_vHist));
-  }
-
-  // 날짜
-  function getYm(off){var d=new Date();d.setMonth(d.getMonth()-off);var m=d.getMonth()+1;return ''+d.getFullYear()+(m<10?'0':'')+m;}
-  function getYmStr(d){var m=d.getMonth()+1;return ''+d.getFullYear()+(m<10?'0':'')+m;}
-  function fmtD(d){return (d.getMonth()+1)+'/'+d.getDate();}
-  function dateInRange(y,m,d,from,to){var dt=new Date(y,m-1,d);return dt>=from&&dt<=to;}
-  function todayStr(){var d=new Date();var m=d.getMonth()+1,dd=d.getDate();return d.getFullYear()+'-'+(m<10?'0':'')+m+'-'+(dd<10?'0':'')+dd;}
-  function dday(ds){var t=new Date();t.setHours(0,0,0,0);var g=new Date(ds);g.setHours(0,0,0,0);return Math.round((g-t)/(864e5));}
-  function fmtPrice(man){if(!man)return '–';if(man>=10000){var e=Math.floor(man/10000),r=man%10000;return e+'억'+(r?' '+r+'만':'');}return man+'만원';}
-  function escQ(s){return(s||'').replace(/'/g,"\'");}
-
-  function getPR(){
-    var today=new Date();
-    if(_period==='m0') return{yms:[getYm(0)],prevYm:getYm(1),label:getYm(0).slice(0,4)+'년 '+parseInt(getYm(0).slice(4))+'월',weekly:false};
-    if(_period==='m1') return{yms:[getYm(1)],prevYm:getYm(2),label:getYm(1).slice(0,4)+'년 '+parseInt(getYm(1).slice(4))+'월',weekly:false};
-    if(_period==='m2') return{yms:[getYm(2)],prevYm:getYm(3),label:getYm(2).slice(0,4)+'년 '+parseInt(getYm(2).slice(4))+'월',weekly:false};
-    var d7=new Date(today);d7.setDate(today.getDate()-7);
-    var d14=new Date(today);d14.setDate(today.getDate()-14);
-    var d21=new Date(today);d21.setDate(today.getDate()-21);
-    if(_period==='w0'){var yms=[],a=getYmStr(d7),b=getYmStr(today);yms.push(a);if(b!==a)yms.push(b);return{yms:yms,prevYm:getYm(1),dateFrom:d7,dateTo:today,label:'최근1주('+fmtD(d7)+'~'+fmtD(today)+')',weekly:true};}
-    var yms=[],a=getYmStr(d14),b=getYmStr(d7);yms.push(a);if(b!==a)yms.push(b);
-    return{yms:yms,prevYm:getYm(1),dateFrom:d14,dateTo:d7,label:'2주전('+fmtD(d14)+'~'+fmtD(d7)+')',weekly:true};
-  }
-
-  // API
-  function prx(url){return 'https://corsproxy.io/?'+encodeURIComponent(url);}
-  function burl(ep,code,ym,rows){return 'https://apis.data.go.kr/1613000/'+ep+'/get'+ep+'?serviceKey='+encodeURIComponent(API_KEY)+'&pageNo=1&numOfRows='+(rows||1)+'&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';}
-  function fCount(ep,code,ym){return fetch(prx(burl(ep,code,ym,1)),{signal:AbortSignal.timeout(12000)}).then(function(r){return r.json();}).then(function(d){return d.response&&d.response.body?d.response.body.totalCount||0:0;}).catch(function(){return -1;});}
-  function fItems(ep,code,ym,rows){return fetch(prx(burl(ep,code,ym,rows||30)),{signal:AbortSignal.timeout(15000)}).then(function(r){return r.json();}).then(function(d){var it=d.response&&d.response.body&&d.response.body.items&&d.response.body.items.item;if(!it)return[];return Array.isArray(it)?it:[it];}).catch(function(){return[];});}
-  function fWeekCnt(ep,code,ym,from,to){return fItems(ep,code,ym,300).then(function(arr){return arr.filter(function(it){var y=parseInt(it['년']||it.dealYear||0),m=parseInt(it['월']||it.dealMonth||0),d=parseInt(it['일']||it.dealDay||0);return y&&m&&d&&dateInRange(y,m,d,from,to);}).length;}).catch(function(){return 0;});}
-
-  function setLoading(label){
-    el('jm-dbadge').textContent='로딩중'; el('jm-dbadge').style.background='#fef3c7';
-    el('jm-rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g5)"><div style="font-size:22px;animation:spin .8s linear infinite;display:inline-block">⟳</div><br><span style="font-size:12px">'+label+'</span></div>';
-    el('jm-apt-card').style.display='none';
-    _guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
-  }
-  function el(id){return document.getElementById(id);}
-  function cmp(a,b,field){if(!_showCmp||!b)return '';var pct=Math.round((a-b)/Math.max(b,1)*100);return pct>0?' <span style="color:var(--er);font-size:9px;font-weight:700">▲'+pct+'%</span>':pct<0?' <span style="color:var(--p);font-size:9px;font-weight:700">▼'+Math.abs(pct)+'%</span>':'';}
-
-  return {
-    visitHistory: _vHist,
-    saveAll: saveAll,
-
-    swSub: function(i){
-      var self=this;
-      [0,1,2,3].forEach(function(j){
-        el('jm-p'+j).style.display=(j===i)?'block':'none';
-        el('jm-t'+j).style.background=(j===i)?'var(--p)':'#fff';
-        el('jm-t'+j).style.color=(j===i)?'#fff':'var(--p)';
-      });
-      if(i===1){
-        // jm-p1이 이미 display:block → 브라우저 렌더 후 지도 초기화
-        setTimeout(function(){self.initMap();},300);
-      }
-      if(i===2) this.renderRoute();
-      if(i===3) this.renderMgmt();
-    },
-
-    initMap: function(){
-      if(_mapInited) return;
-      var self=this;
-      var estEl=el('jm-est-list');
-
-      // 이미 SDK 로드됐으면 바로 생성
-      if(typeof kakao!=='undefined'&&kakao.maps&&kakao.maps.Map){
-        self._doCreateMap(); return;
-      }
-
-      // 동적 로드 중이면 대기
-      if(document.getElementById('jm-kakao-sdk')){
-        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중... 잠시만 기다려주세요</div>';
-        setTimeout(function(){self.initMap();},1000); return;
-      }
-
-      // SDK 동적 로드 (autoload=false)
-      if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중...</div>';
-      var s=document.createElement('script');
-      s.id='jm-kakao-sdk';
-      s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer&autoload=false';
-      s.onload=function(){
-        kakao.maps.load(function(){self._doCreateMap();});
-      };
-      s.onerror=function(){
-        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 카카오맵 로드 실패<br><span style="font-size:11px;color:var(--g5)">인터넷 연결을 확인하고 탐색 탭을 다시 눌러주세요</span></div>';
-        document.getElementById('jm-kakao-sdk').remove();
-      };
-      document.head.appendChild(s);
-    },
-
-    _doCreateMap: function(){
-      var container=el('jm-map');
-      if(!container) return;
-      var estEl=el('jm-est-list');
-      try{
-        _map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
-        _ps=new kakao.maps.services.Places();
-        _geocoder=new kakao.maps.services.Geocoder();
-        _mapInited=true;
-        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:28px;color:var(--g5)">📍 위치를 검색하거나 현재 위치를 선택하세요</div>';
-      }catch(e){
-        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 지도 오류: '+e.message+'</div>';
-      }
-    },
-
-    setPeriod: function(key){
-      _period=key;
-      ['m0','m1','m2','w0','w1'].forEach(function(k){var e=el('jm-f'+k);if(e){e.classList.toggle('on',k===key);}});
-      this.loadByPeriod();
-    },
-    setType: function(t){_filterType=t;['all','buy','rent'].forEach(function(k){var e=el('jm-f'+k);if(e)e.classList.toggle('on',k===t);});this.renderRank();},
-    setSort: function(d){_sortDesc=d;el('jm-sdesc').classList.toggle('on',d);el('jm-sasc').classList.toggle('on',!d);this.renderRank();},
-    toggleCmp: function(){
-      _showCmp=!_showCmp;
-      el('jm-bcmp').classList.toggle('on',_showCmp);
-      if(_showCmp) this.loadPrev();
-      else this.renderRank();
-    },
-
-    loadByPeriod: function(){var pr=getPR();_guPrev=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});if(pr.weekly)this.loadWeekly(pr);else this.loadMonthly(pr);},
-
-    loadMonthly: function(pr){
-      var self=this;
-      setLoading(pr.label+' 조회 중...');
-      var ym=pr.yms[0],done=0,total=SEOUL_GU.length*2;
-      function tick(){done++;if(done===total)finish();else el('jm-rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g5)">조회 중 '+done+'/'+total+'</div>';}
-      function finish(){
-        if(_guData.every(function(d){return d.buy===-1&&d.rent===-1;}))self.loadSample();
-        else{el('jm-dbadge').textContent='실데이터 · '+pr.label;el('jm-dbadge').style.background='#dcfce7';self.renderRank();}
-      }
-      SEOUL_GU.forEach(function(g,i){
-        fCount('RTMSDataSvcAptTradeDev',g.code,ym).then(function(n){_guData[i].buy=n;tick();});
-        fCount('RTMSDataSvcAptRent',g.code,ym).then(function(n){_guData[i].rent=n;tick();});
-      });
-    },
-
-    loadWeekly: function(pr){
-      var self=this;
-      setLoading(pr.label+' 날짜 필터 중...');
-      var done=0,total=SEOUL_GU.length*pr.yms.length*2;
-      function tick(){done++;if(done===total){el('jm-dbadge').textContent='주간 실데이터 · '+pr.label;el('jm-dbadge').style.background='#dcfce7';self.renderRank();}}
-      SEOUL_GU.forEach(function(g,i){
-        pr.yms.forEach(function(ym){
-          fWeekCnt('RTMSDataSvcAptTradeDev',g.code,ym,pr.dateFrom,pr.dateTo).then(function(n){_guData[i].buy+=n;tick();});
-          fWeekCnt('RTMSDataSvcAptRent',g.code,ym,pr.dateFrom,pr.dateTo).then(function(n){_guData[i].rent+=n;tick();});
-        });
-      });
-    },
-
-    loadPrev: function(){
-      var self=this,pr=getPR(),ym=pr.prevYm;
-      if(!ym) return;
-      _guPrev=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
-      var done=0,total=SEOUL_GU.length*2;
-      function tick(){done++;if(done===total)self.renderRank();}
-      SEOUL_GU.forEach(function(g,i){
-        fCount('RTMSDataSvcAptTradeDev',g.code,ym).then(function(n){_guPrev[i].buy=Math.max(n,0);tick();});
-        fCount('RTMSDataSvcAptRent',g.code,ym).then(function(n){_guPrev[i].rent=Math.max(n,0);tick();});
-      });
-    },
-
-    loadSample: function(){
-      var b=[312,287,245,231,198,189,176,167,154,143,138,132,128,125,121,118,115,112,109,106,98,92,87,76,65];
-      var r=[201,172,167,143,198,154,132,98,143,109,125,138,256,106,172,165,118,188,112,198,187,150,87,98,92];
-      SEOUL_GU.forEach(function(g,i){_guData[i].buy=b[i];_guData[i].rent=r[i];});
-      el('jm-dbadge').textContent='샘플';el('jm-dbadge').style.background='#fef3c7';
-      this.renderRank();
-    },
-
-    renderRank: function(){
-      var self=this;
-      var list=_guData.slice().map(function(d,i){
-        var b=Math.max(d.buy,0),r=Math.max(d.rent,0);
-        var pb=_guPrev[i]?Math.max(_guPrev[i].buy,0):0,pr2=_guPrev[i]?Math.max(_guPrev[i].rent,0):0;
-        var cnt=_filterType==='buy'?b:_filterType==='rent'?r:b+r;
-        var pcnt=_filterType==='buy'?pb:_filterType==='rent'?pr2:pb+pr2;
-        return{name:d.name,code:d.code,buy:b,rent:r,cnt:cnt,prevB:pb,prevR:pr2,prevCnt:pcnt};
-      }).filter(function(d){return d.cnt>0;}).sort(function(a,b){return _sortDesc?b.cnt-a.cnt:a.cnt-b.cnt;});
-      if(!list.length){el('jm-rank-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
-      var mB=Math.max.apply(null,list.map(function(d){return d.buy;}))||1;
-      var mR=Math.max.apply(null,list.map(function(d){return d.rent;}))||1;
-      el('jm-rank-list').innerHTML=list.map(function(d,i){
-        var cls=_sortDesc?(i===0?'color:#f59e0b':i===1?'color:#94a3b8':i===2?'color:#92400e':'color:var(--p)'):'color:var(--p)';
-        var pB=Math.round(d.buy/mB*100),pR=Math.round(d.rent/mR*100);
-        var cntHtml=_filterType==='all'?
-          '<span style="font-size:10px;font-weight:700;background:var(--pl);color:var(--p);padding:1px 6px;border-radius:10px">매 '+d.buy+'</span> <span style="font-size:10px;font-weight:700;background:#dcfce7;color:var(--ok);padding:1px 6px;border-radius:10px">전 '+d.rent+'</span>'+cmp(d.buy+d.rent,d.prevCnt):
-          '<span style="font-size:13px;font-weight:800;color:var(--p)">'+d.cnt+'건</span>'+cmp(d.cnt,d.prevCnt);
-        return '<div onclick="JM.loadApt(\''+d.name+'\',\''+d.code+'\')" style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--g3);cursor:pointer">'+
-          '<div style="width:22px;text-align:center;font-weight:800;font-size:13px;'+cls+'">'+(i+1)+'</div>'+
-          '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+d.name+'</div>'+
-            (_filterType!=='rent'?'<div style="height:3px;background:var(--g3);border-radius:2px;margin-top:3px"><div style="height:3px;background:var(--p);border-radius:2px;width:'+pB+'%"></div></div>':'')+
-            (_filterType!=='buy'?'<div style="height:3px;background:var(--g3);border-radius:2px;margin-top:2px"><div style="height:3px;background:var(--ok);border-radius:2px;width:'+pR+'%"></div></div>':'')+
-          '</div>'+
-          '<div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:120px">'+cntHtml+'<span style="font-size:15px;color:var(--g3)">›</span></div>'+
-        '</div>';
-      }).join('');
-    },
-
-    loadApt: function(guName,code){
-      var self=this,pr=getPR();
-      el('jm-apt-card').style.display='block';
-      el('jm-apt-gu').textContent=guName;
-      el('jm-apt-badge').textContent='';
-      el('jm-apt-list').innerHTML='<div style="text-align:center;padding:18px;color:var(--g5)">⟳ 로딩중...</div>';
-      el('jm-apt-card').scrollIntoView({behavior:'smooth'});
-      var ym=pr.yms[0];
-      var fb=_filterType!=='rent'?fItems('RTMSDataSvcAptTradeDev',code,ym,100):Promise.resolve([]);
-      var fr=_filterType!=='buy'?fItems('RTMSDataSvcAptRent',code,ym,100):Promise.resolve([]);
-      Promise.all([fb,fr]).then(function(res){
-        _aptMap={};_curGu=guName;
-        function add(items,type){
-          items.forEach(function(it){
-            var name=it['아파트']||it.aptNm||'미상',dong=it['법정동']||it.umdNm||'';
-            if(pr.weekly){var y=parseInt(it['년']||it.dealYear||0),m=parseInt(it['월']||it.dealMonth||0),d=parseInt(it['일']||it.dealDay||0);if(!dateInRange(y,m,d,pr.dateFrom,pr.dateTo))return;}
-            var k=name+'|'+dong;
-            if(!_aptMap[k])_aptMap[k]={name:name,dong:dong,buy:0,rent:0,buyItems:[],rentItems:[]};
-            _aptMap[k][type]++;_aptMap[k][type+'Items'].push(it);
-          });
-        }
-        add(res[0],'buy');add(res[1],'rent');
-        var apts=Object.values(_aptMap).sort(function(a,b){return(b.buy+b.rent)-(a.buy+a.rent);});
-        if(!apts.length){el('jm-apt-list').innerHTML='<div style="padding:14px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
-        el('jm-apt-badge').textContent=apts.length+'개';
-        el('jm-apt-list').innerHTML=apts.map(function(a,i){
-          var key=escQ(a.name+'|'+a.dong);
-          var avgB=self.calcAvg(a.buyItems,'buy'),avgR=self.calcAvg(a.rentItems,'rent');
-          return '<div onclick="JM.showModal(\''+key+'\')" style="display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--g3);cursor:pointer">'+
-            '<div style="width:22px;text-align:center;font-weight:800;font-size:13px;color:var(--p)">'+(i+1)+'</div>'+
-            '<div style="flex:1"><div style="font-size:13px;font-weight:700">'+a.name+'</div>'+
-              '<div style="font-size:10px;color:var(--g5)">'+a.dong+(avgB?' · 매 평균 '+fmtPrice(avgB):avgR?' · 전 평균 '+fmtPrice(avgR):'')+'</div>'+
-            '</div>'+
-            '<div style="display:flex;align-items:center;gap:3px">'+
-              (a.buy?'<span style="font-size:10px;font-weight:700;background:var(--pl);color:var(--p);padding:1px 5px;border-radius:10px">매 '+a.buy+'</span>':'')+
-              (a.rent?'<span style="font-size:10px;font-weight:700;background:#dcfce7;color:var(--ok);padding:1px 5px;border-radius:10px">전 '+a.rent+'</span>':'')+
-              '<span style="font-size:15px;color:var(--g3)">›</span>'+
-            '</div></div>';
-        }).join('');
-      });
-    },
-
-    calcAvg:function(items,type){var f=type==='buy'?'거래금액':'보증금액',af=type==='buy'?'dealAmount':'deposit';var vals=items.map(function(it){return parseInt(((it[f]||it[af]||'0')+'').replace(/,/g,''))||0;}).filter(function(v){return v>0;});return vals.length?Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length):0;},
-
-    showModal:function(key){
-      var apt=_aptMap[key];if(!apt)return;
-      el('jm-modal-name').textContent=apt.name;
-      el('jm-modal-dong').textContent=apt.dong+' · '+_curGu;
-      var self=this;
-      var avgB=self.calcAvg(apt.buyItems,'buy'),avgR=self.calcAvg(apt.rentItems,'rent');
-      function getVals(items,type){var f=type==='buy'?'거래금액':'보증금액',af=type==='buy'?'dealAmount':'deposit';return items.map(function(it){return parseInt(((it[f]||it[af]||'0')+'').replace(/,/g,''))||0;}).filter(function(v){return v>0;});}
-      var bVals=getVals(apt.buyItems,'buy'),rVals=getVals(apt.rentItems,'rent');
-      el('jm-modal-summary').innerHTML=
-        (apt.buy?'<div style="flex:1;background:var(--pl);border-radius:10px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--p)">매매</div><div style="font-size:20px;font-weight:800;color:var(--p)">'+apt.buy+'건</div>'+(avgB?'<div style="font-size:10px;color:var(--p)">평균 '+fmtPrice(avgB)+'</div>':'')+(bVals.length?'<div style="font-size:9px;color:var(--g4)">'+fmtPrice(Math.min.apply(null,bVals))+'~'+fmtPrice(Math.max.apply(null,bVals))+'</div>':'')+'</div>':'')+
-        (apt.rent?'<div style="flex:1;background:#dcfce7;border-radius:10px;padding:10px;text-align:center"><div style="font-size:9px;color:var(--ok)">전세</div><div style="font-size:20px;font-weight:800;color:var(--ok)">'+apt.rent+'건</div>'+(avgR?'<div style="font-size:10px;color:var(--ok)">평균 '+fmtPrice(avgR)+'</div>':'')+'</div>':'');
-      el('jm-modal-buy-wrap').style.display=apt.buyItems.length?'block':'none';
-      el('jm-modal-rent-wrap').style.display=apt.rentItems.length?'block':'none';
-      el('jm-modal-buy').innerHTML=self.mkTxTbl(apt.buyItems,'buy');
-      el('jm-modal-rent').innerHTML=self.mkTxTbl(apt.rentItems,'rent');
-      var navQ=apt.name+' '+apt.dong+' '+_curGu;
-      el('jm-modal-nav').onclick=function(){self.closeModal();el('jm-kw').value=navQ;self.swSub(1);setTimeout(function(){self.searchAddr();},300);};
-      el('jm-apt-modal').style.display='flex';
-    },
-    closeModal:function(){el('jm-apt-modal').style.display='none';},
-
-    mkTxTbl:function(items,type){
-      if(!items.length)return '<div style="padding:8px;text-align:center;font-size:11px;color:var(--g4)">없음</div>';
-      var pf=type==='buy'?'거래금액':'보증금액',apf=type==='buy'?'dealAmount':'deposit';
-      var sorted=items.slice().sort(function(a,b){return parseInt(b['일']||b.dealDay||0)-parseInt(a['일']||a.dealDay||0);}).slice(0,20);
-      var rows=sorted.map(function(it){
-        var pr=parseInt(((it[pf]||it[apf]||'0')+'').replace(/,/g,''))||0;
-        var area=parseFloat(it['전용면적']||it.excluUseAr||0);
-        var py=area?(area/3.305).toFixed(0)+'평':'';
-        var unit=area&&pr?Math.round(pr/area)+'만/㎡':'';
-        return '<tr style="border-bottom:1px solid var(--g3)"><td style="padding:5px 3px;font-size:12px;font-weight:700;color:'+(type==='buy'?'var(--p)':'var(--ok)')+'">'+fmtPrice(pr)+'</td><td style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center">'+(area?area.toFixed(0)+'㎡<br>'+py:'–')+'</td><td style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center">'+(it['층']||it.floor||'–')+'층</td><td style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center">'+unit+'</td><td style="padding:5px 3px;font-size:10px;color:var(--g4);text-align:right">'+(it['일']||it.dealDay||'–')+'일</td></tr>';
-      }).join('');
-      return '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr style="background:var(--g2)"><th style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:left;font-weight:600">'+(type==='buy'?'매매가':'보증금')+'</th><th style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center;font-weight:600">면적</th><th style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center;font-weight:600">층</th><th style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:center;font-weight:600">단가</th><th style="padding:5px 3px;font-size:10px;color:var(--g5);text-align:right;font-weight:600">일</th></tr></thead><tbody>'+rows+'</tbody></table></div>'+(items.length>20?'<div style="font-size:10px;color:var(--g4);text-align:center;margin-top:4px">최근 20건</div>':'');
-    },
-
-    useMyLoc:function(){
-      var self=this;
-      if(!_mapInited){self.initMap();}
-      if(!navigator.geolocation){alert('위치 서비스 미지원');return;}
-      navigator.geolocation.getCurrentPosition(function(pos){
-        _myLoc=new kakao.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
-        _map.setCenter(_myLoc);_map.setLevel(4);
-        new kakao.maps.Marker({map:_map,position:_myLoc,image:new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',new kakao.maps.Size(24,35))});
-        self.searchNearby(_myLoc);
-      },function(){alert('위치 정보를 가져올 수 없습니다.');});
-    },
-
-    searchAddr:function(){
-      var self=this;
-      if(!_mapInited){self.initMap();}
-      if(!_geocoder){var self2=this;var el4=el('jm-est-list');if(el4)el4.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중... 잠시 후 다시 검색해주세요</div>';setTimeout(function(){self2.initMap();},500);return;}
-      var kw=el('jm-kw').value.trim();if(!kw){alert('검색어를 입력하세요');return;}
-      _geocoder.addressSearch(kw,function(res,st){
-        if(st===kakao.maps.services.Status.OK){var loc=new kakao.maps.LatLng(res[0].y,res[0].x);_myLoc=loc;_map.setCenter(loc);_map.setLevel(4);self.searchNearby(loc);}
-        else{_ps.keywordSearch(kw,function(data,st){if(st===kakao.maps.services.Status.OK&&data.length){var loc=new kakao.maps.LatLng(data[0].y,data[0].x);_myLoc=loc;_map.setCenter(loc);_map.setLevel(4);self.searchNearby(loc);}else alert('검색 결과 없음.');});}
-      });
-    },
-
-    setRadius:function(r){
-      _radius=r;
-      ['r300','r500','r1000','r2000'].forEach(function(k){var e=el('jm-'+k);if(e)e.classList.remove('on');});
-      var re=el('jm-r'+r);if(re)re.classList.add('on');
-      if(_myLoc)this.searchNearby(_myLoc);
-    },
-
-    searchNearby:function(loc){
-      var self=this;
-      if(!_ps){el('jm-est-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--er)">⚠️ 지도 초기화 중입니다.<br>탐색 탭을 다시 눌러주세요.</div>';return;}
-      _markers.forEach(function(m){m.setMap(null);});_markers=[];
-      _ps.keywordSearch('공인중개사',function(data,st){
-        if(st!==kakao.maps.services.Status.OK){el('jm-est-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)">검색 결과 없음</div>';return;}
-        el('jm-est-count').textContent='주변 공인중개사 '+data.length+'곳';
-        var html='';
-        data.forEach(function(d,i){
-          var pos=new kakao.maps.LatLng(d.y,d.x);
-          var dist=self.distM(loc.getLat(),loc.getLng(),parseFloat(d.y),parseFloat(d.x));
-          var isFav=!!_favs[d.id],isDone=_routeList.some(function(r){return r.id===d.id&&r.done;}),isAdded=_routeList.some(function(r){return r.id===d.id;});
-          var memo=_memos[d.id]||'',rv=_rvDates[d.id]||'';
-          var lastV=_vHist.filter(function(h){return h.id===d.id;}).slice(-1)[0];
-          var marker=new kakao.maps.Marker({map:_map,position:pos});
-          var iw=new kakao.maps.InfoWindow({content:'<div style="padding:3px 7px;font-size:11px;white-space:nowrap">'+(isFav?'⭐ ':'')+d.place_name+'</div>'});
-          kakao.maps.event.addListener(marker,'click',function(){iw.open(_map,marker);});
-          _markers.push(marker);
-          var numBg=isFav?'#f59e0b':isDone?'var(--ok)':'var(--p)';
-          var rvHtml='';if(rv){var dd2=dday(rv);rvHtml='<span style="font-size:9px;font-weight:700;color:'+(dd2<=3?'var(--er)':'var(--ok)')+'">재방문 D-'+dd2+'</span> ';}
-          var stTag=_pStatus[d.id]==='reg'?'<span style="font-size:10px;font-weight:700;background:#dcfce7;color:var(--ok);padding:1px 6px;border-radius:8px;border:1px solid #86efac">단골</span>':_pStatus[d.id]==='hold'?'<span style="font-size:10px;font-weight:700;background:#fef3c7;color:var(--warn);padding:1px 6px;border-radius:8px;border:1px solid #fcd34d">보류</span>':'<span style="font-size:10px;font-weight:700;background:var(--pl);color:var(--p);padding:1px 6px;border-radius:8px;border:1px solid #bfdbfe">신규</span>';
-          html+='<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--g3)">'+
-            '<div style="width:24px;height:24px;border-radius:50%;background:'+numBg+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px">'+(isFav?'⭐':isDone?'✓':(i+1))+'</div>'+
-            '<div style="flex:1;min-width:0">'+
-              '<div style="font-size:13px;font-weight:700;color:var(--g8)">'+d.place_name+'</div>'+
-              '<div style="font-size:10px;color:var(--g5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+(d.road_address_name||d.address_name)+'</div>'+
-              '<div style="font-size:10px;color:var(--p);font-weight:600">📍 '+dist+'m '+(lastV?'· 방문 '+lastV.date:'')+' '+rvHtml+'</div>'+
-              '<div style="display:flex;gap:4px;margin-top:3px;flex-wrap:wrap">'+stTag+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,10)+'</span>':'')+'</div>'+
-            '</div>'+
-            '<div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end">'+
-              '<div style="display:flex;gap:3px">'+
-                (d.phone?'<button onclick="window.open(\'tel:'+d.phone+'\')" style="height:26px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;padding:0 6px;border:none;background:#dcfce7;color:var(--ok)">📞</button>':'')+
-                '<button onclick="JM.toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')" style="height:26px;border-radius:6px;font-size:10px;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none">'+(isFav?'⭐':'☆')+'</button>'+
-              '</div>'+
-              '<button onclick="JM.cycleStatus(\''+d.id+'\')" style="height:22px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none;color:var(--g5)">상태변경</button>'+
-              '<button onclick="JM.addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="height:22px;border-radius:5px;font-size:9px;font-weight:700;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:'+(isAdded?'#dcfce7':'none')+';color:'+(isAdded?'var(--ok)':'var(--g5)')+'">'+
-                (isAdded?'✅동선':'＋동선')+'</button>'+
-              '<button onclick="JM.openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')" style="height:22px;border-radius:5px;font-size:9px;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none;color:var(--g5)">📝메모</button>'+
-            '</div>'+
-          '</div>';
-        });
-        el('jm-est-list').innerHTML=html;
-      },{location:loc,radius:_radius,sort:kakao.maps.services.SortBy.DISTANCE});
-    },
-
-    distM:function(lat1,lng1,lat2,lng2){var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;var a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));},
-
-    toggleFav:function(id,name,addr,lat,lng,phone){
-      if(_favs[id]){delete _favs[id];}else{_favs[id]={name:name,addr:addr,lat:parseFloat(lat),lng:parseFloat(lng),phone:phone};}
-      saveAll();if(_myLoc)this.searchNearby(_myLoc);
-    },
-
-    cycleStatus:function(id){var s=_pStatus[id];_pStatus[id]=(!s||s==='new')?'reg':s==='reg'?'hold':'new';saveAll();if(_myLoc)this.searchNearby(_myLoc);},
-
-    openMemo:function(id,name){_curMemoId=id;el('jm-memo-title').textContent='📝 '+name;el('jm-memo-text').value=_memos[id]||'';el('jm-memo-date').value=_rvDates[id]||'';el('jm-memo-modal').style.display='flex';},
-    closeMemo:function(){el('jm-memo-modal').style.display='none';_curMemoId=null;},
-    saveMemo:function(){
-      var txt=el('jm-memo-text').value.trim(),dt=el('jm-memo-date').value;
-      if(txt)_memos[_curMemoId]=txt;else delete _memos[_curMemoId];
-      if(dt)_rvDates[_curMemoId]=dt;else delete _rvDates[_curMemoId];
-      var ri=_routeList.find(function(r){return r.id===_curMemoId;});if(ri){ri.memo=txt;ri.revisit=dt;}
-      saveAll();this.closeMemo();this.renderRoute();
-    },
-
-    addRoute:function(id,name,addr,lat,lng,phone,btn){
-      var idx=_routeList.findIndex(function(r){return r.id===id;});
-      if(idx>=0){_routeList.splice(idx,1);if(btn){btn.textContent='＋동선';btn.style.background='none';btn.style.color='var(--g5)';}}
-      else{_routeList.push({id:id,name:name,addr:addr,lat:parseFloat(lat),lng:parseFloat(lng),phone:phone,done:false,memo:_memos[id]||'',revisit:_rvDates[id]||''});if(btn){btn.textContent='✅동선';btn.style.background='#dcfce7';btn.style.color='var(--ok)';}}
-      saveAll();
-    },
-
-    toggleDone:function(id){
-      var r=_routeList.find(function(r){return r.id===id;});
-      if(r){r.done=!r.done;if(r.done){_vHist.unshift({id:id,name:r.name,date:todayStr(),memo:r.memo||''});if(_vHist.length>200)_vHist.pop();}saveAll();this.renderRoute();}
-    },
-
-    removeRoute:function(id){_routeList=_routeList.filter(function(r){return r.id!==id;});saveAll();this.renderRoute();},
-    clearRoute:function(){if(!confirm('초기화?'))return;_routeList=[];saveAll();this.renderRoute();},
-
-    renderRoute:function(){
-      var self=this;
-      var done=_routeList.filter(function(r){return r.done;}).length,total=_routeList.length;
-      el('jm-done-cnt').textContent=done;el('jm-total-cnt').textContent=total;
-      el('jm-prog').style.width=(total?Math.round(done/total*100):0)+'%';
-      var today=todayStr();
-      var alerts=_routeList.filter(function(r){return r.revisit&&r.revisit<=today&&!r.done;});
-      var ra=el('jm-revisit-alert');
-      if(alerts.length)ra.innerHTML='<div style="background:#fee2e2;border-radius:10px;padding:10px;margin-bottom:10px;font-size:12px;color:var(--er)">⚠️ 재방문 예정: '+alerts.map(function(r){return r.name;}).join(', ')+'</div>';
-      else ra.innerHTML='';
-      var rle=el('jm-route-list'),act=el('jm-route-actions');
-      if(!total){rle.innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)">🧭 탐색 탭에서 방문할 곳을 추가하세요</div>';act.style.display='none';return;}
-      rle.innerHTML=_routeList.map(function(r,i){
-        var dd2=r.revisit?dday(r.revisit):null;
-        var rvH=dd2!==null?'<span style="font-weight:700;color:'+(dd2<=0?'var(--er)':'var(--ok)')+'">'+(dd2===0?'오늘':dd2>0?'D-'+dd2:'D+'+Math.abs(dd2))+'</span> ':'';
-        return '<div style="display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--g3);'+(r.done?'opacity:.5':'')+'">'+
-          '<div onclick="JM.toggleDone(\''+r.id+'\')" style="width:26px;height:26px;border-radius:50%;background:'+(r.done?'var(--ok)':'var(--warn)')+';color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;cursor:pointer">'+(r.done?'✓':(i+1))+'</div>'+
-          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+r.name+'</div><div style="font-size:10px;color:var(--g5)">'+r.addr+'</div>'+(r.memo||rvH?'<div style="font-size:10px;color:var(--warn);margin-top:2px">'+(r.memo?'📝 '+r.memo:'')+rvH+'</div>':'')+'</div>'+
-          '<div style="display:flex;gap:4px;flex-direction:column;align-items:flex-end">'+
-            (r.phone?'<button onclick="window.open(\'tel:'+r.phone+'\')" style="height:24px;border-radius:5px;font-size:10px;font-weight:700;cursor:pointer;padding:0 6px;border:none;background:#dcfce7;color:var(--ok)">📞</button>':'')+
-            '<button onclick="JM.openMemo(\''+r.id+'\',\''+escQ(r.name)+'\')" style="height:24px;border-radius:5px;font-size:10px;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none;color:var(--g5)">📝</button>'+
-            '<button onclick="JM.removeRoute(\''+r.id+'\')" style="height:24px;border-radius:5px;font-size:10px;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none;color:var(--er)">삭제</button>'+
-          '</div></div>';
-      }).join('');
-      act.style.display='block';setTimeout(function(){self.renderRouteMap();},100);
-    },
-
-    renderRouteMap:function(){
-      var c=el('jm-route-map');
-      if(!_routeMap)_routeMap=new kakao.maps.Map(c,{center:new kakao.maps.LatLng(_routeList[0].lat,_routeList[0].lng),level:5});
-      _routeMarkers.forEach(function(m){m.setMap(null);});_routeMarkers=[];
-      var bounds=new kakao.maps.LatLngBounds();
-      _routeList.forEach(function(r,i){
-        var pos=new kakao.maps.LatLng(r.lat,r.lng);bounds.extend(pos);
-        var marker=new kakao.maps.Marker({map:_routeMap,position:pos});
-        new kakao.maps.InfoWindow({content:'<div style="padding:3px 7px;font-size:11px;white-space:nowrap">'+(r.done?'✅ ':'')+'<b>'+(i+1)+'.</b> '+r.name+'</div>'}).open(_routeMap,marker);
-        _routeMarkers.push(marker);
-      });
-      _routeMap.setBounds(bounds);
-    },
-
-    openNavi:function(){
-      if(!_routeList.length){alert('방문 목록이 없습니다');return;}
-      var remain=_routeList.filter(function(r){return !r.done;});
-      var target=remain.length?remain[0]:_routeList[0];
-      var msg='📋 오늘 방문 순서\n';
-      _routeList.forEach(function(r,i){msg+=(r.done?'✅ ':'')+(i+1)+'. '+r.name+'\n';});
-      alert(msg);window.open('https://map.kakao.com/link/to/'+encodeURIComponent(target.name)+','+target.lat+','+target.lng);
-    },
-
-    renderMgmt:function(){
-      var today=todayStr();
-      var todayV=_vHist.filter(function(h){return h.date===today;}).length;
-      var favCnt=Object.keys(_favs).length;
-      el('jm-mgmt-stats').innerHTML=
-        '<div style="background:var(--pl);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--p)">오늘 방문</div><div style="font-size:22px;font-weight:800;color:var(--p)">'+todayV+'</div></div>'+
-        '<div style="background:#dcfce7;border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--ok)">누적</div><div style="font-size:22px;font-weight:800;color:var(--ok)">'+_vHist.length+'</div></div>'+
-        '<div style="background:#fef9c3;border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#a16207">즐겨찾기</div><div style="font-size:22px;font-weight:800;color:#a16207">'+favCnt+'</div></div>';
-      // 재방문
-      var rvItems=Object.keys(_rvDates).map(function(id){
-        var f=_favs[id];return{id:id,name:f?f.name:'('+id+')',date:_rvDates[id],dd:dday(_rvDates[id])};
-      }).filter(function(x){return x.name&&x.dd<=7;}).sort(function(a,b){return a.dd-b.dd;});
-      el('jm-revisit-list').innerHTML=rvItems.length?rvItems.map(function(x){
-        var ddH=x.dd<0?'<span style="color:var(--er);font-weight:700">D+'+Math.abs(x.dd)+' 지남</span>':x.dd===0?'<span style="color:var(--er);font-weight:700">오늘!</span>':'<span style="color:var(--ok);font-weight:700">D-'+x.dd+'</span>';
-        return '<div style="display:flex;align-items:center;gap:7px;padding:9px 0;border-bottom:1px solid var(--g3)"><div style="flex:1"><div style="font-size:13px;font-weight:700">'+x.name+'</div><div style="font-size:10px;color:var(--g5)">'+x.date+'</div></div>'+ddH+'</div>';
-      }).join(''):'<div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">없음 (7일 이내)</div>';
-      // 즐겨찾기
-      var self=this;
-      var fks=Object.keys(_favs);
-      el('jm-fav-list').innerHTML=fks.length?fks.map(function(id){
-        var f=_favs[id];var lv=_vHist.filter(function(h){return h.id===id;}).slice(-1)[0];
-        return '<div style="display:flex;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid var(--g3)">'+
-          '<div style="font-size:18px">⭐</div>'+
-          '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:700">'+f.name+'</div><div style="font-size:10px;color:var(--g5)">'+(lv?'방문 '+lv.date:'기록 없음')+'</div>'+(f.memo?'<div style="font-size:10px;color:var(--warn)">📝 '+f.memo+'</div>':'')+'</div>'+
-          '<div style="display:flex;gap:4px">'+
-            (f.phone?'<button onclick="window.open(\'tel:'+f.phone+'\')" style="height:26px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;padding:0 6px;border:none;background:#dcfce7;color:var(--ok)">📞</button>':'')+
-            '<button onclick="JM.addRoute(\''+id+'\',\''+escQ(f.name)+'\',\''+escQ(f.addr)+'\','+f.lat+','+f.lng+',\''+escQ(f.phone||'')+'\',null)" style="height:26px;border-radius:6px;font-size:10px;font-weight:700;cursor:pointer;padding:0 6px;border:1px solid var(--g3);background:none;color:var(--g5)">＋동선</button>'+
-          '</div></div>';
-      }).join(''):'<div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">즐겨찾기 없음</div>';
-      // 방문 이력
-      if(_vHist.length){
-        var groups={};_vHist.forEach(function(h){if(!groups[h.date])groups[h.date]=[];groups[h.date].push(h);});
-        var dates=Object.keys(groups).sort().reverse().slice(0,10);
-        el('jm-hist-list').innerHTML=dates.map(function(date){
-          return '<div style="margin-bottom:8px"><div style="font-size:11px;font-weight:700;color:var(--p);margin-bottom:4px">'+date+' ('+groups[date].length+'곳)</div>'+
-            groups[date].map(function(h){return '<div style="padding:7px 0;border-bottom:1px solid var(--g3)"><div style="font-size:13px;font-weight:700">'+h.name+'</div>'+(h.memo?'<div style="font-size:11px;color:var(--g5)">📝 '+h.memo+'</div>':'')+'</div>';}).join('')+'</div>';
-        }).join('');
-      } else el('jm-hist-list').innerHTML='<div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">방문 이력 없음</div>';
-    }
-  };
-})();
-
-// 페이지 로드 시 탭 커스터마이징 적용
-(function(){
-  applyTabConfig();
-  renderTabSortList();
-})();
+(function(){applyTabConfig();renderTabSortList();})();
 </script>
 </body>
 </html>
