@@ -4660,11 +4660,15 @@ function resetTabOrder(){
   location.reload();
 }
 function renderTabSortList(){
-  loadTabConfig();
-  var order=_tabOrder||TAB_META.map(function(m){return m.idx;});
-  var hidden=_tabHidden||{};
-  window._tsTempOrder=order.slice();
-  window._tsTempHidden=Object.assign({},hidden);
+  // _tsTempOrder가 없을 때만 초기화 (이미 수정 중이면 유지)
+  if(!window._tsTempOrder){
+    loadTabConfig();
+    var order=_tabOrder||TAB_META.map(function(m){return m.idx;});
+    window._tsTempOrder=order.slice();
+    window._tsTempHidden=Object.assign({},(_tabHidden||{}));
+  }
+  var order=window._tsTempOrder;
+  var hidden=window._tsTempHidden||{};
   var sl=document.getElementById('tab-sort-list');
   if(!sl) return;
   sl.innerHTML=order.map(function(idx,pos){
@@ -4760,24 +4764,33 @@ var JM = (function(){
     saveAll: saveAll,
 
     swSub: function(i){
+      var self=this;
       [0,1,2,3].forEach(function(j){
         el('jm-p'+j).style.display=(j===i)?'block':'none';
         el('jm-t'+j).style.background=(j===i)?'var(--p)':'#fff';
         el('jm-t'+j).style.color=(j===i)?'#fff':'var(--p)';
       });
+      if(i===1) setTimeout(function(){self.initMap();},50); // 지도 서브탭 열릴 때 초기화
       if(i===2) this.renderRoute();
       if(i===3) this.renderMgmt();
     },
 
     initMap: function(){
       if(_mapInited) return;
-      if(typeof kakao==='undefined'||!kakao.maps) return;
+      if(typeof kakao==='undefined'||!kakao.maps){
+        console.warn('카카오맵 SDK 미로드');return;
+      }
       var container=el('jm-map');
       if(!container) return;
+      // 지도 컨테이너 강제 표시 후 초기화 (display:none이면 크기 0)
+      var p1=el('jm-p1');
+      var wasHidden=p1&&p1.style.display==='none';
+      if(wasHidden) p1.style.display='block';
       _map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
       _ps=new kakao.maps.services.Places();
       _geocoder=new kakao.maps.services.Geocoder();
       _mapInited=true;
+      if(wasHidden) p1.style.display='none';
     },
 
     setPeriod: function(key){
@@ -4954,7 +4967,7 @@ var JM = (function(){
 
     useMyLoc:function(){
       var self=this;
-      if(!_map){self.initMap();}
+      if(!_mapInited){self.initMap();}
       if(!navigator.geolocation){alert('위치 서비스 미지원');return;}
       navigator.geolocation.getCurrentPosition(function(pos){
         _myLoc=new kakao.maps.LatLng(pos.coords.latitude,pos.coords.longitude);
@@ -4966,7 +4979,8 @@ var JM = (function(){
 
     searchAddr:function(){
       var self=this;
-      if(!_map)self.initMap();
+      if(!_mapInited){self.initMap();}
+      if(!_geocoder){alert('지도가 아직 초기화되지 않았습니다. 잠시 후 다시 시도해주세요.');return;}
       var kw=el('jm-kw').value.trim();if(!kw){alert('검색어를 입력하세요');return;}
       _geocoder.addressSearch(kw,function(res,st){
         if(st===kakao.maps.services.Status.OK){var loc=new kakao.maps.LatLng(res[0].y,res[0].x);_myLoc=loc;_map.setCenter(loc);_map.setLevel(4);self.searchNearby(loc);}
@@ -4983,6 +4997,7 @@ var JM = (function(){
 
     searchNearby:function(loc){
       var self=this;
+      if(!_ps){el('jm-est-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--er)">⚠️ 지도 초기화 중입니다.<br>탐색 탭을 다시 눌러주세요.</div>';return;}
       _markers.forEach(function(m){m.setMap(null);});_markers=[];
       _ps.keywordSearch('공인중개사',function(data,st){
         if(st!==kakao.maps.services.Status.OK){el('jm-est-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)">검색 결과 없음</div>';return;}
