@@ -1332,7 +1332,7 @@ function swDocTab(i){
 
 function swTab(i){
   if(i===10) initBondTab();
-  if(i===12) setTimeout(function(){JM.initMap();},100);
+  // 영업지도: 지도는 탐색 서브탭 열릴 때 초기화
   TABS.forEach(function(t,j){
     document.getElementById(t).classList.toggle('on',j===i);
     var nbEl=document.getElementById('nb'+j);
@@ -4770,27 +4770,34 @@ var JM = (function(){
         el('jm-t'+j).style.background=(j===i)?'var(--p)':'#fff';
         el('jm-t'+j).style.color=(j===i)?'#fff':'var(--p)';
       });
-      if(i===1) setTimeout(function(){self.initMap();},50); // 지도 서브탭 열릴 때 초기화
+      if(i===1){
+        // jm-p1이 이미 display:block → 브라우저 렌더 후 지도 초기화
+        setTimeout(function(){self.initMap();},300);
+      }
       if(i===2) this.renderRoute();
       if(i===3) this.renderMgmt();
     },
 
     initMap: function(){
       if(_mapInited) return;
-      if(typeof kakao==='undefined'||!kakao.maps){
-        console.warn('카카오맵 SDK 미로드');return;
+      // Kakao Maps SDK 로드 확인
+      if(typeof kakao==='undefined'||!kakao.maps||!kakao.maps.Map){
+        var msg='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">'+
+          '⚠️ 카카오맵 로드 중...<br><span style="font-size:11px;color:var(--g5)">잠시 후 탐색 탭을 다시 눌러주세요</span></div>';
+        var el2=el('jm-est-list');if(el2)el2.innerHTML=msg;
+        return;
       }
       var container=el('jm-map');
-      if(!container) return;
-      // 지도 컨테이너 강제 표시 후 초기화 (display:none이면 크기 0)
-      var p1=el('jm-p1');
-      var wasHidden=p1&&p1.style.display==='none';
-      if(wasHidden) p1.style.display='block';
-      _map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
-      _ps=new kakao.maps.services.Places();
-      _geocoder=new kakao.maps.services.Geocoder();
-      _mapInited=true;
-      if(wasHidden) p1.style.display='none';
+      if(!container){return;}
+      try{
+        _map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
+        _ps=new kakao.maps.services.Places();
+        _geocoder=new kakao.maps.services.Geocoder();
+        _mapInited=true;
+      }catch(e){
+        var el3=el('jm-est-list');
+        if(el3)el3.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 지도 오류: '+e.message+'<br><span style="font-size:11px">탐색 탭을 다시 눌러보세요</span></div>';
+      }
     },
 
     setPeriod: function(key){
@@ -4980,7 +4987,7 @@ var JM = (function(){
     searchAddr:function(){
       var self=this;
       if(!_mapInited){self.initMap();}
-      if(!_geocoder){alert('지도가 아직 초기화되지 않았습니다. 잠시 후 다시 시도해주세요.');return;}
+      if(!_geocoder){var el4=el('jm-est-list');if(el4)el4.innerHTML='<div style="text-align:center;padding:20px;color:var(--warn)">⏳ 지도 초기화 중입니다.<br>잠시 후 다시 검색해주세요.</div>';return;}
       var kw=el('jm-kw').value.trim();if(!kw){alert('검색어를 입력하세요');return;}
       _geocoder.addressSearch(kw,function(res,st){
         if(st===kakao.maps.services.Status.OK){var loc=new kakao.maps.LatLng(res[0].y,res[0].x);_myLoc=loc;_map.setCenter(loc);_map.setLevel(4);self.searchNearby(loc);}
