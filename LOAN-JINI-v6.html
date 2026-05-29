@@ -13,7 +13,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22%EB%8C%80%EC%B6%9C%20%ED%95%9C%EB%8F%84%20%EA%B3%84%EC%82%B0%EA%B8%B0%22%2C%22short_name%22%3A%22%EB%8C%80%EC%B6%9C%EA%B3%84%EC%82%B0%22%2C%22display%22%3A%22standalone%22%2C%22background_color%22%3A%22%231a56db%22%2C%22theme_color%22%3A%22%231a56db%22%2C%22icons%22%3A%5B%7B%22src%22%3A%22data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAAMAAAADACAYAAABS3GwHAAADXklEQVR42u3cwVHrMBSGUUuTKpItaSmpkbQUtqSNsGXBgEnk2NJ/TgOPse+nKzPDK9NG7E/X+0SM2+VYtvBzFANPchDF0JMcQzH0JMdQDD7JIRSDT3II1fDTk9YzVgw+ydugGn6St0E1/CRHUAw+yVeiavhJ3gbV8JMcQTX8JEdQPS6S1dZFQU9boBp+kiOohp/kCHwD4BvA6U/qFqiGn+QIXIFwBXL6k7oFbABsAKc/qVvABsAGgPgAXH9IvAbZANgAEB2A6w+p1yAbABsABACBivs/NgAIAAQAAgABgABY2uf7m4cggOzhF4EA4k9+EQgg/tojAgGAAJI/em0BAcQOvwgEED/8IhBA/PCLQADxwy+C1/D3ABse/u8O54+X/QyP/ls2AIud3DaBAEAAiae/LSCA+OEXgQDih18EAogffhEIIH74RSCA+OEXgQBAAE5fW0AAhk4EAjBsIhBA/JCJQADxwyUCAcQPlQgEED9MIhAACMApigAMPwIw/AjA8CMAw48ADL8APAIEgNNfAIYfARh+BGD4EYDhRwCGHwEYfgQAAnD6e04C8FI9LwF4mZ6bALxEEQjAyxOBALw0EQgABOC0sgUE4CWJQABejggE4KWIQABehggE4CWIQAAevggEAAJw+tsCAjD8IhCA4RfBesr+dL17MfzkcP7wDQACAAGAAEAAIAAYwC79AbT4Vd+av2Lt/ee3AUAAIAAQAAgABAACAAGAAGABO4+gjTX+eMQf+dgAIAAQAAgABAACgDnifw3a+68S/SrUBgABgABAACAAEAAIAAQAAgABgABAACAABAACAAGAAEAAIAAQAAgABAACAAGAAGAAZX+63j0GbAAQAAgABAACAAHAwAHcLsfiMZDodjkWGwBXIBAApAbgO4DE+78NgA3gESAA1yACrz82ADaAR4AAXIMIvP7YANgAfxUCo57+NgA2wNxSYLTT/9cNIAJGH35XIFyBHi0Hej/9Z20AETDq8M++AomAEYffNwC+AVoXBb2c/v/eACJgpOF/6AokAkYZ/mmapqeG2X+tTq+D3+Qj2Dag5+F/OgAR0PPwP30FciWi18FvtgFsA3od/uYbwDagl8FfPAAh0MOt4qVXFjGwtav0and2MbCF78fNfLQKwsCv4QuhUXAPAjOwugAAAABJRU5ErkJggg==%22%2C%22sizes%22%3A%22192x192%22%2C%22type%22%3A%22image%2Fpng%22%7D%5D%7D">
 <title>대출 한도 계산기</title>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -4780,23 +4779,47 @@ var JM = (function(){
 
     initMap: function(){
       if(_mapInited) return;
-      // Kakao Maps SDK 로드 확인
-      if(typeof kakao==='undefined'||!kakao.maps||!kakao.maps.Map){
-        var msg='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">'+
-          '⚠️ 카카오맵 로드 중...<br><span style="font-size:11px;color:var(--g5)">잠시 후 탐색 탭을 다시 눌러주세요</span></div>';
-        var el2=el('jm-est-list');if(el2)el2.innerHTML=msg;
-        return;
+      var self=this;
+      var estEl=el('jm-est-list');
+
+      // 이미 SDK 로드됐으면 바로 생성
+      if(typeof kakao!=='undefined'&&kakao.maps&&kakao.maps.Map){
+        self._doCreateMap(); return;
       }
+
+      // 동적 로드 중이면 대기
+      if(document.getElementById('jm-kakao-sdk')){
+        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중... 잠시만 기다려주세요</div>';
+        setTimeout(function(){self.initMap();},1000); return;
+      }
+
+      // SDK 동적 로드 (autoload=false)
+      if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중...</div>';
+      var s=document.createElement('script');
+      s.id='jm-kakao-sdk';
+      s.src='https://dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer&autoload=false';
+      s.onload=function(){
+        kakao.maps.load(function(){self._doCreateMap();});
+      };
+      s.onerror=function(){
+        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 카카오맵 로드 실패<br><span style="font-size:11px;color:var(--g5)">인터넷 연결을 확인하고 탐색 탭을 다시 눌러주세요</span></div>';
+        document.getElementById('jm-kakao-sdk').remove();
+      };
+      document.head.appendChild(s);
+    },
+
+    _doCreateMap: function(){
       var container=el('jm-map');
-      if(!container){return;}
+      if(!container) return;
+      var estEl=el('jm-est-list');
       try{
         _map=new kakao.maps.Map(container,{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
         _ps=new kakao.maps.services.Places();
         _geocoder=new kakao.maps.services.Geocoder();
         _mapInited=true;
+        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:28px;color:var(--g5)">📍 위치를 검색하거나 현재 위치를 선택하세요</div>';
       }catch(e){
-        var el3=el('jm-est-list');
-        if(el3)el3.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 지도 오류: '+e.message+'<br><span style="font-size:11px">탐색 탭을 다시 눌러보세요</span></div>';
+        if(estEl) estEl.innerHTML='<div style="text-align:center;padding:20px;color:var(--er);font-size:13px">⚠️ 지도 오류: '+e.message+'</div>';
       }
     },
 
@@ -4987,7 +5010,7 @@ var JM = (function(){
     searchAddr:function(){
       var self=this;
       if(!_mapInited){self.initMap();}
-      if(!_geocoder){var el4=el('jm-est-list');if(el4)el4.innerHTML='<div style="text-align:center;padding:20px;color:var(--warn)">⏳ 지도 초기화 중입니다.<br>잠시 후 다시 검색해주세요.</div>';return;}
+      if(!_geocoder){var self2=this;var el4=el('jm-est-list');if(el4)el4.innerHTML='<div style="text-align:center;padding:20px;color:var(--g5)">🗺️ 지도 로딩 중... 잠시 후 다시 검색해주세요</div>';setTimeout(function(){self2.initMap();},500);return;}
       var kw=el('jm-kw').value.trim();if(!kw){alert('검색어를 입력하세요');return;}
       _geocoder.addressSearch(kw,function(res,st){
         if(st===kakao.maps.services.Status.OK){var loc=new kakao.maps.LatLng(res[0].y,res[0].x);_myLoc=loc;_map.setCenter(loc);_map.setLevel(4);self.searchNearby(loc);}
