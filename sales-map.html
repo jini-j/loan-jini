@@ -101,6 +101,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* dday */
 .dday-soon{color:var(--er);font-weight:700}
 .dday-ok{color:var(--ok);font-weight:700}
+/* load-btn */
+.load-btn-wrap{text-align:center;padding:28px 16px}
+.load-btn-wrap p{font-size:12px;color:var(--g4);margin-bottom:14px}
+.load-btn-wrap button{height:44px;border:none;border-radius:10px;background:var(--p);color:#fff;font-size:14px;font-weight:700;cursor:pointer;padding:0 28px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 </style>
 </head>
 <body>
@@ -181,9 +185,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
       <span class="card-title" style="margin:0">🏆 서울 구별 거래량</span>
-      <span id="data-badge" class="badge badge-w">로딩중</span>
+      <span id="data-badge" class="badge badge-w" style="display:none"></span>
     </div>
-    <div id="rank-list"><div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">데이터 불러오는 중...</div></div></div>
+    <div id="rank-list">
+      <div class="load-btn-wrap">
+        <p>기간을 선택하고 버튼을 눌러 데이터를 불러오세요<br><span style="font-size:10px">(약 20~40초 소요)</span></p>
+        <button onclick="loadByPeriod()" style="-webkit-tap-highlight-color:transparent;touch-action:manipulation">📊 거래량 불러오기</button>
+      </div>
+    </div>
   </div>
   <div class="card" id="apt-card" style="display:none">
     <div class="card-title">🏢 <span id="apt-gu-name"></span> 거래 아파트 <span id="apt-badge" class="badge badge-b"></span></div>
@@ -295,6 +304,7 @@ var placeStatus=JSON.parse(localStorage.getItem('pstatus')||'{}');
 var visitHistory=JSON.parse(localStorage.getItem('vhist')||'[]');
 var filterType='all',periodKey='m0',sortDesc=true,showCmp=false;
 var guData=[],guDataPrev=[],_aptMap={},_curGuName='',curMemoId=null;
+var dataLoaded=false; // 데이터 로드 여부 추적
 
 function saveStorage(){
   localStorage.setItem('rl',JSON.stringify(routeList));
@@ -314,6 +324,7 @@ function swTab(i){
   if(i===1&&!map) initMap();
   if(i===2) renderRoute();
   if(i===3) renderMgmt();
+  // 탭0 전환 시 자동 로드 안 함 — 버튼으로만
 }
 
 /* ═══ 날짜 유틸 ═══ */
@@ -350,14 +361,16 @@ function getPeriodRange(){
 function setPeriod(key){
   periodKey=key;
   ['m0','m1','m2','w0','w1'].forEach(function(k){var el=document.getElementById('ft-'+k);if(el)el.classList.toggle('on',k===key);});
-  loadByPeriod();
+  // 이미 데이터가 로드된 상태면 새 기간으로 다시 로드, 아직 한 번도 안 불렀으면 그냥 선택만
+  if(dataLoaded) loadByPeriod();
 }
-function setType(t){filterType=t;['all','buy','rent'].forEach(function(k){document.getElementById('ft-'+k).classList.toggle('on',k===t);});renderRank();}
-function setSort(d){sortDesc=d;document.getElementById('sort-desc').classList.toggle('on',d);document.getElementById('sort-asc').classList.toggle('on',!d);renderRank();}
+function setType(t){filterType=t;['all','buy','rent'].forEach(function(k){document.getElementById('ft-'+k).classList.toggle('on',k===t);});if(dataLoaded)renderRank();}
+function setSort(d){sortDesc=d;document.getElementById('sort-desc').classList.toggle('on',d);document.getElementById('sort-asc').classList.toggle('on',!d);if(dataLoaded)renderRank();}
 function toggleCmp(){
   showCmp=!showCmp;
   document.getElementById('btn-cmp').textContent='전월비교 '+(showCmp?'ON':'OFF');
   document.getElementById('btn-cmp').classList.toggle('on',showCmp);
+  if(!dataLoaded) return;
   if(showCmp&&guDataPrev.every(function(d){return d.buy===0&&d.rent===0;})) loadPrevData();
   else renderRank();
 }
@@ -379,11 +392,28 @@ function fetchItems(ep,code,ym,rows){
 }
 
 /* ═══ 로드 ═══ */
-function loadByPeriod(){var pr=getPeriodRange();guDataPrev=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});if(pr.weekly)loadGuWeekly(pr);else loadGuMonthly(pr);}
+function loadByPeriod(){
+  dataLoaded=true;
+  var pr=getPeriodRange();
+  guDataPrev=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
+  if(pr.weekly)loadGuWeekly(pr);else loadGuMonthly(pr);
+}
+
+function showLoadBtn(){
+  document.getElementById('data-badge').style.display='none';
+  document.getElementById('rank-list').innerHTML=
+    '<div class="load-btn-wrap">'+
+    '<p>기간을 선택하고 버튼을 눌러 데이터를 불러오세요<br><span style="font-size:10px">(약 20~40초 소요)</span></p>'+
+    '<button onclick="loadByPeriod()" style="-webkit-tap-highlight-color:transparent;touch-action:manipulation">📊 거래량 불러오기</button>'+
+    '</div>';
+  document.getElementById('apt-card').style.display='none';
+}
 
 function setLoadingUI(label){
-  document.getElementById('data-badge').textContent='로딩중';
-  document.getElementById('data-badge').className='badge badge-w';
+  var badge=document.getElementById('data-badge');
+  badge.style.display='inline-block';
+  badge.textContent='로딩중';
+  badge.className='badge badge-w';
   document.getElementById('rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">'+label+'<br><span style="font-size:10px">(약 20~40초)</span></div></div>';
   document.getElementById('apt-card').style.display='none';
   guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
@@ -393,7 +423,7 @@ function loadGuMonthly(pr){
   setLoadingUI(pr.label+' 조회 중...');
   var ym=pr.yms[0],done=0,total=SEOUL_GU.length*2;
   function tick(){done++;if(done===total)finish();else document.getElementById('rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">조회 중 '+done+'/'+total+'</div></div>';}
-  function finish(){if(guData.every(function(d){return d.buy===-1&&d.rent===-1;}))loadSample();else{document.getElementById('data-badge').textContent='실데이터 · '+pr.label;document.getElementById('data-badge').className='badge badge-g';renderRank();}}
+  function finish(){if(guData.every(function(d){return d.buy===-1&&d.rent===-1;}))loadSample();else{var badge=document.getElementById('data-badge');badge.style.display='inline-block';badge.textContent='실데이터 · '+pr.label;badge.className='badge badge-g';renderRank();}}
   SEOUL_GU.forEach(function(g,i){
     fetchCount('RTMSDataSvcAptTradeDev',g.code,ym).then(function(n){guData[i].buy=n;tick();});
     fetchCount('RTMSDataSvcAptRent',g.code,ym).then(function(n){guData[i].rent=n;tick();});
@@ -402,7 +432,7 @@ function loadGuMonthly(pr){
 function loadGuWeekly(pr){
   setLoadingUI(pr.label+' 날짜 필터 중...');
   var done=0,total=SEOUL_GU.length*pr.yms.length*2;
-  function tick(){done++;if(done===total){document.getElementById('data-badge').textContent='주간 실데이터 · '+pr.label;document.getElementById('data-badge').className='badge badge-g';renderRank();}}
+  function tick(){done++;if(done===total){var badge=document.getElementById('data-badge');badge.style.display='inline-block';badge.textContent='주간 실데이터 · '+pr.label;badge.className='badge badge-g';renderRank();}}
   SEOUL_GU.forEach(function(g,i){
     pr.yms.forEach(function(ym){
       fetchWeekCount('RTMSDataSvcAptTradeDev',g.code,ym,pr.dateFrom,pr.dateTo).then(function(n){guData[i].buy+=n;tick();});
@@ -431,8 +461,10 @@ function loadSample(){
   var b=[312,287,245,231,198,189,176,167,154,143,138,132,128,125,121,118,115,112,109,106,98,92,87,76,65];
   var r=[201,172,167,143,198,154,132,98,143,109,125,138,256,106,172,165,118,188,112,198,187,150,87,98,92];
   SEOUL_GU.forEach(function(g,i){guData[i].buy=b[i];guData[i].rent=r[i];});
-  document.getElementById('data-badge').textContent='샘플 데이터';
-  document.getElementById('data-badge').className='badge badge-w';
+  var badge=document.getElementById('data-badge');
+  badge.style.display='inline-block';
+  badge.textContent='샘플 데이터';
+  badge.className='badge badge-w';
   renderRank();
 }
 
@@ -528,7 +560,7 @@ function showAptDetail(key){
     (apt.buy?'<div style="flex:1;background:var(--pl);border-radius:10px;padding:10px;text-align:center">'+
       '<div style="font-size:9px;color:var(--p)">매매</div>'+
       '<div style="font-size:20px;font-weight:800;color:var(--p)">'+apt.buy+'건</div>'+
-      (avgB?'<div style="font-size:10px;color:var(--p)">평균 '+fmtPrice(avgB)+'</div>':'')+ 
+      (avgB?'<div style="font-size:10px;color:var(--p)">평균 '+fmtPrice(avgB)+'</div>':'')+
       (minB&&maxB2?'<div style="font-size:9px;color:var(--g4)">'+fmtPrice(minB)+'~'+fmtPrice(maxB2)+'</div>':'')+
     '</div>':'')+
     (apt.rent?'<div style="flex:1;background:#dcfce7;border-radius:10px;padding:10px;text-align:center">'+
@@ -628,12 +660,10 @@ function searchNearby(loc){
       var rv=revisitDates[d.id]||'';
       var numCls=isFav?'fav':isDone?'visited':'';
       var numTxt=isFav?'⭐':isDone?'✓':(i+1);
-      // 마커 색
       var marker=new kakao.maps.Marker({map:map,position:pos});
       var iw=new kakao.maps.InfoWindow({content:'<div style="padding:3px 7px;font-size:11px;white-space:nowrap">'+(isFav?'⭐ ':'')+d.place_name+'</div>'});
       kakao.maps.event.addListener(marker,'click',function(){iw.open(map,marker);});
       markers.push(marker);
-      // 마지막 방문일
       var lastVisit=visitHistory.filter(function(h){return h.id===d.id;}).slice(-1)[0];
       var lastVisitHtml=lastVisit?'<span style="font-size:9px;color:var(--g4)">최근방문: '+lastVisit.date+'</span> ':'';
       var rvHtml='';
@@ -705,7 +735,6 @@ function toggleDone(id){
   if(r){
     r.done=!r.done;
     if(r.done){
-      // 방문 이력 저장
       visitHistory.unshift({id:id,name:r.name,addr:r.addr,date:todayStr(),memo:r.memo||''});
       if(visitHistory.length>200) visitHistory.pop();
     }
@@ -728,7 +757,6 @@ function renderRoute(){
   document.getElementById('done-cnt').textContent=done;
   document.getElementById('total-cnt').textContent=total;
   document.getElementById('progress-bar').style.width=(total?Math.round(done/total*100):0)+'%';
-  // 오늘 재방문 예정 알림
   var today=todayStr();
   var alerts=routeList.filter(function(r){return r.revisit&&r.revisit<=today&&!r.done;});
   var alertEl=document.getElementById('revisit-alert');
@@ -776,7 +804,6 @@ function openKakaoNavi(){
 
 /* ═══ 영업관리 ═══ */
 function renderMgmt(){
-  // 통계
   var today=todayStr();
   var todayVisit=visitHistory.filter(function(h){return h.date===today;}).length;
   var totalVisit=visitHistory.length;
@@ -785,7 +812,6 @@ function renderMgmt(){
     '<div style="background:var(--pl);border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--p)">오늘 방문</div><div style="font-size:22px;font-weight:800;color:var(--p)">'+todayVisit+'</div></div>'+
     '<div style="background:#dcfce7;border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:var(--ok)">누적 방문</div><div style="font-size:22px;font-weight:800;color:var(--ok)">'+totalVisit+'</div></div>'+
     '<div style="background:#fef9c3;border-radius:8px;padding:10px;text-align:center"><div style="font-size:10px;color:#a16207">즐겨찾기</div><div style="font-size:22px;font-weight:800;color:#a16207">'+favCnt+'</div></div>';
-  // 재방문 예정
   var rvItems=Object.keys(revisitDates).map(function(id){
     var fav=favorites[id];var name=fav?fav.name:memos[id]?'('+id+')':'';
     return{id:id,name:name,date:revisitDates[id],dd:dday(revisitDates[id])};
@@ -798,7 +824,6 @@ function renderMgmt(){
         '<div>'+ddHtml+'</div></div></div>';
     }).join('');
   } else document.getElementById('revisit-list').innerHTML='<div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">재방문 예정 없음 (7일 이내)</div>';
-  // 즐겨찾기
   var favKeys=Object.keys(favorites);
   if(favKeys.length){
     document.getElementById('fav-list').innerHTML=favKeys.map(function(id){
@@ -816,9 +841,7 @@ function renderMgmt(){
         '</div></div>';
     }).join('');
   } else document.getElementById('fav-list').innerHTML='<div style="font-size:12px;color:var(--g4);text-align:center;padding:12px">즐겨찾기 없음<br><span style="font-size:10px">부동산탐색에서 ⭐ 버튼으로 추가</span></div>';
-  // 방문 이력
   if(visitHistory.length){
-    // 날짜별 그룹
     var groups={};
     visitHistory.forEach(function(h){if(!groups[h.date])groups[h.date]=[];groups[h.date].push(h);});
     var dates=Object.keys(groups).sort().reverse().slice(0,10);
@@ -837,7 +860,7 @@ function toast(msg){var el=document.getElementById('toast');el.textContent=msg;e
 
 /* ═══ 초기화 ═══ */
 updateBadges();
-loadByPeriod();
+// 자동 로드 없음 — 📊 거래량 불러오기 버튼으로만 실행
 </script>
 </body>
 </html>
