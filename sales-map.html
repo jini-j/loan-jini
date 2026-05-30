@@ -658,7 +658,7 @@ function initMap(){
       ps=new kakao.maps.services.Places();
       geocoder=new kakao.maps.services.Geocoder();
     }catch(e){
-      toast('지도 초기화 실패');
+      toast('지도 오류: '+(e&&e.message?e.message.substring(0,30):String(e).substring(0,30)));
       console.error('Kakao Map init error:',e);
     }
   });
