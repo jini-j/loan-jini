@@ -104,6 +104,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
+<div id="js-ok" style="display:none;position:fixed;top:0;left:0;right:0;background:#16a34a;color:#fff;text-align:center;font-size:13px;font-weight:700;padding:6px;z-index:9999">✅ JS 정상 실행 중</div>
 <div class="topbar">
   <div class="topbar-row">
     <h1>🗺️ 영업 지도</h1>
@@ -271,6 +272,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </div>
 
 <script>
+window.onerror=function(m,s,l,c,e){console.error("JS오류:",m,l,c);return true;};
 /* ═══ 설정 ═══ */
 var API_KEY='309f2867723c36600c6c0b64a974752d51b0a08e629a82b2526d3b703742cfa7';
 var SEOUL_GU=[
@@ -287,22 +289,25 @@ var SEOUL_GU=[
 
 /* ═══ 상태 ═══ */
 var map,geocoder,ps,markers=[],myLoc=null,searchRadius=500;
-var routeList=JSON.parse(localStorage.getItem('rl')||'[]');
-var memos=JSON.parse(localStorage.getItem('memos')||'{}');
-var revisitDates=JSON.parse(localStorage.getItem('revisitDates')||'{}');
-var favorites=JSON.parse(localStorage.getItem('favs')||'{}');
-var placeStatus=JSON.parse(localStorage.getItem('pstatus')||'{}');
-var visitHistory=JSON.parse(localStorage.getItem('vhist')||'[]');
+/* localStorage 보안 오류 방지 */
+function _ls(key,def){try{var v=localStorage.getItem(key);return v?JSON.parse(v):def;}catch(e){return def;}}
+function _lsSet(key,val){try{localStorage.setItem(key,JSON.stringify(val));}catch(e){}}
+var routeList=_ls('rl',[]);
+var memos=_ls('memos',{});
+var revisitDates=_ls('revisitDates',{});
+var favorites=_ls('favs',{});
+var placeStatus=_ls('pstatus',{});
+var visitHistory=_ls('vhist',[]);
 var filterType='all',periodKey='m0',sortDesc=true,showCmp=false;
 var guData=[],guDataPrev=[],_aptMap={},_curGuName='',curMemoId=null;
 
 function saveStorage(){
-  localStorage.setItem('rl',JSON.stringify(routeList));
-  localStorage.setItem('memos',JSON.stringify(memos));
-  localStorage.setItem('revisitDates',JSON.stringify(revisitDates));
-  localStorage.setItem('favs',JSON.stringify(favorites));
-  localStorage.setItem('pstatus',JSON.stringify(placeStatus));
-  localStorage.setItem('vhist',JSON.stringify(visitHistory));
+  _lsSet('rl',routeList);
+  _lsSet('memos',memos);
+  _lsSet('revisitDates',revisitDates);
+  _lsSet('favs',favorites);
+  _lsSet('pstatus',placeStatus);
+  _lsSet('vhist',visitHistory);
 }
 
 /* ═══ 탭 ═══ */
@@ -705,11 +710,11 @@ function searchNearby(loc){
         '<div class="est-actions">'+
           '<div style="display:flex;gap:3px">'+
             (d.phone?'<button class="btn-sm" onclick="window.open(\'tel:'+d.phone+'\')" style="color:var(--ok)">📞</button>':'')+
-            '<button class="btn-sm '+(isFav?'':'')+('" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
+            '<button class="btn-sm '+(isFav?'':'')+'" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
               (isFav?'⭐':'☆')+'</button>'+
           '</div>'+
           '<button class="btn-sm" onclick="cycleStatus(\''+d.id+'\')" style="font-size:9px">상태변경</button>'+
-          '<button class="btn-sm '+(isAdded?'':'')+('" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
+          '<button class="btn-sm '+(isAdded?'':'')+'" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
             (isAdded?'✅동선':'＋동선')+'</button>'+
           '<button class="btn-sm" onclick="openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')">📝메모</button>'+
         '</div>'+
@@ -892,6 +897,22 @@ function renderMgmt(){
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none';},2000);}
 
 /* ═══ 초기화 ═══ */
+// JS 실행 확인 배너 표시
+var _jsOk=document.getElementById('js-ok');
+if(_jsOk)_jsOk.style.display='block';
+setTimeout(function(){if(_jsOk)_jsOk.style.display='none';},3000);
+
+// 터치 이벤트 강화: onclick 외에 touchend도 처리
+document.addEventListener('DOMContentLoaded',function(){
+  document.querySelectorAll('button').forEach(function(btn){
+    btn.addEventListener('touchend',function(e){
+      e.preventDefault();
+      var fn=btn.getAttribute('onclick');
+      if(fn){try{eval(fn);}catch(ex){}}
+    },{passive:false});
+  });
+});
+
 updateBadges();
 // 자동 로드 제거 - 버튼으로 직접 실행
 </script>
