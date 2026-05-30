@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>영업 지도</title>
-<script src="//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer"></script>
+<!-- Kakao SDK는 지도 탭 진입 시 동적 로드 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--p:#2563eb;--pl:#eff6ff;--g1:#f8fafc;--g2:#f1f5f9;--g3:#e2e8f0;--g4:#94a3b8;--g5:#64748b;--g6:#475569;--g7:#1e293b;--g8:#0f172a;--er:#dc2626;--ok:#16a34a;--warn:#d97706;}
@@ -617,11 +617,26 @@ function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTim
 function escQ(s){return(s||'').replace(/'/g,"\\'");}
 
 /* ═══ 지도 ═══ */
+var _kakaoLoaded=false,_kakaoLoading=false;
+function loadKakaoSDK(cb){
+  if(_kakaoLoaded){cb();return;}
+  if(_kakaoLoading){setTimeout(function(){loadKakaoSDK(cb);},200);return;}
+  _kakaoLoading=true;
+  var s=document.createElement('script');
+  s.src='//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer&autoload=false';
+  s.onload=function(){kakao.maps.load(function(){_kakaoLoaded=true;_kakaoLoading=false;cb();});};
+  s.onerror=function(){_kakaoLoading=false;toast('지도 SDK 로드 실패');};
+  document.head.appendChild(s);
+}
 function initMap(){
-  map=new kakao.maps.Map(document.getElementById('map'),{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
-  ps=new kakao.maps.services.Places(); geocoder=new kakao.maps.services.Geocoder();
+  loadKakaoSDK(function(){
+    if(map) return;
+    map=new kakao.maps.Map(document.getElementById('map'),{center:new kakao.maps.LatLng(37.5665,126.9780),level:5});
+    ps=new kakao.maps.services.Places(); geocoder=new kakao.maps.services.Geocoder();
+  });
 }
 function useMyLoc(){
+  if(!_kakaoLoaded){loadKakaoSDK(function(){useMyLoc();});return;}
   if(!map) initMap();
   if(!navigator.geolocation){alert('위치 서비스 미지원');return;}
   navigator.geolocation.getCurrentPosition(function(pos){
@@ -632,6 +647,7 @@ function useMyLoc(){
   },function(){alert('위치 정보를 가져올 수 없습니다.');});
 }
 function searchAddr(){
+  if(!_kakaoLoaded){loadKakaoSDK(function(){searchAddr();});return;}
   if(!map) initMap();
   var kw=document.getElementById('search-kw').value.trim(); if(!kw){alert('검색어를 입력하세요');return;}
   geocoder.addressSearch(kw,function(result,status){
