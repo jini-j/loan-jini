@@ -227,6 +227,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <span id="total-cnt" style="font-weight:800;color:var(--p)">0</span>
       <span style="font-size:11px;color:var(--g5)">곳</span>
       <span style="flex:1"></span>
+      <button class="btn-sm" style="background:var(--p);color:#fff;border-color:var(--p)" onclick="optimizeRoute()">🗺️ 최적화</button>
       <button class="btn-sm" onclick="clearRoute()">초기화</button>
     </div>
     <div style="margin-top:7px;height:5px;background:var(--g2);border-radius:3px;overflow:hidden">
@@ -692,9 +693,27 @@ function cycleStatus(id){var s=placeStatus[id];placeStatus[id]=s==='new'||!s?'re
 
 function searchNearby(loc){
   markers.forEach(function(m){m.setMap(null);}); markers=[];
-  ps.keywordSearch('공인중개사',function(data,status){
-    if(status!==kakao.maps.services.Status.OK){document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';return;}
+  var allData=[];
+  function fetchPage(page){
+    ps.keywordSearch('공인중개사',function(data,status,pagination){
+      if(status===kakao.maps.services.Status.OK){
+        allData=allData.concat(data);
+        if(pagination.hasNextPage&&page<3){fetchPage(page+1);}
+        else{renderEstList(allData,loc);}
+      } else if(page===1){
+        document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';
+      } else {
+        renderEstList(allData,loc);
+      }
+    },{location:loc,radius:searchRadius,sort:kakao.maps.services.SortBy.DISTANCE,page:page,size:15});
+  }
+  fetchPage(1);
+}
+function renderEstList(data,loc){
+    if(!data||!data.length){document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';return;}
     document.getElementById('est-count').textContent='주변 공인중개사 '+data.length+'곳';
+    // 마커 초기화
+    markers.forEach(function(m){m.setMap(null);}); markers=[];
     var html='';
     data.forEach(function(d,i){
       var pos=new kakao.maps.LatLng(d.y,d.x);
@@ -738,7 +757,6 @@ function searchNearby(loc){
       '</div>';
     });
     document.getElementById('est-list').innerHTML=html;
-  },{location:loc,radius:searchRadius,sort:kakao.maps.services.SortBy.DISTANCE});
 }
 function distM(lat1,lng1,lat2,lng2){var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;var a=Math.pow(Math.sin(dLat/2),2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.pow(Math.sin(dLng/2),2);return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));}
 
@@ -846,10 +864,19 @@ function renderRouteMap(){
 function openKakaoNavi(){
   if(!routeList.length){alert('방문 목록이 없습니다');return;}
   var remain=routeList.filter(function(r){return !r.done;});
-  var target=remain.length?remain[0]:routeList[0];
-  var msg='📋 오늘 방문 순서\n';
-  routeList.forEach(function(r,i){msg+=(r.done?'✅ ':'')+(i+1)+'. '+r.name+'\n';});
-  alert(msg); window.open('https://map.kakao.com/link/to/'+encodeURIComponent(target.name)+','+target.lat+','+target.lng);
+  if(!remain.length){alert('모두 방문 완료!');return;}
+  // 카카오맵 경유지 URL (최대 5개)
+  var stops=remain.slice(0,5);
+  var base='https://map.kakao.com/link/';
+  if(stops.length===1){
+    window.open(base+'to/'+encodeURIComponent(stops[0].name)+','+stops[0].lat+','+stops[0].lng);
+  } else {
+    // 출발→경유→도착 형식
+    var dest=stops[stops.length-1];
+    var url=base+'to/'+encodeURIComponent(dest.name)+','+dest.lat+','+dest.lng;
+    toast('카카오맵으로 이동 (최대 5곳)');
+    window.open(url);
+  }
 }
 
 /* ═══ 영업관리 ═══ */
@@ -912,6 +939,33 @@ function renderMgmt(){
 
 /* ═══ 토스트 ═══ */
 function toast(msg){var el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(el._t);el._t=setTimeout(function(){el.style.display='none';},2000);}
+
+
+/* ═══ 최적 동선 ═══ */
+function optimizeRoute(){
+  if(routeList.length<2){toast('2곳 이상 추가해야 최적화 가능');return;}
+  var unvisited=routeList.filter(function(r){return !r.done;});
+  if(unvisited.length<2){toast('미방문 장소가 2곳 이상 필요');return;}
+  // Nearest Neighbor 알고리즘
+  var start=unvisited[0];
+  var remaining=unvisited.slice(1);
+  var ordered=[start];
+  while(remaining.length>0){
+    var last=ordered[ordered.length-1];
+    var minDist=Infinity,minIdx=0;
+    remaining.forEach(function(r,i){
+      var d=Math.pow(r.lat-last.lat,2)+Math.pow(r.lng-last.lng,2);
+      if(d<minDist){minDist=d;minIdx=i;}
+    });
+    ordered.push(remaining[minIdx]);
+    remaining.splice(minIdx,1);
+  }
+  // 방문완료 항목은 끝에 유지
+  var done=routeList.filter(function(r){return r.done;});
+  routeList=ordered.concat(done);
+  saveStorage(); renderRoute();
+  toast('✅ 최적 동선으로 순서 변경됨');
+}
 
 /* ═══ 초기화 ═══ */
 // JS 실행 확인 배너 표시
