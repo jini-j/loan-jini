@@ -636,9 +636,16 @@ function loadKakaoSDK(cb){
   if(_kakaoLoading)return;
   _kakaoLoading=true;
   var s=document.createElement('script');
-  s.src='//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer&autoload=false';
-  s.onload=function(){kakao.maps.load(function(){_kakaoLoaded=true;_kakaoLoading=false;_kakaoQ.forEach(function(f){try{f();}catch(e){}});_kakaoQ=[];});};
-  s.onerror=function(){_kakaoLoading=false;};
+  s.src='//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer';
+  s.onload=function(){
+    _kakaoLoaded=true;_kakaoLoading=false;
+    _kakaoQ.forEach(function(f){try{f();}catch(e){}});
+    _kakaoQ=[];
+  };
+  s.onerror=function(){
+    _kakaoLoading=false;
+    document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">⚠️</div>지도 API 로드 실패<br><span style="font-size:11px">카카오 개발자 콘솔에서 도메인을 확인해주세요</span></div>';
+  };
   document.head.appendChild(s);
 }
 function initMap(){
