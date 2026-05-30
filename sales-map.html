@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <title>영업 지도</title>
-<!-- Kakao SDK는 지도 탭 진입 시 동적 로드 -->
+<!-- Kakao SDK 동적 로드 -->
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{--p:#2563eb;--pl:#eff6ff;--g1:#f8fafc;--g2:#f1f5f9;--g3:#e2e8f0;--g4:#94a3b8;--g5:#64748b;--g6:#475569;--g7:#1e293b;--g8:#0f172a;--er:#dc2626;--ok:#16a34a;--warn:#d97706;}
@@ -307,13 +307,15 @@ function saveStorage(){
 
 /* ═══ 탭 ═══ */
 function swTab(i){
-  [0,1,2,3].forEach(function(j){
-    document.getElementById('p'+j).classList.toggle('on',j===i);
-    document.querySelectorAll('.tab')[j].classList.toggle('on',j===i);
-  });
-  if(i===1&&!map) initMap();
-  if(i===2) renderRoute();
-  if(i===3) renderMgmt();
+  try{
+    [0,1,2,3].forEach(function(j){
+      var p=document.getElementById('p'+j);if(p)p.classList.toggle('on',j===i);
+      var t=document.querySelectorAll('.tab');if(t[j])t[j].classList.toggle('on',j===i);
+    });
+  }catch(e){}
+  try{if(i===1)initMap();}catch(e){}
+  try{if(i===2)renderRoute();}catch(e){}
+  try{if(i===3)renderMgmt();}catch(e){}
 }
 
 /* ═══ 날짜 유틸 ═══ */
@@ -364,11 +366,26 @@ function toggleCmp(){
 
 /* ═══ API ═══ */
 function buildUrl(ep,code,ym,rows){return 'https://apis.data.go.kr/1613000/'+ep+'/get'+ep+'?serviceKey='+encodeURIComponent(API_KEY)+'&pageNo=1&numOfRows='+(rows||1)+'&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';}
-function prx(url){return 'https://corsproxy.io/?'+encodeURIComponent(url);}
+function prx(url){
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  return proxies[0]+encodeURIComponent(url);
+}
+function fetchWithFallback(url){
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  function tryNext(i){
+    if(i>=proxies.length) return Promise.resolve(null);
+    return fetch(proxies[i]+encodeURIComponent(url),{
+      signal:(function(){try{return AbortSignal.timeout(8000);}catch(e){return undefined;}})()
+    }).then(function(r){
+      if(!r.ok) throw new Error('HTTP '+r.status);
+      return r.json();
+    }).catch(function(){return tryNext(i+1);});
+  }
+  return tryNext(0);
+}
 function fetchCount(ep,code,ym){
-  return fetch(prx(buildUrl(ep,code,ym,1)),{signal:AbortSignal.timeout(12000)})
-    .then(function(r){return r.json();})
-    .then(function(d){return d.response&&d.response.body?d.response.body.totalCount||0:0;})
+  return fetchWithFallback(buildUrl(ep,code,ym,1))
+    .then(function(d){return d&&d.response&&d.response.body?d.response.body.totalCount||0:0;})
     .catch(function(){return -1;});
 }
 function fetchItems(ep,code,ym,rows){
@@ -392,12 +409,34 @@ function setLoadingUI(label){
 function loadGuMonthly(pr){
   setLoadingUI(pr.label+' 조회 중...');
   var ym=pr.yms[0],done=0,total=SEOUL_GU.length*2;
-  function tick(){done++;if(done===total)finish();else document.getElementById('rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">조회 중 '+done+'/'+total+'</div></div>';}
-  function finish(){if(guData.every(function(d){return d.buy===-1&&d.rent===-1;}))loadSample();else{document.getElementById('data-badge').textContent='실데이터 · '+pr.label;document.getElementById('data-badge').className='badge badge-g';renderRank();}}
-  SEOUL_GU.forEach(function(g,i){
-    fetchCount('RTMSDataSvcAptTradeDev',g.code,ym).then(function(n){guData[i].buy=n;tick();});
-    fetchCount('RTMSDataSvcAptRent',g.code,ym).then(function(n){guData[i].rent=n;tick();});
-  });
+  // 30초 전체 타임아웃 → 샘플 데이터
+  var _timeout=setTimeout(function(){
+    if(done<total){console.warn('타임아웃 → 샘플 데이터');loadSample();}
+  },30000);
+  function tick(){
+    done++;
+    if(done===total){clearTimeout(_timeout);finish();}
+    else{document.getElementById('rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">조회 중 '+done+'/'+total+'</div></div>';}
+  }
+  function finish(){
+    if(guData.every(function(d){return d.buy===-1&&d.rent===-1;})){loadSample();}
+    else{var badge=document.getElementById('data-badge');badge.style.display='inline-block';badge.textContent='실데이터 · '+pr.label;badge.className='badge badge-g';renderRank();}
+  }
+  // 5개씩 배치 처리
+  var batch=5,idx=0;
+  function nextBatch(){
+    if(idx>=SEOUL_GU.length)return;
+    var end=Math.min(idx+batch,SEOUL_GU.length);
+    for(var i=idx;i<end;i++){
+      (function(i){
+        fetchCount('RTMSDataSvcAptTradeDev',SEOUL_GU[i].code,ym).then(function(n){guData[i].buy=n;tick();});
+        fetchCount('RTMSDataSvcAptRent',SEOUL_GU[i].code,ym).then(function(n){guData[i].rent=n;tick();});
+      })(i);
+    }
+    idx=end;
+    if(idx<SEOUL_GU.length)setTimeout(nextBatch,500);
+  }
+  nextBatch();
 }
 function loadGuWeekly(pr){
   setLoadingUI(pr.label+' 날짜 필터 중...');
@@ -585,22 +624,16 @@ function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTim
 function escQ(s){return(s||'').replace(/'/g,"\\'");}
 
 /* ═══ 지도 ═══ */
-var _kakaoLoaded=false,_kakaoLoading=false,_kakaoQueue=[];
+var _kakaoLoaded=false,_kakaoLoading=false,_kakaoQ=[];
 function loadKakaoSDK(cb){
   if(_kakaoLoaded){if(cb)cb();return;}
-  if(cb)_kakaoQueue.push(cb);
+  if(cb)_kakaoQ.push(cb);
   if(_kakaoLoading)return;
   _kakaoLoading=true;
   var s=document.createElement('script');
   s.src='//dapi.kakao.com/v2/maps/sdk.js?appkey=cfe76927c996dc6216ee17726d947313&libraries=services,clusterer&autoload=false';
-  s.onload=function(){
-    kakao.maps.load(function(){
-      _kakaoLoaded=true;_kakaoLoading=false;
-      _kakaoQueue.forEach(function(fn){try{fn();}catch(e){}});
-      _kakaoQueue=[];
-    });
-  };
-  s.onerror=function(){_kakaoLoading=false;toast('지도 SDK 로드 실패');};
+  s.onload=function(){kakao.maps.load(function(){_kakaoLoaded=true;_kakaoLoading=false;_kakaoQ.forEach(function(f){try{f();}catch(e){}});_kakaoQ=[];});};
+  s.onerror=function(){_kakaoLoading=false;};
   document.head.appendChild(s);
 }
 function initMap(){
