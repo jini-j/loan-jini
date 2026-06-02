@@ -988,17 +988,7 @@ var _jsOk=document.getElementById('js-ok');
 if(_jsOk)_jsOk.style.display='block';
 setTimeout(function(){if(_jsOk)_jsOk.style.display='none';},3000);
 
-// 터치 이벤트 강화: onclick 외에 touchend도 처리
-document.addEventListener('DOMContentLoaded',function(){
-  document.querySelectorAll('button').forEach(function(btn){
-    btn.addEventListener('touchend',function(e){
-      e.preventDefault();
-      var fn=btn.getAttribute('onclick');
-      if(fn){try{eval(fn);}catch(ex){}}
-      else if(typeof btn.onclick==='function'){try{btn.onclick(e);}catch(ex){}}
-    },{passive:false});
-  });
-});
+// touchend 핸들러 제거 - onclick으로 통일
 
 updateBadges();
 // 자동 로드 제거 - 버튼으로 직접 실행
