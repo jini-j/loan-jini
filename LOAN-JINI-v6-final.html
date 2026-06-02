@@ -4416,7 +4416,8 @@ var TAB_META=[
   {idx:9,label:'🏷️ 취득세',nbId:'nb9'},
   {idx:10,label:'📜 인지/채권',nbId:'nb11'},
   {idx:11,label:'📊 실적',nbId:'nb10'},
-  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'}
+  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'},
+  {idx:13,label:'🏡 전세한도',nbId:'nb13'}
 ];
 var _tabOrder=null,_tabHidden=null;
 function loadTabConfig(){try{_tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;_tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};}catch(e){_tabOrder=null;_tabHidden={};}}
@@ -4424,6 +4425,8 @@ function applyTabConfig(){
   loadTabConfig();if(!_tabOrder)return;
   var nav=document.querySelector('.bnav');if(!nav)return;
   var sortBtn=nav.querySelector('button:not([id^="nb"])');
+  // 저장된 순서에 없는 신규 탭은 끝에 자동 추가
+  TAB_META.forEach(function(meta){if(_tabOrder.indexOf(meta.idx)<0)_tabOrder.push(meta.idx);});
   _tabOrder.forEach(function(idx){
     var meta=TAB_META[idx];if(!meta)return;
     var btn=document.getElementById(meta.nbId);if(!btn)return;
