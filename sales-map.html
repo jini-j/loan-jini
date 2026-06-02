@@ -993,6 +993,7 @@ document.addEventListener('DOMContentLoaded',function(){
       e.preventDefault();
       var fn=btn.getAttribute('onclick');
       if(fn){try{eval(fn);}catch(ex){}}
+      else if(typeof btn.onclick==='function'){try{btn.onclick(e);}catch(ex){}}
     },{passive:false});
   });
 });
