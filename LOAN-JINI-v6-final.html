@@ -1032,6 +1032,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <button class="nb" id="nb11" onclick="swTab(10)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📜</span><span>인지/채권</span></button>
   <button class="nb" id="nb10" onclick="swTab(11);dashInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📊</span><span>실적</span></button>
 
+  <button class="nb" id="nb13" onclick="swTab(13)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏡</span><span>전세한도</span></button>
   <button class="nb" id="nb12" onclick="swTab(12)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--g4);font-size:10px;height:64px"><span style="font-size:20px">🗺️</span>영업지도</button>
   <button onclick="openTabSort()" style="flex:none;width:36px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--g4);font-size:9px;height:64px;border-left:1px solid var(--g3)"><span style="font-size:15px">⚙️</span>탭순서</button>
 </nav>
@@ -1042,7 +1043,7 @@ var D={"서울특별시":{"마포구":{"공덕SK리더스뷰":[[26.8,180000,1885
 
 
 var GU=["강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구"];
-var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map'];
+var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-jl'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
 
 // ── 상품 데이터 ──
@@ -4464,6 +4465,131 @@ function renderTabSortList(){
   _renderSortModal();
 }
 (function(){applyTabConfig();renderTabSortList();})();
+</script>
+
+<!-- ══ 전세한도 탭 ══ -->
+<div class="panel" id="tab-jl">
+  <div class="card">
+    <div class="ct">🏡 전세자금 한도 계산</div>
+    <div class="frow">
+      <div class="f"><label>KCB 점수</label><input type="number" id="jl-kcb" placeholder="예: 750" inputmode="numeric" style="height:44px"></div>
+      <div class="f"><label>NICE 점수</label><input type="number" id="jl-nice" placeholder="예: 820" inputmode="numeric" style="height:44px"></div>
+    </div>
+    <div class="f">
+      <label>임차보증금 (만원)</label>
+      <input type="number" id="jl-deposit" placeholder="예: 30000" inputmode="numeric" style="height:44px">
+    </div>
+    <div class="f">
+      <label>1주택 보유 여부</label>
+      <div class="chips">
+        <button class="chip on" id="jl-own-n" onclick="jlOwn('N')">무주택</button>
+        <button class="chip" id="jl-own-y" onclick="jlOwn('Y')">1주택</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>수도권 여부 <span style="font-size:10px;color:var(--g4)">(상품2 한도 차이)</span></label>
+      <div class="chips">
+        <button class="chip on" id="jl-metro-y" onclick="jlMetro('Y')">수도권</button>
+        <button class="chip" id="jl-metro-n" onclick="jlMetro('N')">수도권 외</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>신혼·청년 여부 <span style="font-size:10px;color:var(--g4)">(상품2 보증금 90% 특례)</span></label>
+      <div class="chips">
+        <button class="chip" id="jl-special-y" onclick="jlSpecial('Y')">해당</button>
+        <button class="chip on" id="jl-special-n" onclick="jlSpecial('N')">비해당</button>
+      </div>
+    </div>
+    <button class="cbtn" onclick="calcJL()">💡 한도 계산</button>
+  </div>
+  <div id="jl-result" style="display:none"></div>
+</div>
+
+<script>
+/* ══ 전세한도 계산 ══ */
+var jlOwnVal='N', jlMetroVal='Y', jlSpecialVal='N';
+function jlOwn(v){jlOwnVal=v;['Y','N'].forEach(function(x){var el=document.getElementById('jl-own-'+(x==='Y'?'y':'n'));if(el)el.classList.toggle('on',x===v);});}
+function jlMetro(v){jlMetroVal=v;['Y','N'].forEach(function(x){var el=document.getElementById('jl-metro-'+(x==='Y'?'y':'n'));if(el)el.classList.toggle('on',x===v);});}
+function jlSpecial(v){jlSpecialVal=v;['Y','N'].forEach(function(x){var el=document.getElementById('jl-special-'+(x==='Y'?'y':'n'));if(el)el.classList.toggle('on',x===v);});}
+
+function fmtJLP(man){if(!man||man===0)return '0';if(man>=10000){var e=Math.floor(man/10000),r=man%10000;return e+'억'+(r?' '+r+'만':'');}return man+'만원';}
+
+function calcJL(){
+  var kcb=parseInt(document.getElementById('jl-kcb').value)||0;
+  var nice=parseInt(document.getElementById('jl-nice').value)||0;
+  var dep=parseInt(document.getElementById('jl-deposit').value)||0;
+  if(!kcb||!nice||!dep){alert('KCB, NICE, 임차보증금을 모두 입력하세요');return;}
+  var isOwn=jlOwnVal==='Y', isMetro=jlMetroVal==='Y', isSpc=jlSpecialVal==='Y';
+  var res=[];
+
+  /* 상품1: 일반전세 */
+  var p1b=Math.floor(dep*0.8), p1max=isOwn?20000:44400;
+  var p1=Math.min(p1b,p1max);
+  res.push({name:'상품1 일반전세자금',icon:'🏦',ok:true,lim:p1,
+    note:'보증금 80%'+( isOwn?' · 1주택 상한 2억':'· 최대 4.44억')});
+
+  /* 상품2: 반환보증연계 */
+  var p2ok=!(nice<545&&kcb<550);
+  if(p2ok){
+    var cb2,cb2n;
+    if(nice>=820||kcb>=805){cb2=isMetro?40000:32000;cb2n=(isMetro?'수도권 4억':'수도권 외 3.2억');}
+    else if(nice>=740||kcb>=655){cb2=15000;cb2n='1.5억 (NICE740/KCB655↑)';}
+    else{cb2=7000;cb2n='7천만 (NICE545/KCB550↑)';}
+    var p2dep=isSpc?Math.floor(dep*0.9):Math.floor(dep*0.8);
+    var p2=Math.min(p2dep,cb2);
+    if(isOwn)p2=Math.min(p2,20000);
+    res.push({name:'상품2 반환보증연계',icon:'🔒',ok:true,lim:p2,
+      note:cb2n+(isSpc?' · 90% 특례':'')+(isOwn?' · 1주택 2억 상한':'')});
+  }else{
+    res.push({name:'상품2 반환보증연계',icon:'🔒',ok:false,lim:0,note:'신용점수 미달 (NICE545/KCB550 모두 미만)'});
+  }
+
+  /* 상품3: 주택·가계자금 */
+  var p3cl=0,p3n='',p3ok=true,p3warn=false;
+  if(kcb>=805&&nice>=820){p3cl=50000;p3n='KCB805&NICE820 모두 충족 · 최대 5억';}
+  else if(kcb>=710&&nice>=775){p3cl=40000;p3n='KCB710&NICE775 모두 충족 · 최대 4억';}
+  else if(kcb>=805||nice>=820){p3cl=30000;p3n='KCB805 또는 NICE820 충족 · 최대 3억';}
+  else if(kcb>=655||nice>=740){p3cl=20000;p3n='KCB655 또는 NICE740 충족 · 최대 2억';}
+  else if(kcb>=550||nice>=545){p3cl=15000;p3n='1.5억 (공공임대 한정)';p3warn=true;}
+  else{p3ok=false;p3n='신용점수 미달 취급 불가';}
+  if(p3ok){
+    var p3=Math.min(p3cl,Math.floor(dep*0.8));
+    if(isOwn)p3=Math.min(p3,30000);
+    res.push({name:'상품3 주택·가계자금',icon:'🏠',ok:true,lim:p3,warn:p3warn,
+      note:p3n+(isOwn?' · 1주택 3억 상한':'')});
+  }else{
+    res.push({name:'상품3 주택·가계자금',icon:'🏠',ok:false,lim:0,note:p3n});
+  }
+
+  var cards=res.map(function(r){
+    var bg,tc;
+    if(!r.ok){bg='#fef2f2';tc='var(--er)';}
+    else if(r.warn){bg='#fffbeb';tc='#d97706';}
+    else if(r.name.indexOf('상품1')>=0){bg='#eff6ff';tc='var(--p)';}
+    else{bg='#f0fdf4';tc='var(--ok)';}
+    return '<div style="background:'+bg+';border-radius:12px;padding:14px 16px;margin-bottom:10px">'+
+      '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+
+        '<span style="font-size:15px">'+r.icon+'</span>'+
+        '<span style="font-size:13px;font-weight:700;color:'+tc+'">'+r.name+'</span>'+
+        '<span style="margin-left:auto;background:'+(r.ok?tc:'var(--er)')+';color:#fff;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">'+(r.ok?'가능':'불가')+'</span>'+
+      '</div>'+
+      '<div style="font-size:24px;font-weight:800;color:'+tc+'">'+(r.ok?fmtJLP(r.lim):'취급불가')+'</div>'+
+      '<div style="font-size:11px;color:var(--g5);margin-top:3px">'+r.note+'</div>'+
+    '</div>';
+  }).join('');
+
+  var el=document.getElementById('jl-result');
+  el.innerHTML='<div class="card">'+
+    '<div class="ct">💡 한도 계산 결과</div>'+
+    '<div style="font-size:12px;color:var(--g5);margin-bottom:10px;padding:8px 10px;background:var(--g1);border-radius:8px">'+
+      'KCB <b>'+kcb+'</b> · NICE <b>'+nice+'</b> · 보증금 <b>'+fmtJLP(dep)+'</b> · '+(isOwn?'1주택':'무주택')+(isMetro?'':' · 수도권외')+(isSpc?' · 신혼·청년':'')+
+    '</div>'+
+    cards+
+    '<div style="font-size:10px;color:var(--g4);margin-top:4px">※ 실제 한도는 선순위채권·시세 등 추가 심사 조건에 따라 달라질 수 있습니다.</div>'+
+  '</div>';
+  el.style.display='block';
+  el.scrollIntoView({behavior:'smooth'});
+}
 </script>
 </body>
 </html>
