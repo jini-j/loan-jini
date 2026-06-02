@@ -4533,7 +4533,8 @@ function calcJL(){
   var hfBase=Math.floor(dep*0.8);
   var hfMax=isOwn?20000:44400;
   var hfLim=Math.min(hfBase,hfMax);
-  res.push({name:'hf (주택금융공사)',icon:'🏦',ok:true,lim:hfLim,
+  var hfMax2=isOwn?20000:44400;
+  res.push({name:'hf (주택금융공사)',icon:'🏦',ok:true,lim:hfLim,maxLim:hfMax2,
     note:'보증금×80%'+(isOwn?' · 1주택 상한 2억':' · 최대 4.44억')+' · 신용점수 무관(주금공 보증한도 적용)'});
 
   /* ── hug (주택도시보증공사): CB스코어별 한도 ── */
@@ -4553,10 +4554,10 @@ function calcJL(){
     var hugDep=isSpc?Math.floor(dep*0.9):Math.floor(dep*0.8);
     var hugLim=Math.min(hugDep,hugCB);
     if(isOwn)hugLim=Math.min(hugLim,20000);
-    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:true,lim:hugLim,
+    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:true,lim:hugLim,maxLim:isOwn?20000:hugCB,
       note:hugCBn+(isSpc?' · 신혼·청년 90% 특례':'')+(isOwn?' · 1주택 2억 상한':'')});
   } else {
-    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:false,lim:0,
+    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:false,lim:0,maxLim:isOwn?20000:(isMetro?40000:32000),
       note:'신용점수 미달 — NICE545·KCB550 모두 미만 취급불가'});
   }
 
@@ -4578,10 +4579,10 @@ function calcJL(){
   if(sgiOk){
     var sgiLim=Math.min(sgiCL,Math.floor(dep*0.8));
     if(isOwn)sgiLim=Math.min(sgiLim,30000);
-    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:true,lim:sgiLim,warn:sgiWarn,
+    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:true,lim:sgiLim,warn:sgiWarn,maxLim:isOwn?30000:50000,
       note:sgiN+(isOwn?' · 부부합산 1주택 3억 상한':'')});
   } else {
-    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:false,lim:0,note:sgiN});
+    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:false,lim:0,maxLim:isOwn?30000:50000,note:sgiN});
   }
 
   var cards=res.map(function(r){
@@ -4596,7 +4597,10 @@ function calcJL(){
         '<span style="font-size:13px;font-weight:700;color:'+tc+'">'+r.name+'</span>'+
         '<span style="margin-left:auto;background:'+(r.ok?tc:'var(--er)')+';color:#fff;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:700">'+(r.ok?'가능':'불가')+'</span>'+
       '</div>'+
-      '<div style="font-size:24px;font-weight:800;color:'+tc+'">'+(r.ok?fmtJLP(r.lim):'취급불가')+'</div>'+
+      '<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:2px">'+
+        '<div style="font-size:24px;font-weight:800;color:'+tc+'">'+(r.ok?fmtJLP(r.lim):'취급불가')+'</div>'+
+        (r.maxLim?'<div style="font-size:11px;color:var(--g4)">/ 상품 최대 <b style=\"color:var(--g6)\">'+fmtJLP(r.maxLim)+'</b></div>':'')+
+      '</div>'+
       '<div style="font-size:11px;color:var(--g5);margin-top:3px">'+r.note+'</div>'+
     '</div>';
   }).join('');
