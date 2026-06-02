@@ -135,7 +135,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
     <div id="apt-modal-rent-wrap" style="margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:5px">🟢 전세 실거래 내역</div><div id="apt-modal-rent"></div></div>
     <div style="display:flex;gap:7px;margin-top:14px">
       <button class="btn btn-s" style="flex:1;height:40px" onclick="closeAptModal()">닫기</button>
-      <button class="btn btn-p" style="flex:2;height:40px" id="apt-modal-nav-btn">📍 주변 부동산 찾기</button>
+      <button class="btn btn-p" style="flex:2;height:40px" id="apt-modal-nav-btn" onclick="navToApt()">📍 주변 부동산 찾기</button>
     </div>
   </div>
 </div>
@@ -587,7 +587,7 @@ function showAptDetail(key){
   document.getElementById('apt-modal-buy').innerHTML=makeTxTable(apt.buyItems,'buy');
   document.getElementById('apt-modal-rent').innerHTML=makeTxTable(apt.rentItems,'rent');
   var navQ=apt.name+' '+apt.dong+' '+_curGuName;
-  document.getElementById('apt-modal-nav-btn').onclick=function(){closeAptModal();goToApt(navQ);};
+  _aptNavQ=navQ;
   document.getElementById('apt-modal').style.display='flex';
 }
 function calcAvg(items,type){var vals=getPrices(items,type);return vals.length?Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length):0;}
@@ -627,6 +627,8 @@ function makeTxTable(items,type){
 function fmtPrice(man){if(!man)return '–';if(man>=10000){var e=Math.floor(man/10000),r=man%10000;return e+'억'+(r?' '+r+'만':'');}return man+'만원';}
 function closeAptModal(){document.getElementById('apt-modal').style.display='none';}
 function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTimeout(searchAddr,600);}
+var _aptNavQ='';
+function navToApt(){closeAptModal();goToApt(_aptNavQ);}
 function escQ(s){return(s||'').replace(/'/g,"\\'");}
 
 /* ═══ 지도 ═══ */
