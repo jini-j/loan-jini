@@ -1336,7 +1336,9 @@ function swTab(i){
   }
   TABS.forEach(function(t,j){
     document.getElementById(t).classList.toggle('on',j===i);
-    var nb=document.getElementById('nb'+j);
+    var meta=TAB_META[j];
+    var nbId=meta?meta.nbId:'nb'+j;
+    var nb=document.getElementById(nbId);
     if(nb) nb.classList.toggle('on',j===i);
   });
   var nb12=document.getElementById('nb12');
@@ -4436,7 +4438,9 @@ function applyTabConfig(){
 }
 function openTabSort(){
   loadTabConfig();
-  window._tsTempOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();
+  var baseOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();
+  TAB_META.forEach(function(m){if(baseOrder.indexOf(m.idx)<0)baseOrder.push(m.idx);});
+  window._tsTempOrder=baseOrder;
   window._tsTempHidden=Object.assign({},(_tabHidden||{}));
   _renderSortModal();
   document.getElementById('tab-sort-modal').style.display='flex';
@@ -4525,50 +4529,66 @@ function calcJL(){
   var isOwn=jlOwnVal==='Y', isMetro=jlMetroVal==='Y', isSpc=jlSpecialVal==='Y';
   var res=[];
 
-  /* 상품1: 일반전세 */
-  var p1b=Math.floor(dep*0.8), p1max=isOwn?20000:44400;
-  var p1=Math.min(p1b,p1max);
-  res.push({name:'상품1 일반전세자금',icon:'🏦',ok:true,lim:p1,
-    note:'보증금 80%'+( isOwn?' · 1주택 상한 2억':'· 최대 4.44억')});
+  /* ── hf (주택금융공사): 신용점수 무관, 보증금 80% · 최대 4.44억 ── */
+  var hfBase=Math.floor(dep*0.8);
+  var hfMax=isOwn?20000:44400;
+  var hfLim=Math.min(hfBase,hfMax);
+  res.push({name:'hf (주택금융공사)',icon:'🏦',ok:true,lim:hfLim,
+    note:'보증금×80%'+(isOwn?' · 1주택 상한 2억':' · 최대 4.44억')+' · 신용점수 무관(주금공 보증한도 적용)'});
 
-  /* 상품2: 반환보증연계 */
-  var p2ok=!(nice<545&&kcb<550);
-  if(p2ok){
-    var cb2,cb2n;
-    if(nice>=820||kcb>=805){cb2=isMetro?40000:32000;cb2n=(isMetro?'수도권 4억':'수도권 외 3.2억');}
-    else if(nice>=740||kcb>=655){cb2=15000;cb2n='1.5억 (NICE740/KCB655↑)';}
-    else{cb2=7000;cb2n='7천만 (NICE545/KCB550↑)';}
-    var p2dep=isSpc?Math.floor(dep*0.9):Math.floor(dep*0.8);
-    var p2=Math.min(p2dep,cb2);
-    if(isOwn)p2=Math.min(p2,20000);
-    res.push({name:'상품2 반환보증연계',icon:'🔒',ok:true,lim:p2,
-      note:cb2n+(isSpc?' · 90% 특례':'')+(isOwn?' · 1주택 2억 상한':'')});
-  }else{
-    res.push({name:'상품2 반환보증연계',icon:'🔒',ok:false,lim:0,note:'신용점수 미달 (NICE545/KCB550 모두 미만)'});
+  /* ── hug (주택도시보증공사): CB스코어별 한도 ── */
+  var hugOk=!(nice<545&&kcb<550);
+  if(hugOk){
+    var hugCB,hugCBn;
+    if(nice>=820||kcb>=805){
+      hugCB=isMetro?40000:32000;
+      hugCBn='NICE820/KCB805↑ · '+(isMetro?'수도권 4억':'수도권 외 3.2억');
+    } else if(nice>=740||kcb>=655){
+      hugCB=15000;
+      hugCBn='NICE740/KCB655↑ · 최대 1.5억';
+    } else {
+      hugCB=7000;
+      hugCBn='NICE545/KCB550↑ · 최대 7천만';
+    }
+    var hugDep=isSpc?Math.floor(dep*0.9):Math.floor(dep*0.8);
+    var hugLim=Math.min(hugDep,hugCB);
+    if(isOwn)hugLim=Math.min(hugLim,20000);
+    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:true,lim:hugLim,
+      note:hugCBn+(isSpc?' · 신혼·청년 90% 특례':'')+(isOwn?' · 1주택 2억 상한':'')});
+  } else {
+    res.push({name:'hug (주택도시보증공사)',icon:'🔒',ok:false,lim:0,
+      note:'신용점수 미달 — NICE545·KCB550 모두 미만 취급불가'});
   }
 
-  /* 상품3: 주택·가계자금 */
-  var p3cl=0,p3n='',p3ok=true,p3warn=false;
-  if(kcb>=805&&nice>=820){p3cl=50000;p3n='KCB805&NICE820 모두 충족 · 최대 5억';}
-  else if(kcb>=710&&nice>=775){p3cl=40000;p3n='KCB710&NICE775 모두 충족 · 최대 4억';}
-  else if(kcb>=805||nice>=820){p3cl=30000;p3n='KCB805 또는 NICE820 충족 · 최대 3억';}
-  else if(kcb>=655||nice>=740){p3cl=20000;p3n='KCB655 또는 NICE740 충족 · 최대 2억';}
-  else if(kcb>=550||nice>=545){p3cl=15000;p3n='1.5억 (공공임대 한정)';p3warn=true;}
-  else{p3ok=false;p3n='신용점수 미달 취급 불가';}
-  if(p3ok){
-    var p3=Math.min(p3cl,Math.floor(dep*0.8));
-    if(isOwn)p3=Math.min(p3,30000);
-    res.push({name:'상품3 주택·가계자금',icon:'🏠',ok:true,lim:p3,warn:p3warn,
-      note:p3n+(isOwn?' · 1주택 3억 상한':'')});
-  }else{
-    res.push({name:'상품3 주택·가계자금',icon:'🏠',ok:false,lim:0,note:p3n});
+  /* ── sgi (SGI서울보증): 신용평점별 5단계 ── */
+  var sgiCL=0,sgiN='',sgiOk=true,sgiWarn=false;
+  if(kcb>=805&&nice>=820){
+    sgiCL=50000; sgiN='KCB805&NICE820 모두충족 · 최대 5억';
+  } else if(kcb>=710&&nice>=775){
+    sgiCL=40000; sgiN='KCB710&NICE775 모두충족 · 최대 4억';
+  } else if(kcb>=805||nice>=820){
+    sgiCL=30000; sgiN='KCB805 또는 NICE820↑ · 최대 3억';
+  } else if(kcb>=655||nice>=740){
+    sgiCL=20000; sgiN='KCB655 또는 NICE740↑ · 최대 2억';
+  } else if(kcb>=550||nice>=545){
+    sgiCL=15000; sgiN='KCB550 또는 NICE545↑ · 최대 1.5억 (공공주택사업자 한정)'; sgiWarn=true;
+  } else {
+    sgiOk=false; sgiN='신용점수 미달 — 취급불가';
+  }
+  if(sgiOk){
+    var sgiLim=Math.min(sgiCL,Math.floor(dep*0.8));
+    if(isOwn)sgiLim=Math.min(sgiLim,30000);
+    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:true,lim:sgiLim,warn:sgiWarn,
+      note:sgiN+(isOwn?' · 부부합산 1주택 3억 상한':'')});
+  } else {
+    res.push({name:'sgi (SGI서울보증)',icon:'🏠',ok:false,lim:0,note:sgiN});
   }
 
   var cards=res.map(function(r){
     var bg,tc;
     if(!r.ok){bg='#fef2f2';tc='var(--er)';}
     else if(r.warn){bg='#fffbeb';tc='#d97706';}
-    else if(r.name.indexOf('상품1')>=0){bg='#eff6ff';tc='var(--p)';}
+    else if(r.name.indexOf('hf')>=0){bg='#eff6ff';tc='var(--p)';}
     else{bg='#f0fdf4';tc='var(--ok)';}
     return '<div style="background:'+bg+';border-radius:12px;padding:14px 16px;margin-bottom:10px">'+
       '<div style="display:flex;align-items:center;gap:6px;margin-bottom:5px">'+
