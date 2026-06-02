@@ -626,7 +626,7 @@ function makeTxTable(items,type){
 }
 function fmtPrice(man){if(!man)return '–';if(man>=10000){var e=Math.floor(man/10000),r=man%10000;return e+'억'+(r?' '+r+'만':'');}return man+'만원';}
 function closeAptModal(){document.getElementById('apt-modal').style.display='none';}
-function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTimeout(searchAddr,300);}
+function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTimeout(searchAddr,600);}
 function escQ(s){return(s||'').replace(/'/g,"\\'");}
 
 /* ═══ 지도 ═══ */
@@ -678,8 +678,8 @@ function useMyLoc(){
   },function(){alert('위치 정보를 가져올 수 없습니다.');});
 }
 function searchAddr(){
-  if(!_kakaoLoaded){loadKakaoSDK(function(){setTimeout(searchAddr,200);});return;}
-  if(!map){initMap();setTimeout(searchAddr,300);return;}
+  if(!_kakaoLoaded){loadKakaoSDK(function(){setTimeout(searchAddr,300);});return;}
+  if(!map||!geocoder||!ps){initMap();setTimeout(searchAddr,500);return;}
   var kw=document.getElementById('search-kw').value.trim(); if(!kw){alert('검색어를 입력하세요');return;}
   geocoder.addressSearch(kw,function(result,status){
     if(status===kakao.maps.services.Status.OK){var loc=new kakao.maps.LatLng(result[0].y,result[0].x);myLoc=loc;map.setCenter(loc);map.setLevel(4);searchNearby(loc);}
@@ -694,20 +694,23 @@ function cycleStatus(id){var s=placeStatus[id];placeStatus[id]=s==='new'||!s?'re
 function searchNearby(loc){
   markers.forEach(function(m){m.setMap(null);}); markers=[];
   var allData=[];
-  function fetchPage(page){
-    ps.keywordSearch('공인중개사',function(data,status,pagination){
-      if(status===kakao.maps.services.Status.OK){
-        allData=allData.concat(data);
-        if(pagination.hasNextPage&&page<3){fetchPage(page+1);}
-        else{renderEstList(allData,loc);}
-      } else if(page===1){
-        document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';
+  var _pageCount=0;
+  function onResult(data,status,pagination){
+    if(status===kakao.maps.services.Status.OK){
+      allData=allData.concat(data);
+      _pageCount++;
+      if(pagination.hasNextPage&&_pageCount<3){
+        pagination.nextPage();
       } else {
         renderEstList(allData,loc);
       }
-    },{location:loc,radius:searchRadius,sort:kakao.maps.services.SortBy.DISTANCE,page:page,size:15});
+    } else if(_pageCount===0){
+      document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';
+    } else {
+      renderEstList(allData,loc);
+    }
   }
-  fetchPage(1);
+  ps.keywordSearch('공인중개사',onResult,{location:loc,radius:searchRadius,sort:kakao.maps.services.SortBy.DISTANCE});
 }
 function renderEstList(data,loc){
     if(!data||!data.length){document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';return;}
@@ -865,17 +868,27 @@ function openKakaoNavi(){
   if(!routeList.length){alert('방문 목록이 없습니다');return;}
   var remain=routeList.filter(function(r){return !r.done;});
   if(!remain.length){alert('모두 방문 완료!');return;}
-  // 카카오맵 경유지 URL (최대 5개)
-  var stops=remain.slice(0,5);
+  var next=remain[0]; // 첫 번째 미방문 장소
+  var cnt=remain.length;
   var base='https://map.kakao.com/link/';
-  if(stops.length===1){
-    window.open(base+'to/'+encodeURIComponent(stops[0].name)+','+stops[0].lat+','+stops[0].lng);
-  } else {
-    // 출발→경유→도착 형식
-    var dest=stops[stops.length-1];
-    var url=base+'to/'+encodeURIComponent(dest.name)+','+dest.lat+','+dest.lng;
-    toast('카카오맵으로 이동 (최대 5곳)');
+  function openDest(slat,slng){
+    var url;
+    if(slat&&slng){
+      url=base+'route/현재위치,'+slat+','+slng+'/'+encodeURIComponent(next.name)+','+next.lat+','+next.lng;
+    } else {
+      url=base+'to/'+encodeURIComponent(next.name)+','+next.lat+','+next.lng;
+    }
+    toast('📍 '+next.name+(cnt>1?' · '+cnt+'곳 남음':''));
     window.open(url);
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){openDest(pos.coords.latitude.toFixed(6),pos.coords.longitude.toFixed(6));},
+      function(){openDest(null,null);},
+      {timeout:3000,maximumAge:10000}
+    );
+  } else {
+    openDest(null,null);
   }
 }
 
