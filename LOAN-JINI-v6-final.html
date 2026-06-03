@@ -507,6 +507,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         <button class="chip" onclick="selC(this,'hsc')">2주택+</button>
       </div>
     </div>
+    <div class="f">
+      <label>신혼·청년 여부 <span style="font-size:10px;color:var(--g4)">(hug 보증금 90% 특례)</span></label>
+      <div class="chips" id="jsc">
+        <button class="chip on" onclick="selC(this,'jsc')">비해당</button>
+        <button class="chip" onclick="selC(this,'jsc')">신혼·청년</button>
+      </div>
+    </div>
     <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
       <div style="font-size:11px;font-weight:700;color:var(--g5);margin-bottom:7px">📊 신용점수 <span style="font-weight:400;color:var(--g4)">(선택 · 미입력 시 최대한도 기준)</span></div>
       <div class="frow">
@@ -1763,7 +1770,9 @@ function doJeon(){
     lb='보증금×80% · 최대'+(hc>=1?'2억(1주택)':'4.44억');
     scoreNote='신용점수 무관';
   } else if(g==='HUG'){
-    // hug: 보증금×80%, CB스코어별, 1주택 2억 상한
+    // hug: 보증금×80%(신혼청년 90%), CB스코어별, 1주택 2억 상한
+    var isSpc=gC('jsc')==='신혼·청년';
+    var hugRatio=isSpc?0.9:0.8;
     var hugCap;
     if(hasScore){
       if(nice>=820||kcb>=805){ hugCap=rg==='수도권'?40000:32000; scoreNote='NICE820/KCB805↑'; }
@@ -1773,10 +1782,11 @@ function doJeon(){
     } else {
       hugCap=rg==='수도권'?40000:32000; scoreNote='신용점수 미입력(최대 기준)';
     }
-    mg=Math.min(Math.floor(dep*0.8),hugCap);
+    mg=Math.min(Math.floor(dep*hugRatio),hugCap);
     if(hc>=1) mg=Math.min(mg,20000);
     iOk=true; rOk=dep<=rl; hOk=hc<=1;
-    lb='보증금×80% · '+(hc>=1?'1주택 2억 상한':'최대'+(rg==='수도권'?'4억':'3.2억'));
+    lb='보증금×'+(isSpc?'90%(신혼·청년)':'80%')+' · '+(hc>=1?'1주택 2억 상한':'최대'+(rg==='수도권'?'4억':'3.2억'));
+    if(isSpc) scoreNote+=(scoreNote?' · ':'')+'90% 특례 적용';
   } else {
     // sgi: 보증금×80%, 신용점수별, 1주택 3억 상한
     var sgiCap;
