@@ -94,10 +94,44 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 })();
 </script>
 <script>
+var _deferredPrompt = null;
+
 if('serviceWorker' in navigator){
   window.addEventListener('load', function(){
     navigator.serviceWorker.register('./sw.js').catch(function(e){console.warn('SW 등록 실패',e);});
   });
+}
+
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredPrompt = e;
+  // 설치 버튼 업데이트
+  var btn = document.getElementById('pwa-install-btn');
+  if(btn){ btn.textContent = '📲 앱 설치'; btn.style.background = 'rgba(255,255,255,.35)'; }
+});
+
+window.addEventListener('appinstalled', function(){
+  _deferredPrompt = null;
+  var btn = document.getElementById('pwa-install-btn');
+  if(btn){ btn.textContent = '✅ 설치됨'; }
+});
+
+function showInstall(){
+  if(_deferredPrompt){
+    // Chrome Android: 실제 설치 프롬프트 실행
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(function(r){
+      if(r.outcome === 'accepted') _deferredPrompt = null;
+    });
+  } else {
+    // iOS Safari / 미지원 브라우저: 안내 팝업
+    var el = document.getElementById('inst-overlay');
+    if(el) el.style.display = 'flex';
+  }
+}
+function hideInstall(){
+  var el = document.getElementById('inst-overlay');
+  if(el) el.style.display = 'none';
 }
 </script>
 </head>
@@ -199,7 +233,7 @@ if('serviceWorker' in navigator){
   <span class="t-icon">🏦</span>
   <span class="t-title">대출 한도 계산기</span>
   <span class="t-sub">서울 전체 25개구</span>
-  <button onclick="showInstall()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;margin-left:8px">📲 홈화면 추가</button>
+  <button id="pwa-install-btn" onclick="showInstall()" style="background:rgba(255,255,255,.2);border:none;color:#fff;padding:5px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;margin-left:8px">📲 홈화면 추가</button>
 </div>
 
 <!-- ══ 시세조회 탭 ══ -->
@@ -1887,8 +1921,8 @@ document.addEventListener('click',function(e){
   }
 });
 
-function showInstall(){document.getElementById('inst-overlay').style.display='flex';}
-function hideInstall(){document.getElementById('inst-overlay').style.display='none';}
+
+
 document.getElementById('inst-overlay').addEventListener('click',function(e){
   if(e.target===this) hideInstall();
 });
