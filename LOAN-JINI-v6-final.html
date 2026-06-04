@@ -213,19 +213,49 @@ function hideInstall(){
 <!-- 홈화면 추가 안내 -->
 <div id="inst-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999;align-items:flex-end;justify-content:center">
   <div style="background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:480px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
       <span style="font-size:16px;font-weight:700;color:#111">📲 홈화면에 추가하기</span>
       <button onclick="hideInstall()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#666">✕</button>
     </div>
-    <div style="background:#f0f7ff;border-radius:12px;padding:14px 16px;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:700;color:#1a56db;margin-bottom:10px">🍎 iPhone / iPad (Safari)</div>
-      <div style="font-size:13px;color:#333;line-height:2">① 하단 <strong>공유 버튼 ⬆️</strong> 탭 → ② <strong>홈 화면에 추가 ➕</strong> 선택 → ③ 오른쪽 위 <strong>추가</strong> 탭</div>
+
+    <!-- Android Chrome -->
+    <div style="background:#f0fdf4;border-radius:12px;padding:14px 16px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:10px">🤖 Android Chrome</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#333">
+          <span style="background:#1a56db;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+          주소창 오른쪽 <strong>⋮</strong> 탭
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#333">
+          <span style="background:#1a56db;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+          <strong>"앱 설치"</strong> 또는 <strong>"홈 화면에 추가"</strong> 탭
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#333">
+          <span style="background:#1a56db;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">3</span>
+          없으면 <strong>"더보기"</strong> 또는 <strong>"도구 더보기"</strong> → 홈 화면에 추가
+        </div>
+      </div>
     </div>
-    <div style="background:#f0fdf4;border-radius:12px;padding:14px 16px">
-      <div style="font-size:13px;font-weight:700;color:#059669;margin-bottom:10px">🤖 Android (Chrome)</div>
-      <div style="font-size:13px;color:#333;line-height:2">① 우상단 <strong>⋮ 메뉴</strong> 탭 → ② <strong>홈 화면에 추가</strong> 선택 → ③ <strong>추가</strong> 탭</div>
+
+    <!-- iOS Safari -->
+    <div style="background:#f0f7ff;border-radius:12px;padding:14px 16px">
+      <div style="font-size:13px;font-weight:700;color:#1a56db;margin-bottom:10px">🍎 iPhone Safari</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#333">
+          <span style="background:#1a56db;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">1</span>
+          하단 <strong>공유 ⬆️</strong> 탭
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#333">
+          <span style="background:#1a56db;color:#fff;border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">2</span>
+          <strong>"홈 화면에 추가 ➕"</strong> 탭
+        </div>
+      </div>
     </div>
-    <div style="margin-top:14px;font-size:11px;color:#9ca3af;text-align:center">💡 먼저 이 파일을 카카오톡·에어드롭으로 폰에 전송하세요</div>
+
+    <div style="margin-top:12px;background:#fffbeb;border-radius:8px;padding:10px 12px;font-size:11px;color:#92400e">
+      💡 <strong>Chrome에서 "앱 설치"가 보이지 않는 경우:</strong><br>
+      페이지를 닫았다가 다시 열면 설치 옵션이 활성화됩니다.
+    </div>
   </div>
 </div>
 
