@@ -508,6 +508,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
       <div id="gdsc" class="hint" style="margin-top:5px">hf: 보증금×80% 최대 4.44억 · 1주택 2억 상한</div>
     </div>
     <div class="f">
+      <label>임차계약 기간 <span style="font-size:10px;color:var(--g4)">(금리 구분 · 기본: 2년 이상)</span></label>
+      <div class="chips" id="j-term">
+        <button class="chip on" onclick="selC(this,'j-term');updJeonProd()">2년 이상</button>
+        <button class="chip" onclick="selC(this,'j-term');updJeonProd()">2년 미만</button>
+      </div>
+    </div>
+    <div class="f">
       <label>기간</label>
       <div class="chips" id="j-period">
         <button class="chip on" onclick="selC(this,'j-period');matchJeonProd()">6개월</button>
@@ -581,20 +588,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         <button class="chip" onclick="selC(this,'jsc')">신혼·청년</button>
       </div>
     </div>
-    <div class="f">
-      <label>임차계약 기간 <span style="font-size:10px;color:var(--g4)">(금리 구분)</span></label>
-      <div class="chips" id="j-term">
-        <button class="chip on" onclick="selC(this,'j-term');updJeonProd()">2년 이상</button>
-        <button class="chip" onclick="selC(this,'j-term');updJeonProd()">2년 미만</button>
-      </div>
-    </div>
+
     <div class="f">
       <label>대출금액 구간</label>
       <div class="chips" id="j-tier">
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤1.245억 (-0.03%)</button>
-        <button class="chip on" onclick="selC(this,'j-tier');updRateBox('j')">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">&gt;4.98억 (+0.17%)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">≤1.245억 (-0.03%)</button>
+        <button class="chip on" onclick="selC(this,'j-tier')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
     <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
@@ -1154,7 +1155,7 @@ var PRODUCTS=[
   {id:2, type:'mort', name:'주담대(주택자금) 12개월(신규)',index:'cofix_n', 가산:2.53, 최대우대:1.10, 우대조건:['A','B']},
   {id:24,type:'mort', name:'주담대(주택자금) 12개월(신잔액)',index:'cofix_b',가산:3.04, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 주담대 (생활자금) ── */
-  {id:3, type:'mort', name:'주담대(생활자금) 60개월 변동', index:'mor60',   가산:2.27, 최대우대:0.90, 우대조건:['A']},
+  {id:3, type:'mort', name:'주담대(생활자금) 60개월 변동', index:'mor60',   가산:2.27, 최대우대:1.45, 우대조건:['A','D']},
   {id:25,type:'mort', name:'주담대(생활자금) 60개월 혼합', index:'mor60',   가산:2.27, 최대우대:0.90, 우대조건:['A']},
   {id:26,type:'mort', name:'주담대(생활자금) 6개월(신규)', index:'cofix_n', 가산:2.76, 최대우대:0.90, 우대조건:['A']},
   {id:27,type:'mort', name:'주담대(생활자금) 6개월(신잔액)',index:'cofix_b', 가산:3.10, 최대우대:0.90, 우대조건:['A']},
@@ -1163,34 +1164,34 @@ var PRODUCTS=[
   /* ── 오피스텔 ── */
   {id:13,type:'mort', name:'오피스텔담보 6개월',           index:'cofix_b', 가산:3.17, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 HF ── */
-  {id:5, type:'jeon', sub:'HF', name:'협약전세(HF·주택) 6개월',         index:'cofix_b', 가산:2.40, 최대우대:1.10, 우대조건:['A','B']},
-  {id:6, type:'jeon', sub:'HF', name:'협약전세(HF·주택) 24개월',        index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
-  {id:7, type:'jeon', sub:'HF', name:'안심전세(HF·주택) 6개월',         index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
-  {id:8, type:'jeon', sub:'HF', name:'안심전세(HF·주택) 24개월',        index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
+  {id:5, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 6개월(신잔액·2년이상)',  index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
+  {id:6, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 24개월(2년이상)',       index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
+  {id:7, type:'jeon', sub:'HF', term:'이상',name:'안심전세(HF·주택) 6개월(신잔액·2년이상)', index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
+  {id:8, type:'jeon', sub:'HF', term:'이상',name:'안심전세(HF·주택) 24개월(2년이상)',       index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
   {id:14,type:'jeon', sub:'HF', name:'협약전세(HF·오피스텔) 6개월',     index:'cofix_b', 가산:2.40, 최대우대:1.10, 우대조건:['A','B']},
   {id:15,type:'jeon', sub:'HF', name:'협약전세(HF·오피스텔) 24개월',    index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
   {id:16,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 6개월',     index:'cofix_b', 가산:2.57, 최대우대:1.10, 우대조건:['A','B']},
   {id:17,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 24개월',    index:'mor24',   가산:2.11, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 전세 HUG ── */
-  {id:9, type:'jeon', sub:'HUG', name:'플러스전세(HUG·주택) 6개월(신규)',  index:'cofix_n', 가산:2.21, 최대우대:1.10, 우대조건:['A','B']},
-  {id:29,type:'jeon', sub:'HUG', name:'플러스전세(HUG·주택) 6개월(신잔액)',index:'cofix_b', 가산:2.43, 최대우대:1.10, 우대조건:['A','B']},
-  {id:30,type:'jeon', sub:'HUG', name:'플러스전세(HUG·주택) 12개월(신규)',index:'cofix_n', 가산:2.25, 최대우대:1.10, 우대조건:['A','B']},
-  {id:31,type:'jeon', sub:'HUG', name:'플러스전세(HUG·주택) 12개월(신잔액)',index:'cofix_b',가산:2.69, 최대우대:1.10, 우대조건:['A','B']},
-  {id:10,type:'jeon', sub:'HUG', name:'플러스전세(HUG·주택) 24개월',    index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
+  {id:9, type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',     index:'cofix_n', 가산:2.29, 최대우대:1.10, 우대조건:['A','B']},
+  {id:29,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',   index:'cofix_b', 가산:2.54, 최대우대:1.10, 우대조건:['A','B']},
+  {id:30,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',    index:'cofix_n', 가산:2.27, 최대우대:1.10, 우대조건:['A','B']},
+  {id:31,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)', index:'cofix_b', 가산:2.80, 최대우대:1.10, 우대조건:['A','B']},
+  {id:10,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',        index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
   {id:18,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 6개월', index:'cofix_n', 가산:2.33, 최대우대:0.90, 우대조건:['A']},
   {id:19,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 24개월',index:'mor24',   가산:2.42, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 SGI (주택자금) ── */
-  {id:32,type:'jeon', sub:'SGI', name:'플러스전세(SGI·주택) 6개월(신규)', index:'cofix_n', 가산:2.30, 최대우대:1.10, 우대조건:['A','B']},
-  {id:33,type:'jeon', sub:'SGI', name:'플러스전세(SGI·주택) 6개월(신잔액)',index:'cofix_b',가산:2.72, 최대우대:1.10, 우대조건:['A','B']},
-  {id:34,type:'jeon', sub:'SGI', name:'플러스전세(SGI·주택) 12개월(신규)',index:'cofix_n', 가산:2.50, 최대우대:1.10, 우대조건:['A','B']},
-  {id:35,type:'jeon', sub:'SGI', name:'플러스전세(SGI·주택) 12개월(신잔액)',index:'cofix_b',가산:2.96,최대우대:1.10, 우대조건:['A','B']},
-  {id:36,type:'jeon', sub:'SGI', name:'플러스전세(SGI·주택) 24개월',    index:'mor24',   가산:2.39, 최대우대:1.10, 우대조건:['A','B']},
+  {id:32,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.38, 최대우대:1.10, 우대조건:['A','B']},
+  {id:33,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.83, 최대우대:1.10, 우대조건:['A','B']},
+  {id:34,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.50, 최대우대:1.10, 우대조건:['A','B']},
+  {id:35,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.96,최대우대:1.10, 우대조건:['A','B']},
+  {id:36,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 24개월(2년이상)',    index:'mor24',  가산:2.39, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 전세 SGI (생활자금) ── */
-  {id:11,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 6개월(신규)', index:'cofix_n', 가산:2.36, 최대우대:0.90, 우대조건:['A']},
-  {id:37,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 6개월(신잔액)',index:'cofix_b',가산:2.78, 최대우대:0.90, 우대조건:['A']},
-  {id:38,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 12개월(신규)',index:'cofix_n', 가산:2.54, 최대우대:0.90, 우대조건:['A']},
-  {id:39,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 12개월(신잔액)',index:'cofix_b',가산:2.96,최대우대:0.90, 우대조건:['A']},
-  {id:12,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 24개월',    index:'mor24',   가산:2.45, 최대우대:0.90, 우대조건:['A']},
+  {id:11,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.44, 최대우대:0.90, 우대조건:['A']},
+  {id:37,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.89, 최대우대:0.90, 우대조건:['A']},
+  {id:38,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.56, 최대우대:0.90, 우대조건:['A']},
+  {id:39,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.02,최대우대:0.90, 우대조건:['A']},
+  {id:12,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 24개월(2년이상)',    index:'mor24',   가산:2.45, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 2년 미만 별도 상품 ── */
   {id:50,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신규·2년미만)',   index:'cofix_n',가산:2.18,최대우대:1.10,우대조건:['A','B']},
   {id:51,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신잔액·2년미만)', index:'cofix_b',가산:2.40,최대우대:1.10,우대조건:['A','B']},
@@ -4803,21 +4804,13 @@ function renderTabSortList(){
 }
 (function(){applyTabConfig();renderTabSortList();})();
 
-function showInstall(){document.getElementById('inst-overlay').style.display='flex';}
-function hideInstall(){document.getElementById('inst-overlay').style.display='none';}
-document.addEventListener('DOMContentLoaded',function(){
-  var ov=document.getElementById('inst-overlay');
-  if(ov)ov.addEventListener('click',function(e){if(e.target===this)hideInstall();});
-});
 /* ══ 전체 상품 비교 ══ */
-function calcJeonLimit(prod, dep, hc, rg, kcb, nice, isSpc){
-  var hasScore=kcb>0&&nice>0;
-  var sub=prod.sub; var mg=0;
+function calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc){
+  var hasScore=kcb>0&&nice>0, sub=prod.sub, mg=0;
   if(sub==='HF'){
     mg=Math.min(Math.floor(dep*0.8),hc>=1?20000:44400);
   } else if(sub==='HUG'){
-    var hugRatio=isSpc?0.9:0.8;
-    var hugCap;
+    var hugRatio=isSpc?0.9:0.8, hugCap;
     if(hasScore){
       if(nice>=820||kcb>=805)hugCap=rg==='수도권'?40000:32000;
       else if(nice>=740||kcb>=655)hugCap=15000;
@@ -4844,7 +4837,7 @@ function calcJeonLimit(prod, dep, hc, rg, kcb, nice, isSpc){
 
 function compareJeon(){
   var dep=parseFloat(document.getElementById('j-d').value)||0;
-  var rg=gC('jrg'); var hs=gC('hsc');
+  var rg=gC('jrg'), hs=gC('hsc');
   var hc=hs==='무주택'?0:hs==='1주택'?1:2;
   var kcb=parseInt(document.getElementById('j-kcb').value)||0;
   var nice=parseInt(document.getElementById('j-nice').value)||0;
@@ -4853,40 +4846,54 @@ function compareJeon(){
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var jtc=gC('j-tier'); var tierAdd=0;
   TIER_ADJ.forEach(function(t){if(jtc&&jtc.indexOf(t.label)>=0)tierAdd=t.add;});
+  // 현재 선택된 우대 코드 (체크박스)
+  var selUw=getUwSelected('j');
 
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='jeon'&&p.term===term;}).forEach(function(prod){
-    var rInfo=calcFinalRate(prod,prod.우대조건,tierAdd);
+    // 선택된 우대 중 이 상품에 적용 가능한 것만
+    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
+    var rInfo=calcFinalRate(prod,applicable,tierAdd);
     var limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
-    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit});
+    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,index:prod.index,가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
+  if(!results.length){alert('조건에 맞는 상품이 없습니다. 임차기간을 확인하세요.');return;}
 
   var best=results[0];
-  var html='<div class="card">';
-  html+='<div style="background:var(--okl);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px">';
-  html+='<span style="font-size:22px">⭐</span><div>';
-  html+='<div style="font-size:11px;color:var(--ok);font-weight:700;margin-bottom:2px">지금 가장 저렴한 상품</div>';
-  html+='<div style="font-size:13px;font-weight:700;color:var(--g8)">'+best.name+'</div>';
-  html+='<div style="font-size:14px;color:var(--ok);font-weight:700;margin-top:3px">금리 '+best.rate.toFixed(2)+'%'+(best.limit>0?' · 한도 '+fm(best.limit)+'만':'')+'</div>';
-  html+='</div></div>';
-  html+='<div class="ct">📊 전체 상품 비교 ('+termSel+' · 우대 최대 적용)</div>';
-  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
-  html+='<thead><tr style="background:var(--p);color:#fff"><th style="padding:7px 4px;text-align:center">순위</th><th style="padding:7px 6px;text-align:left">상품</th><th style="padding:7px 4px;text-align:right">금리</th><th style="padding:7px 4px;text-align:right">최대한도</th></tr></thead><tbody>';
+  var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
+    '<span style="font-size:24px">⭐</span>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (선택 우대 적용)</div>'+
+    '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
+
+  var tableHtml='<div class="card"><div class="ct">📊 전체 상품 비교 · '+termSel+' · 선택 우대 적용</div>'+
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
+    '<thead><tr style="background:var(--p);color:#fff">'+
+    '<th style="padding:7px 3px;text-align:center">순위</th>'+
+    '<th style="padding:7px 5px;text-align:left">상품</th>'+
+    '<th style="padding:7px 3px;text-align:right">가산</th>'+
+    '<th style="padding:7px 3px;text-align:right">금리</th>'+
+    '<th style="padding:7px 3px;text-align:right">한도</th>'+
+    '</tr></thead><tbody>';
   results.forEach(function(r,i){
     var isTop=i===0;
-    var bg=isTop?'background:var(--pl);font-weight:700':'border-bottom:1px solid var(--g2)';
-    var tc=isTop?'color:var(--p)':'color:var(--g7)';
-    html+='<tr style="'+bg+'"><td style="padding:7px 4px;text-align:center;'+tc+'">'+(isTop?'⭐':'')+(i+1)+'</td>';
-    html+='<td style="padding:7px 6px;'+tc+'">'+r.name+'</td>';
-    html+='<td style="padding:7px 4px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>';
-    html+='<td style="padding:7px 4px;text-align:right;'+tc+'">'+(r.limit>0?fm(r.limit)+'만':'조건확인')+'</td></tr>';
+    var bg=isTop?'background:var(--pl);':'border-bottom:1px solid var(--g2);';
+    var tc=isTop?'color:var(--p);font-weight:700;':'color:var(--g7);';
+    tableHtml+='<tr style="'+bg+'">'+
+      '<td style="padding:7px 3px;text-align:center;'+tc+'">'+(isTop?'⭐':'')+(i+1)+'</td>'+
+      '<td style="padding:7px 5px;'+tc+'">'+r.name+'</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">+'+r.가산.toFixed(2)+'%</td>'+
+      '<td style="padding:7px 3px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(r.limit>0?fm(r.limit)+'만':'-')+'</td>'+
+    '</tr>';
   });
-  html+='</tbody></table></div>';
-  html+='<div style="font-size:10px;color:var(--g4);margin-top:6px">※ 우대금리 최대 적용 기준 · 실제 한도는 심사 조건에 따라 다를 수 있습니다</div></div>';
+  tableHtml+='</tbody></table></div>'+
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준 · 실제 한도는 심사 조건에 따라 다를 수 있습니다</div></div>';
 
   var el=document.getElementById('jeon-compare');
-  el.innerHTML=html; el.style.display='block';
+  el.innerHTML=bannerHtml+tableHtml;
+  el.style.display='block';
   el.scrollIntoView({behavior:'smooth'});
 }
 
@@ -4897,54 +4904,61 @@ function compareMort(){
   var grc=parseFloat(document.getElementById('m-g').value)||0;
   var ext=parseFloat(document.getElementById('m-e').value)||0;
   var housing=gC('mhc'), zone=gC('mzone'), rg=gC('mrg'), rt=gC('rtp');
-  var tc=gC('m-tier'); var tierAdd=0;
-  TIER_ADJ.forEach(function(t){if(tc&&tc.indexOf(t.label)>=0)tierAdd=t.add;});
+  var tc2=gC('m-tier'); var tierAdd=0;
+  TIER_ADJ.forEach(function(t){if(tc2&&tc2.indexOf(t.label)>=0)tierAdd=t.add;});
   var ltv=calcLTV(zone,housing,price);
-  var cap1015=get1015Cap(zone,price);
+  var selUw=getUwSelected('m');
 
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='mort';}).forEach(function(prod){
-    var rInfo=calcFinalRate(prod,prod.우대조건,tierAdd);
-    var rp=rInfo.final; var r=rp/100;
-    var st=(SR[rt]||SR['변동형'])[rg]||0;
-    var dr=r+st; var n=Math.round((yrs-grc)*12);
-    var dm=dr/12;
-    var amax=inc*0.4; var avail=amax-ext;
+    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
+    var rInfo=calcFinalRate(prod,applicable,tierAdd);
+    var rp=rInfo.final, r=rp/100;
+    var st=(SR[rt]||SR['변동형'])[rg]||0, dr=r+st;
+    var n=Math.round((yrs-grc)*12), dm=dr/12;
+    var amax=inc*0.4, avail=amax-ext;
     var dsrLimit=(n>0&&dm>0)?(avail/12)*(1-Math.pow(1+dm,-n))/dm:0;
     var limit=0;
-    if(!ltv.impossible){
-      limit=ltv.limit!==null?Math.min(dsrLimit,ltv.limit):dsrLimit;
-    }
-    if(cap1015!==null) limit=Math.min(limit,cap1015);
-    results.push({name:prod.name,rate:rp,limit:Math.max(Math.round(limit),0)});
+    if(!ltv.impossible) limit=ltv.limit!==null?Math.min(dsrLimit,ltv.limit):dsrLimit;
+    results.push({name:prod.name,rate:rp,limit:Math.max(Math.round(limit),0),가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
+  if(!results.length){alert('조건에 맞는 상품이 없습니다.');return;}
 
-  var el=document.getElementById('mort-compare');
   var best=results[0];
-  var bestLimitTxt=price>0?fm(best.limit)+'만':'—';
-  var html='<div class="card">';
-  html+='<div style="background:var(--okl);border-radius:8px;padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px">';
-  html+='<span style="font-size:22px">⭐</span><div>';
-  html+='<div style="font-size:11px;color:var(--ok);font-weight:700;margin-bottom:2px">지금 가장 저렴한 상품</div>';
-  html+='<div style="font-size:13px;font-weight:700;color:var(--g8)">'+best.name+'</div>';
-  html+='<div style="font-size:14px;color:var(--ok);font-weight:700;margin-top:3px">금리 '+best.rate.toFixed(2)+'%'+(price>0?' · 한도 '+bestLimitTxt:'')+'</div>';
-  html+='</div></div>';
-  html+='<div class="ct">📊 주담대 전체 상품 비교 (우대 최대 적용)</div>';
-  html+='<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:12px">';
-  html+='<thead><tr style="background:var(--p);color:#fff"><th style="padding:7px 4px;text-align:center">순위</th><th style="padding:7px 6px;text-align:left">상품</th><th style="padding:7px 4px;text-align:right">금리</th><th style="padding:7px 4px;text-align:right">한도</th></tr></thead><tbody>';
+  var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
+    '<span style="font-size:24px">⭐</span>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (선택 우대 적용)</div>'+
+    '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
+
+  var tableHtml='<div class="card"><div class="ct">📊 주담대 전체 상품 비교 · 선택 우대 적용</div>'+
+    '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
+    '<thead><tr style="background:var(--p);color:#fff">'+
+    '<th style="padding:7px 3px;text-align:center">순위</th>'+
+    '<th style="padding:7px 5px;text-align:left">상품</th>'+
+    '<th style="padding:7px 3px;text-align:right">가산</th>'+
+    '<th style="padding:7px 3px;text-align:right">금리</th>'+
+    '<th style="padding:7px 3px;text-align:right">한도</th>'+
+    '</tr></thead><tbody>';
   results.forEach(function(r,i){
     var isTop=i===0;
-    var bg=isTop?'background:var(--pl);font-weight:700':'border-bottom:1px solid var(--g2)';
-    var tc=isTop?'color:var(--p)':'color:var(--g7)';
-    html+='<tr style="'+bg+'"><td style="padding:7px 4px;text-align:center;'+tc+'">'+(isTop?'⭐':'')+(i+1)+'</td>';
-    html+='<td style="padding:7px 6px;'+tc+'">'+r.name+'</td>';
-    html+='<td style="padding:7px 4px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>';
-    html+='<td style="padding:7px 4px;text-align:right;'+tc+'">'+(price>0?fm(r.limit)+'만':'—')+'</td></tr>';
+    var bg=isTop?'background:var(--pl);':'border-bottom:1px solid var(--g2);';
+    var tc=isTop?'color:var(--p);font-weight:700;':'color:var(--g7);';
+    tableHtml+='<tr style="'+bg+'">'+
+      '<td style="padding:7px 3px;text-align:center;'+tc+'">'+(isTop?'⭐':'')+(i+1)+'</td>'+
+      '<td style="padding:7px 5px;'+tc+'">'+r.name+'</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">+'+r.가산.toFixed(2)+'%</td>'+
+      '<td style="padding:7px 3px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(price>0?fm(r.limit)+'만':'-')+'</td>'+
+    '</tr>';
   });
-  html+='</tbody></table></div>';
-  html+='<div style="font-size:10px;color:var(--g4);margin-top:6px">※ 우대금리 최대 적용 기준'+(cap1015!==null?' · 10·15 시가 상한 '+fm(cap1015)+'만 적용':'')+'</div></div>';
-  el.innerHTML=html; el.style.display='block';
+  tableHtml+='</tbody></table></div>'+
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준</div></div>';
+
+  var el=document.getElementById('mort-compare');
+  el.innerHTML=bannerHtml+tableHtml;
+  el.style.display='block';
   el.scrollIntoView({behavior:'smooth'});
 }
 
