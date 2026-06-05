@@ -294,17 +294,40 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
       🏠 시세조회 탭에서 아파트를 선택하면 <strong>주택가격이 자동 입력</strong>됩니다
     </div>
 
-    <!-- 상품 선택 -->
+    <!-- 상품 선택 (칩 방식) -->
     <div class="f">
-      <label>상품 선택</label>
-      <select id="m-prod" onchange="onMortProdChange()" style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:14px;color:var(--g8);background:#fff;outline:none">
-        <option value="1">주담대(주택자금) — 60개월 변동 [MOR60]</option>
-        <option value="2">주담대(주택자금) — 12개월 변동 [신규COFIX]</option>
-        <option value="3">주담대(생활자금) — 60개월 변동 [MOR60]</option>
-        <option value="4">주담대(생활자금) — 12개월 변동 [신규COFIX]</option>
-        <option value="13">오피스텔담보 — 6개월 변동 [신잔액COFIX]</option>
-      </select>
+      <label>자금 용도</label>
+      <div class="chips" id="m-purpose">
+        <button class="chip on" onclick="selC(this,'m-purpose');matchMortProd()">주택자금</button>
+        <button class="chip" onclick="selC(this,'m-purpose');matchMortProd()">생활자금</button>
+        <button class="chip" onclick="selC(this,'m-purpose');matchMortProd()">오피스텔</button>
+      </div>
     </div>
+    <div class="f">
+      <label>금리 유형</label>
+      <div class="chips" id="m-rtype">
+        <button class="chip on" onclick="selC(this,'m-rtype');matchMortProd()">변동</button>
+        <button class="chip" onclick="selC(this,'m-rtype');matchMortProd()">혼합</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>기간</label>
+      <div class="chips" id="m-period">
+        <button class="chip" onclick="selC(this,'m-period');matchMortProd()">6개월</button>
+        <button class="chip" onclick="selC(this,'m-period');matchMortProd()">12개월</button>
+        <button class="chip on" onclick="selC(this,'m-period');matchMortProd()">60개월</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>지표금리</label>
+      <div class="chips" id="m-idx">
+        <button class="chip on" onclick="selC(this,'m-idx');matchMortProd()">신규COFIX</button>
+        <button class="chip" onclick="selC(this,'m-idx');matchMortProd()">신잔액COFIX</button>
+        <button class="chip" onclick="selC(this,'m-idx');matchMortProd()">MOR</button>
+      </div>
+    </div>
+    <div id="m-matched-prod" style="background:var(--pl);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--p);font-weight:600;margin-bottom:8px"></div>
+    <input type="hidden" id="m-prod" value="1">
 
     <!-- 우대금리 선택 -->
     <div class="f">
@@ -317,10 +340,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간 (구간 가산금리)</label>
       <div class="chips" id="m-tier">
-        <button class="chip on" onclick="selC(this,'m-tier');onMortProdChange()">≤1.2억 (+0%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤2.5억 (+0.03%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤5억 (+0.17%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">&gt;5억 (+0.20%)</button>
+        <button class="chip on" onclick="selC(this,'m-tier');onMortProdChange()">≤1.245억 (-0.03%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
 
@@ -484,10 +507,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
       <div id="gdsc" class="hint" style="margin-top:5px">hf: 보증금×80% 최대 4.44억 · 1주택 2억 상한</div>
     </div>
     <div class="f">
-      <label>상품 선택</label>
-      <select id="j-prod" onchange="onJeonProdChange()" style="width:100%;height:44px;border:1.5px solid var(--g3);border-radius:8px;padding:0 12px;font-size:14px;color:var(--g8);background:#fff;outline:none">
-      </select>
+      <label>기간</label>
+      <div class="chips" id="j-period">
+        <button class="chip on" onclick="selC(this,'j-period');matchJeonProd()">6개월</button>
+        <button class="chip" onclick="selC(this,'j-period');matchJeonProd()">12개월</button>
+        <button class="chip" onclick="selC(this,'j-period');matchJeonProd()">24개월</button>
+      </div>
     </div>
+    <div class="f">
+      <label>지표금리</label>
+      <div class="chips" id="j-idx">
+        <button class="chip on" onclick="selC(this,'j-idx');matchJeonProd()">신잔액COFIX</button>
+        <button class="chip" onclick="selC(this,'j-idx');matchJeonProd()">신규COFIX</button>
+        <button class="chip" onclick="selC(this,'j-idx');matchJeonProd()">MOR24</button>
+      </div>
+    </div>
+    <div id="j-matched-prod" style="background:var(--pl);border-radius:8px;padding:8px 12px;font-size:12px;color:var(--p);font-weight:600;margin-bottom:8px"></div>
+    <input type="hidden" id="j-prod" value="71">
 
     <!-- 우대금리 선택 -->
     <div class="f">
@@ -542,6 +578,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
       <div class="chips" id="jsc">
         <button class="chip on" onclick="selC(this,'jsc')">비해당</button>
         <button class="chip" onclick="selC(this,'jsc')">신혼·청년</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>임차계약 기간 <span style="font-size:10px;color:var(--g4)">(금리 구분)</span></label>
+      <div class="chips" id="j-term">
+        <button class="chip on" onclick="selC(this,'j-term');updJeonProd()">2년 이상</button>
+        <button class="chip" onclick="selC(this,'j-term');updJeonProd()">2년 미만</button>
+      </div>
+    </div>
+    <div class="f">
+      <label>대출금액 구간</label>
+      <div class="chips" id="j-tier">
+        <button class="chip" onclick="selC(this,'j-tier')">≤1.245억 (-0.03%)</button>
+        <button class="chip on" onclick="selC(this,'j-tier')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
     <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
@@ -1137,6 +1189,48 @@ var PRODUCTS=[
   {id:38,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 12개월(신규)',index:'cofix_n', 가산:2.54, 최대우대:0.90, 우대조건:['A']},
   {id:39,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 12개월(신잔액)',index:'cofix_b',가산:2.96,최대우대:0.90, 우대조건:['A']},
   {id:12,type:'jeon', sub:'SGI', name:'플러스전세(SGI·생활) 24개월',    index:'mor24',   가산:2.45, 최대우대:0.90, 우대조건:['A']},
+  /* ── 전세 2년 미만 별도 상품 ── */
+  {id:50,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신규·2년미만)',   index:'cofix_n',가산:2.18,최대우대:1.10,우대조건:['A','B']},
+  {id:51,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신잔액·2년미만)', index:'cofix_b',가산:2.40,최대우대:1.10,우대조건:['A','B']},
+  {id:52,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신규·2년미만)',  index:'cofix_n',가산:2.35,최대우대:1.10,우대조건:['A','B']},
+  {id:53,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.79,최대우대:1.10,우대조건:['A','B']},
+  {id:54,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 24개월(2년미만)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
+  {id:55,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신규·2년미만)',index:'cofix_n',가산:2.21,최대우대:1.10,우대조건:['A','B']},
+  {id:56,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.43,최대우대:1.10,우대조건:['A','B']},
+  {id:57,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신규·2년미만)',index:'cofix_n',가산:2.25,최대우대:1.10,우대조건:['A','B']},
+  {id:58,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.69,최대우대:1.10,우대조건:['A','B']},
+  {id:59,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 24개월(2년미만)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:60,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신규·2년미만)',index:'cofix_n',가산:2.30,최대우대:1.10,우대조건:['A','B']},
+  {id:61,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.72,최대우대:1.10,우대조건:['A','B']},
+  {id:62,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신규·2년미만)',index:'cofix_n',가산:2.50,최대우대:1.10,우대조건:['A','B']},
+  {id:63,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:64,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 24개월(2년미만)',index:'mor24', 가산:2.39,최대우대:1.10,우대조건:['A','B']},
+  {id:65,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신규·2년미만)',index:'cofix_n',가산:2.36,최대우대:0.90,우대조건:['A']},
+  {id:66,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.78,최대우대:0.90,우대조건:['A']},
+  {id:67,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신규·2년미만)',index:'cofix_n',가산:2.54,최대우대:0.90,우대조건:['A']},
+  {id:68,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:0.90,우대조건:['A']},
+  {id:69,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 24개월(2년미만)',index:'mor24', 가산:2.45,최대우대:0.90,우대조건:['A']},
+  /* ── 전세 2년 이상 별도 상품 ── */
+  {id:70,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신규·2년이상)',   index:'cofix_n',가산:2.26,최대우대:1.10,우대조건:['A','B']},
+  {id:71,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신잔액·2년이상)', index:'cofix_b',가산:2.51,최대우대:1.10,우대조건:['A','B']},
+  {id:72,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신규·2년이상)',  index:'cofix_n',가산:2.37,최대우대:1.10,우대조건:['A','B']},
+  {id:73,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.90,최대우대:1.10,우대조건:['A','B']},
+  {id:74,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 24개월(2년이상)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
+  {id:75,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',index:'cofix_n',가산:2.29,최대우대:1.10,우대조건:['A','B']},
+  {id:76,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.54,최대우대:1.10,우대조건:['A','B']},
+  {id:77,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
+  {id:78,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.80,최대우대:1.10,우대조건:['A','B']},
+  {id:79,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:80,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)',index:'cofix_n',가산:2.38,최대우대:1.10,우대조건:['A','B']},
+  {id:81,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.83,최대우대:1.10,우대조건:['A','B']},
+  {id:82,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.50,최대우대:1.10,우대조건:['A','B']},
+  {id:83,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:84,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 24개월(2년이상)',index:'mor24', 가산:2.39,최대우대:1.10,우대조건:['A','B']},
+  {id:85,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)',index:'cofix_n',가산:2.44,최대우대:0.90,우대조건:['A']},
+  {id:86,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.89,최대우대:0.90,우대조건:['A']},
+  {id:87,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.56,최대우대:0.90,우대조건:['A']},
+  {id:88,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.02,최대우대:0.90,우대조건:['A']},
+  {id:89,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 24개월(2년이상)',index:'mor24', 가산:2.45,최대우대:0.90,우대조건:['A']},
 ];
 
 var UW_COND={
@@ -1147,10 +1241,10 @@ var UW_COND={
 };
 
 var TIER_ADJ=[
-  {label:'≤1.2억',add:0.00},
-  {label:'≤2.5억',add:0.03},
-  {label:'≤5억',  add:0.17},
-  {label:'>5억',  add:0.20},
+  {label:'≤1.245억',add:-0.03},
+  {label:'≤2.49억', add:0.00},
+  {label:'≤4.98억', add:0.14},
+  {label:'>4.98억', add:0.17},
 ];
 
 // ── 지표금리 ──
@@ -1274,6 +1368,56 @@ function updRateBox(prefix){
 }
 
 // ── 주담대 상품 변경 ──
+function matchMortProd(){
+  var purpose=gC('m-purpose')||'주택자금';
+  var rtype=gC('m-rtype')||'변동';
+  var period=gC('m-period')||'60개월';
+  var idx=gC('m-idx')||'신규COFIX';
+  var idxKey={'신규COFIX':'cofix_n','신잔액COFIX':'cofix_b','MOR':'mor60'}[idx];
+  if(period==='24개월'||period==='60개월') idxKey=(idx==='MOR'?'mor60':idxKey);
+  if(period==='24개월') idxKey='mor24';
+
+  // 오피스텔은 별도
+  if(purpose==='오피스텔'){
+    var found=PRODUCTS.filter(function(p){return p.id===13;})[0];
+    if(found){
+      document.getElementById('m-prod').value=found.id;
+      document.getElementById('m-matched-prod').textContent='✅ '+found.name;
+      onMortProdChange(); return;
+    }
+  }
+
+  // 이름 매칭
+  var nameKey=purpose==='주택자금'?'주택자금':'생활자금';
+  var rtypeKey=rtype; // '변동' or '혼합'
+  var periodKey=period.replace('개월','');
+
+  var candidates=PRODUCTS.filter(function(p){
+    return p.type==='mort' &&
+      p.name.indexOf(nameKey)>=0 &&
+      p.name.indexOf(rtypeKey)>=0 &&
+      p.name.indexOf(periodKey+'개월')>=0 &&
+      p.index===idxKey;
+  });
+  var matched=candidates[0];
+  // index가 정확히 안맞으면 기간만으로 재시도
+  if(!matched){
+    candidates=PRODUCTS.filter(function(p){
+      return p.type==='mort' &&
+        p.name.indexOf(nameKey)>=0 &&
+        p.name.indexOf(rtypeKey)>=0 &&
+        p.name.indexOf(periodKey+'개월')>=0;
+    });
+    matched=candidates[0];
+  }
+  if(matched){
+    document.getElementById('m-prod').value=matched.id;
+    document.getElementById('m-matched-prod').textContent='✅ '+matched.name;
+    onMortProdChange();
+  } else {
+    document.getElementById('m-matched-prod').textContent='⚠️ 해당 조합의 상품 없음';
+  }
+}
 function onMortProdChange(){
   var id=parseInt(document.getElementById('m-prod').value);
   var prod=PRODUCTS.filter(function(p){return p.id===id;})[0];
@@ -1283,20 +1427,38 @@ function onMortProdChange(){
 }
 
 // ── 전세 보증사 변경 → 상품 목록 갱신 ──
+function matchJeonProd(){
+  var sub=gC('gtr')||'HF';
+  var termSel=gC('j-term')||'2년 이상';
+  var term=termSel.indexOf('미만')>=0?'미만':'이상';
+  var period=gC('j-period')||'6개월';
+  var idx=gC('j-idx')||'신잔액COFIX';
+  var idxKey={'신규COFIX':'cofix_n','신잔액COFIX':'cofix_b','MOR24':'mor24'}[idx];
+  if(period==='24개월') idxKey='mor24';
+
+  var candidates=PRODUCTS.filter(function(p){
+    return p.type==='jeon' && p.sub===sub && p.term===term &&
+      p.name.indexOf(period)>=0 && p.index===idxKey;
+  });
+  var matched=candidates[0];
+  var el=document.getElementById('j-matched-prod');
+  if(matched){
+    document.getElementById('j-prod').value=matched.id;
+    if(el) el.textContent='✅ '+matched.name;
+    onJeonProdChange();
+  } else {
+    if(el) el.textContent='⚠️ 해당 조합 상품 없음';
+  }
+}
 function updJeonProd(){
   var sub=gC('gtr');
+  var termSel=gC('j-term')||'2년 이상';
+  var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var desc={'HF':'hf(주금공): 보증금×80% · 최대 4.44억 · 1주택 2억 상한 · 신용점수 무관',
             'HUG':'hug(주택도시보증): 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
             'SGI':'sgi(서울보증): 보증금×80% · 신용점수별 최대 5억 · 1주택 3억 상한'};
   document.getElementById('gdsc').textContent=desc[sub]||'';
-  var sel=document.getElementById('j-prod');
-  sel.innerHTML='';
-  PRODUCTS.filter(function(p){return p.type==='jeon'&&p.sub===sub;}).forEach(function(p){
-    var o=document.createElement('option');
-    o.value=p.id; o.textContent=p.name;
-    sel.appendChild(o);
-  });
-  onJeonProdChange();
+  matchJeonProd();
 }
 
 // ── 전세 상품 변경 ──
@@ -1854,7 +2016,9 @@ function doJeon(){
   var jid=parseInt(document.getElementById('j-prod').value);
   var jprod=PRODUCTS.filter(function(p){return p.id===jid;})[0];
   var juw=getUwSelected('j');
-  var jrInfo=jprod?calcFinalRate(jprod,juw,0):{base:0,가산:0,uw:0,final:4.0};
+  var jtc=gC('j-tier'); var jTierAdd=0;
+  TIER_ADJ.forEach(function(t){if(jtc&&jtc.indexOf(t.label)>=0)jTierAdd=t.add;});
+  var jrInfo=jprod?calcFinalRate(jprod,juw,jTierAdd):{base:0,가산:0,uw:0,final:4.0};
   var actualRate=jrInfo.final;
 
   var rl=rg==='수도권'?70000:50000;
