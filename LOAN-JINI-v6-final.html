@@ -592,10 +592,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간</label>
       <div class="chips" id="j-tier">
-        <button class="chip" onclick="selC(this,'j-tier')">≤1.245억 (-0.03%)</button>
-        <button class="chip on" onclick="selC(this,'j-tier')">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'j-tier')">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'j-tier')">&gt;4.98억 (+0.17%)</button>
+        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤1.245억 (-0.03%)</button>
+        <button class="chip on" onclick="selC(this,'j-tier');updRateBox('j')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
     <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
@@ -4907,6 +4907,7 @@ function compareMort(){
   var tc2=gC('m-tier'); var tierAdd=0;
   TIER_ADJ.forEach(function(t){if(tc2&&tc2.indexOf(t.label)>=0)tierAdd=t.add;});
   var ltv=calcLTV(zone,housing,price);
+  var cap1015=get1015Cap(zone,price);
   var selUw=getUwSelected('m');
 
   var results=[];
@@ -4920,6 +4921,7 @@ function compareMort(){
     var dsrLimit=(n>0&&dm>0)?(avail/12)*(1-Math.pow(1+dm,-n))/dm:0;
     var limit=0;
     if(!ltv.impossible) limit=ltv.limit!==null?Math.min(dsrLimit,ltv.limit):dsrLimit;
+    if(cap1015!==null) limit=Math.min(limit,cap1015);
     results.push({name:prod.name,rate:rp,limit:Math.max(Math.round(limit),0),가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
@@ -4954,7 +4956,7 @@ function compareMort(){
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준'+(cap1015!==null?' · 10·15 시가 상한 '+fm(cap1015)+'만 적용':'')+'</div></div>';
 
   var el=document.getElementById('mort-compare');
   el.innerHTML=bannerHtml+tableHtml;
