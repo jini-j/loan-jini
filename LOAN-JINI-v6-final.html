@@ -4846,14 +4846,10 @@ function compareJeon(){
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var jtc=gC('j-tier'); var tierAdd=0;
   TIER_ADJ.forEach(function(t){if(jtc&&jtc.indexOf(t.label)>=0)tierAdd=t.add;});
-  // 현재 선택된 우대 코드 (체크박스)
-  var selUw=getUwSelected('j');
-
+  // 비교표: 각 상품 최대 우대 적용, 기준 구간 ≤2.49억(tierAdd=0) 고정
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='jeon'&&p.term===term;}).forEach(function(prod){
-    // 선택된 우대 중 이 상품에 적용 가능한 것만
-    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
-    var rInfo=calcFinalRate(prod,applicable,tierAdd);
+    var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
     var limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
     results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,index:prod.index,가산:prod.가산});
   });
@@ -4863,7 +4859,7 @@ function compareJeon(){
   var best=results[0];
   var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
     '<span style="font-size:24px">⭐</span>'+
-    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (선택 우대 적용)</div>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (최대 우대 · ≤2.49억 기준)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
     '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
 
@@ -4908,12 +4904,10 @@ function compareMort(){
   TIER_ADJ.forEach(function(t){if(tc2&&tc2.indexOf(t.label)>=0)tierAdd=t.add;});
   var ltv=calcLTV(zone,housing,price);
   var cap1015=get1015Cap(zone,price);
-  var selUw=getUwSelected('m');
-
+  // 비교표: 각 상품 최대 우대 적용, 기준 구간 ≤2.49억(tierAdd=0) 고정
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='mort';}).forEach(function(prod){
-    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
-    var rInfo=calcFinalRate(prod,applicable,tierAdd);
+    var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
     var rp=rInfo.final, r=rp/100;
     var st=(SR[rt]||SR['변동형'])[rg]||0, dr=r+st;
     var n=Math.round((yrs-grc)*12), dm=dr/12;
@@ -4930,7 +4924,7 @@ function compareMort(){
   var best=results[0];
   var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
     '<span style="font-size:24px">⭐</span>'+
-    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (선택 우대 적용)</div>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (최대 우대 · ≤2.49억 기준)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
     '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
 
@@ -4956,7 +4950,7 @@ function compareMort(){
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준'+(cap1015!==null?' · 10·15 시가 상한 '+fm(cap1015)+'만 적용':'')+'</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대 적용 · ≤2.49억 구간 기준'+(cap1015!==null?' · 10·15 시가 상한 '+fm(cap1015)+'만 적용':'')+'</div></div>';
 
   var el=document.getElementById('mort-compare');
   el.innerHTML=bannerHtml+tableHtml;
