@@ -1203,9 +1203,14 @@ function renderUwBoxes(prod, prefix){
     if(!u) return;
     var checked=(c==='D')?'checked':'';
     var cbId='uw-'+prefix+'-'+c;
-    html+='<label for="'+cbId+'" style="display:flex;align-items:center;gap:10px;background:var(--g1);border-radius:8px;padding:10px 12px;cursor:pointer;border:2px solid '+(checked?'var(--p)':'var(--g3)') +'" onclick="setTimeout(function(){updRateBox(''+prefix+'');},10)">'+
-      '<input type="checkbox" id="'+cbId+'" class="uw-cb" data-prefix="'+prefix+'" value="'+c+'" '+checked+' style="display:none">'+
-      '<span style="width:22px;height:22px;border-radius:6px;border:2px solid '+(checked?'var(--p)':'var(--g4)')+';background:'+(checked?'var(--p)':'#fff')+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:#fff">'+(checked?'✓':'')+'</span>'+
+    var isChk=(c==='D');
+    var bColor=isChk?'var(--p)':'var(--g3)';
+    var boxBg=isChk?'var(--p)':'#fff';
+    var boxBd=isChk?'var(--p)':'var(--g4)';
+    var chkMark=isChk?'✓':'';
+    html+='<label for="'+cbId+'" style="display:flex;align-items:center;gap:10px;background:var(--g1);border-radius:8px;padding:10px 12px;cursor:pointer;border:2px solid '+bColor+'" onclick="uwClick(this,\"'+prefix+'\")">'+
+      '<input type="checkbox" id="'+cbId+'" class="uw-cb" data-prefix="'+prefix+'" value="'+c+'" '+(isChk?'checked':'')+' style="display:none">'+
+      '<span class="uw-box" style="width:22px;height:22px;border-radius:6px;border:2px solid '+boxBd+';background:'+boxBg+';display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:14px;color:#fff">'+chkMark+'</span>'+
       '<span style="flex:1"><span style="font-weight:600;font-size:13px">'+u.label+'</span>'+
       ' <span style="color:var(--ok);font-weight:700">-'+u.rate.toFixed(2)+'%</span>'+
       '<span style="font-size:11px;color:var(--g5);display:block">'+u.desc+'</span></span></label>';
@@ -1215,6 +1220,20 @@ function renderUwBoxes(prod, prefix){
 }
 
 // ── 금리 박스 업데이트 ──
+function uwClick(lbl,prefix){
+  var cb=lbl.querySelector('.uw-cb');
+  if(!cb)return;
+  cb.checked=!cb.checked;
+  var box=lbl.querySelector('.uw-box');
+  if(cb.checked){
+    lbl.style.borderColor='var(--p)';
+    if(box){box.style.background='var(--p)';box.style.borderColor='var(--p)';box.textContent='✓';}
+  }else{
+    lbl.style.borderColor='var(--g3)';
+    if(box){box.style.background='#fff';box.style.borderColor='var(--g4)';box.textContent='';}
+  }
+  updRateBox(prefix);
+}
 function refreshUwVisual(prefix){
   document.querySelectorAll('.uw-cb[data-prefix="'+prefix+'"]').forEach(function(cb){
     var lbl=cb.closest('label');
