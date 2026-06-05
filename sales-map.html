@@ -165,7 +165,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button class="fb" id="ft-m2" onclick="setPeriod('m2')">2달전</button>
       <button class="fb" id="ft-w0" onclick="setPeriod('w0')">최근1주</button>
       <button class="fb" id="ft-w1" onclick="setPeriod('w1')">2주전</button>
+      <button class="fb" id="ft-custom" onclick="setPeriod('custom')">직접설정</button>
       <button class="fb" style="margin-left:auto" onclick="loadByPeriod()">🔄</button>
+    </div>
+    <div id="custom-range" style="display:none;gap:5px;align-items:center;margin-bottom:7px;flex-wrap:wrap">
+      <input type="month" id="ft-from" style="height:32px;border:1.5px solid var(--g3);border-radius:8px;padding:0 8px;font-size:12px;color:var(--g7);background:#fff;outline:none">
+      <span style="font-size:12px;color:var(--g5)">~</span>
+      <input type="month" id="ft-to" style="height:32px;border:1.5px solid var(--g3);border-radius:8px;padding:0 8px;font-size:12px;color:var(--g7);background:#fff;outline:none">
     </div>
     <div style="display:flex;gap:5px;margin-bottom:7px">
       <button class="fb on" id="ft-all" onclick="setType('all')">전체</button>
@@ -342,6 +348,18 @@ function getPeriodRange(){
   if(periodKey==='m0') return {yms:[getYm(0)],prevYm:getYm(1),label:getYmLabel(0),weekly:false};
   if(periodKey==='m1') return {yms:[getYm(1)],prevYm:getYm(2),label:getYmLabel(1),weekly:false};
   if(periodKey==='m2') return {yms:[getYm(2)],prevYm:getYm(3),label:getYmLabel(2),weekly:false};
+  if(periodKey==='custom'){
+    var fromEl=document.getElementById('ft-from'),toEl=document.getElementById('ft-to');
+    var from=fromEl&&fromEl.value?fromEl.value.replace('-',''):'';
+    var to=toEl&&toEl.value?toEl.value.replace('-',''):'';
+    if(!from||!to){toast('시작/종료 월을 선택하세요');return {yms:[getYm(0)],prevYm:getYm(1),label:'직접설정',weekly:false};}
+    // from ~ to 사이 모든 YYYYMM 목록
+    var yms=[],cur=new Date(parseInt(from.slice(0,4)),parseInt(from.slice(4,6))-1,1);
+    var end=new Date(parseInt(to.slice(0,4)),parseInt(to.slice(4,6))-1,1);
+    while(cur<=end){var ym=cur.getFullYear()+''+(cur.getMonth()<9?'0':'')+(cur.getMonth()+1);yms.push(ym);cur.setMonth(cur.getMonth()+1);}
+    var label=from.slice(0,4)+'.'+from.slice(4)+' ~ '+to.slice(0,4)+'.'+to.slice(4);
+    return {yms:yms,prevYm:null,label:label,weekly:false,multiMonth:yms.length>1};
+  }
   var today=new Date();
   var d7=new Date(today); d7.setDate(today.getDate()-7);
   var d14=new Date(today); d14.setDate(today.getDate()-14);
@@ -357,8 +375,10 @@ function getPeriodRange(){
 
 function setPeriod(key){
   periodKey=key;
-  ['m0','m1','m2','w0','w1'].forEach(function(k){var el=document.getElementById('ft-'+k);if(el)el.classList.toggle('on',k===key);});
-  loadByPeriod();
+  ['m0','m1','m2','w0','w1','custom'].forEach(function(k){var el=document.getElementById('ft-'+k);if(el)el.classList.toggle('on',k===key);});
+  var cr=document.getElementById('custom-range');
+  if(cr) cr.style.display=(key==='custom'?'flex':'none');
+  if(key!=='custom') loadByPeriod();
 }
 function setType(t){filterType=t;['all','buy','rent'].forEach(function(k){document.getElementById('ft-'+k).classList.toggle('on',k===t);});renderRank();}
 function setSort(d){sortDesc=d;document.getElementById('sort-desc').classList.toggle('on',d);document.getElementById('sort-asc').classList.toggle('on',!d);renderRank();}
@@ -414,33 +434,43 @@ function setLoadingUI(label){
 
 function loadGuMonthly(pr){
   setLoadingUI(pr.label+' 조회 중...');
-  var ym=pr.yms[0],done=0,total=SEOUL_GU.length*2;
-  // 30초 전체 타임아웃 → 샘플 데이터
+  var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length;
+  guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
   var _timeout=setTimeout(function(){
-    if(done<total){console.warn('타임아웃 → 샘플 데이터');loadSample();}
-  },30000);
+    if(done<total){console.warn('타임아웃');finish();}
+  },60000);
   function tick(){
     done++;
     if(done===total){clearTimeout(_timeout);finish();}
     else{document.getElementById('rank-list').innerHTML='<div style="text-align:center;padding:28px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:7px;font-size:12px">조회 중 '+done+'/'+total+'</div></div>';}
   }
   function finish(){
-    if(guData.every(function(d){return d.buy===-1&&d.rent===-1;})){loadSample();}
-    else{var badge=document.getElementById('data-badge');badge.style.display='inline-block';badge.textContent='실데이터 · '+pr.label;badge.className='badge badge-g';renderRank();}
+    var badge=document.getElementById('data-badge');
+    badge.style.display='inline-block';
+    badge.textContent='실데이터 · '+pr.label;
+    badge.className='badge badge-g';
+    renderRank();
   }
-  // 5개씩 배치 처리
   var batch=5,idx=0;
   function nextBatch(){
     if(idx>=SEOUL_GU.length)return;
     var end=Math.min(idx+batch,SEOUL_GU.length);
     for(var i=idx;i<end;i++){
       (function(i){
-        fetchCount('RTMSDataSvcAptTradeDev',SEOUL_GU[i].code,ym).then(function(n){guData[i].buy=n;tick();});
-        fetchCount('RTMSDataSvcAptRent',SEOUL_GU[i].code,ym).then(function(n){guData[i].rent=n;tick();});
+        var buyPromises=yms.map(function(ym){return fetchCount('RTMSDataSvcAptTradeDev',SEOUL_GU[i].code,ym);});
+        var rentPromises=yms.map(function(ym){return fetchCount('RTMSDataSvcAptRent',SEOUL_GU[i].code,ym);});
+        Promise.all(buyPromises).then(function(vals){
+          guData[i].buy=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
+          for(var k=0;k<yms.length;k++)tick();
+        });
+        Promise.all(rentPromises).then(function(vals){
+          guData[i].rent=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
+          for(var k=0;k<yms.length;k++)tick();
+        });
       })(i);
     }
     idx=end;
-    if(idx<SEOUL_GU.length)setTimeout(nextBatch,500);
+    if(idx<SEOUL_GU.length)setTimeout(nextBatch,600);
   }
   nextBatch();
 }
@@ -497,7 +527,7 @@ function renderRank(){
     var cnt=filterType==='buy'?b:filterType==='rent'?r:b+r;
     var pcnt=filterType==='buy'?pb:filterType==='rent'?pr2:pb+pr2;
     return{name:d.name,code:d.code,buy:b,rent:r,prevBuy:pb,prevRent:pr2,cnt:cnt,prevCnt:pcnt};
-  }).filter(function(d){return d.cnt>0;}).sort(function(a,b){return sortDesc?b.cnt-a.cnt:a.cnt-b.cnt;});
+  }).sort(function(a,b){return sortDesc?b.cnt-a.cnt:a.cnt-b.cnt;});
   if(!list.length){document.getElementById('rank-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
   var maxB=Math.max.apply(null,list.map(function(d){return d.buy;}))||1;
   var maxR=Math.max.apply(null,list.map(function(d){return d.rent;}))||1;
