@@ -4874,6 +4874,35 @@ function calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc){
   return Math.max(mg,0);
 }
 
+// 전세대출 최대 한도 상한 반환 (보증금 무관, 신용점수 미입력시 최고등급 가정)
+function getJeonCap(prod,hc,rg,kcb,nice,isSpc){
+  var ek=kcb>0?kcb:999, en=nice>0?nice:999;
+  var sub=prod.sub;
+  if(sub==='HF'){
+    return hc>=1?20000:44400;
+  } else if(sub==='HUG'){
+    var hugCap;
+    if(en>=820||ek>=805) hugCap=rg==='수도권'?40000:32000;
+    else if(en>=740||ek>=655) hugCap=15000;
+    else if(en>=545||ek>=550) hugCap=7000;
+    else hugCap=0;
+    if(isSpc) hugCap=rg==='수도권'?40000:32000;
+    if(hc>=1) hugCap=Math.min(hugCap,20000);
+    return hugCap;
+  } else {
+    // SGI
+    var sgiCap;
+    if(ek>=805&&en>=820) sgiCap=50000;
+    else if(ek>=710&&en>=775) sgiCap=40000;
+    else if(ek>=805||en>=820) sgiCap=30000;
+    else if(ek>=655||en>=740) sgiCap=20000;
+    else if(ek>=550||en>=545) sgiCap=15000;
+    else sgiCap=0;
+    if(hc>=1) sgiCap=Math.min(sgiCap,30000);
+    return sgiCap;
+  }
+}
+
 function compareJeon(){
   var dep=parseFloat(document.getElementById('j-d').value)||0;
   var rg=gC('jrg'), hs=gC('hsc');
@@ -4889,8 +4918,14 @@ function compareJeon(){
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='jeon'&&p.term===term;}).forEach(function(prod){
     var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
-    var limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
-    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,index:prod.index,가산:prod.가산});
+    var limit,limitIsMax=false;
+    if(dep>0){
+      limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
+    }else{
+      limit=getJeonCap(prod,hc,rg,kcb,nice,isSpc);
+      limitIsMax=true;
+    }
+    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,limitIsMax:limitIsMax,index:prod.index,가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
   if(!results.length){alert('조건에 맞는 상품이 없습니다. 임차기간을 확인하세요.');return;}
@@ -4900,7 +4935,7 @@ function compareJeon(){
     '<span style="font-size:24px">⭐</span>'+
     '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (최대 우대 · ≤2.49억 기준)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
-    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">'+(best.limitIsMax?'최대 ':'')+fm(best.limit)+'만</span>':"")+'</div></div></div>';
 
   var tableHtml='<div class="card"><div class="ct">📊 전체 상품 비교 · '+termSel+' · 선택 우대 적용</div>'+
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
@@ -4920,11 +4955,11 @@ function compareJeon(){
       '<td style="padding:7px 5px;'+tc+'">'+r.name+'</td>'+
       '<td style="padding:7px 3px;text-align:right;'+tc+'">+'+r.가산.toFixed(2)+'%</td>'+
       '<td style="padding:7px 3px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>'+
-      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(r.limit>0?fm(r.limit)+'만':'-')+'</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(r.limit>0?(r.limitIsMax?'최대 '+fm(r.limit)+'만':fm(r.limit)+'만'):'-')+'</td>'+
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준 · 실제 한도는 심사 조건에 따라 다를 수 있습니다</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대금리 기준 · 한도: 보증금 미입력 시 신용점수 조건별 최대 상한, 신용점수 미입력 시 최고등급 가정</div></div>';
 
   var el=document.getElementById('jeon-compare');
   el.innerHTML=bannerHtml+tableHtml;
@@ -4965,7 +5000,7 @@ function compareMort(){
     '<span style="font-size:24px">⭐</span>'+
     '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (최대 우대 · ≤2.49억 기준)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
-    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">'+(best.limitIsMax?'최대 ':'')+fm(best.limit)+'만</span>':"")+'</div></div></div>';
 
   var tableHtml='<div class="card"><div class="ct">📊 주담대 전체 상품 비교 · 선택 우대 적용</div>'+
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
