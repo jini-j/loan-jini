@@ -562,6 +562,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         </div>
       </div>
     </div>
+    <div id="j-tier-note" style="font-size:0.78rem;color:#888;margin-top:-6px;margin-bottom:10px;text-align:right;padding-right:2px;"></div>
 
     <div class="frow">
       <div class="f"><label>연간 소득 (만원)</label><input type="number" id="j-i" value="7000" inputmode="numeric"></div>
@@ -1174,11 +1175,11 @@ var PRODUCTS=[
   {id:16,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 6개월',     index:'cofix_b', 가산:2.57, 최대우대:1.10, 우대조건:['A','B']},
   {id:17,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 24개월',    index:'mor24',   가산:2.11, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 전세 HUG ── */
-  {id:9, type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',     index:'cofix_n', 가산:2.29, 최대우대:1.10, 우대조건:['A','B']},
-  {id:29,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',   index:'cofix_b', 가산:2.54, 최대우대:1.10, 우대조건:['A','B']},
-  {id:30,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',    index:'cofix_n', 가산:2.27, 최대우대:1.10, 우대조건:['A','B']},
-  {id:31,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)', index:'cofix_b', 가산:2.80, 최대우대:1.10, 우대조건:['A','B']},
-  {id:10,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',        index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
+  {id:9, type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 6개월(신규·2년이상)',     index:'cofix_n', 가산:2.29, 최대우대:1.10, 우대조건:['A','B']},
+  {id:29,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 6개월(신잔액·2년이상)',   index:'cofix_b', 가산:2.54, 최대우대:1.10, 우대조건:['A','B']},
+  {id:30,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 12개월(신규·2년이상)',    index:'cofix_n', 가산:2.27, 최대우대:1.10, 우대조건:['A','B']},
+  {id:31,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 12개월(신잔액·2년이상)', index:'cofix_b', 가산:2.80, 최대우대:1.10, 우대조건:['A','B']},
+  {id:10,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 24개월(2년이상)',        index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
   {id:18,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 6개월', index:'cofix_n', 가산:2.33, 최대우대:0.90, 우대조건:['A']},
   {id:19,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 24개월',index:'mor24',   가산:2.42, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 SGI (주택자금) ── */
@@ -1199,15 +1200,15 @@ var PRODUCTS=[
   {id:52,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신규·2년미만)',  index:'cofix_n',가산:2.35,최대우대:1.10,우대조건:['A','B']},
   {id:53,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.79,최대우대:1.10,우대조건:['A','B']},
   {id:54,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 24개월(2년미만)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
-  {id:55,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신규·2년미만)',index:'cofix_n',가산:2.21,최대우대:1.10,우대조건:['A','B']},
-  {id:56,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.43,최대우대:1.10,우대조건:['A','B']},
-  {id:57,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신규·2년미만)',index:'cofix_n',가산:2.25,최대우대:1.10,우대조건:['A','B']},
-  {id:58,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.69,최대우대:1.10,우대조건:['A','B']},
-  {id:59,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 24개월(2년미만)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:55,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 6개월(신규·2년미만)',index:'cofix_n',가산:2.21,최대우대:1.10,우대조건:['A','B']},
+  {id:56,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.43,최대우대:1.10,우대조건:['A','B']},
+  {id:57,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 12개월(신규·2년미만)',index:'cofix_n',가산:2.25,최대우대:1.10,우대조건:['A','B']},
+  {id:58,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.69,최대우대:1.10,우대조건:['A','B']},
+  {id:59,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 24개월(2년미만)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
   {id:60,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신규·2년미만)',index:'cofix_n',가산:2.30,최대우대:1.10,우대조건:['A','B']},
   {id:61,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.72,최대우대:1.10,우대조건:['A','B']},
-  {id:62,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신규·2년미만)',index:'cofix_n',가산:2.50,최대우대:1.10,우대조건:['A','B']},
-  {id:63,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:62,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신규·2년미만)',index:'cofix_n',가산:2.48,최대우대:1.10,우대조건:['A','B']},
+  {id:63,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.90,최대우대:1.10,우대조건:['A','B']},
   {id:64,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 24개월(2년미만)',index:'mor24', 가산:2.39,최대우대:1.10,우대조건:['A','B']},
   {id:65,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신규·2년미만)',index:'cofix_n',가산:2.36,최대우대:0.90,우대조건:['A']},
   {id:66,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.78,최대우대:0.90,우대조건:['A']},
@@ -1220,11 +1221,11 @@ var PRODUCTS=[
   {id:72,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신규·2년이상)',  index:'cofix_n',가산:2.37,최대우대:1.10,우대조건:['A','B']},
   {id:73,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.90,최대우대:1.10,우대조건:['A','B']},
   {id:74,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 24개월(2년이상)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
-  {id:75,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',index:'cofix_n',가산:2.29,최대우대:1.10,우대조건:['A','B']},
-  {id:76,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.54,최대우대:1.10,우대조건:['A','B']},
-  {id:77,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
-  {id:78,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.80,최대우대:1.10,우대조건:['A','B']},
-  {id:79,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:75,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 6개월(신규·2년이상)',index:'cofix_n',가산:2.29,최대우대:1.10,우대조건:['A','B']},
+  {id:76,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.54,최대우대:1.10,우대조건:['A','B']},
+  {id:77,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 12개월(신규·2년이상)',index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
+  {id:78,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.80,최대우대:1.10,우대조건:['A','B']},
+  {id:79,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 24개월(2년이상)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
   {id:80,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)',index:'cofix_n',가산:2.38,최대우대:1.10,우대조건:['A','B']},
   {id:81,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.83,최대우대:1.10,우대조건:['A','B']},
   {id:82,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.50,최대우대:1.10,우대조건:['A','B']},
@@ -1368,6 +1369,16 @@ function updRateBox(prefix){
   document.getElementById(prefix+'-r-final').textContent=r.final.toFixed(2)+'%';
   var totEl=document.getElementById(prefix+'-uw-total');
   if(totEl) totEl.textContent=r.uw>0?'(-'+r.uw.toFixed(2)+'% 적용)':'';
+  // 전세 탭: 구간 tier note 업데이트
+  if(prefix==='j'){
+    var tNote=document.getElementById('j-tier-note');
+    if(tNote){
+      var tc2=gC('j-tier')||'≤2.49억';
+      var tierAmt=tc2.indexOf('1.245')>=0?'≤1.245억':tc2.indexOf('4.98')>=0&&tc2.indexOf('>')>=0?'>4.98억':tc2.indexOf('4.98')>=0?'≤4.98억':'≤2.49억';
+      var tierPct={'≤1.245억':'-0.03%','≤2.49억':'기준','≤4.98억':'+0.14%','>4.98억':'+0.17%'}[tierAmt]||'';
+      tNote.textContent='▲ 구간: '+tierAmt+' ('+tierPct+') · 실제 대출금액에 따라 달라짐';
+    }
+  }
   // 주담대 탭: 스트레스 금리 note 업데이트
   if(prefix==='m'){
     var stNote=document.getElementById('m-stress-note');
@@ -1512,7 +1523,7 @@ function updJeonProd(){
   var termSel=gC('j-term')||'2년 이상';
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var desc={'HF':'hf(주금공): 보증금×80% · 최대 4.44억 · 1주택 2억 상한 · 신용점수 무관',
-            'HUG':'hug(주택도시보증): 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
+            'HUG':'hug(주택도시보증): 전세자가안심대출 · 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
             'SGI':'sgi(서울보증): 보증금×80% · 신용점수별 최대 5억 · 1주택 3억 상한'};
   document.getElementById('gdsc').textContent=desc[sub]||'';
   matchJeonProd();
@@ -1684,7 +1695,7 @@ function gC(gid){
 function updG(){
   var g=gC('gtr');
   var desc={'HF':'hf(주금공): 보증금×80% · 최대 4.44억 · 1주택 2억 상한 · 신용점수 무관',
-            'HUG':'hug(주택도시보증): 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
+            'HUG':'hug(주택도시보증): 전세자가안심대출 · 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
             'SGI':'sgi(서울보증): 보증금×80% · 신용점수별 최대 5억 · 1주택 3억 상한'};
   var el=document.getElementById('gdsc');
   if(el) el.textContent=desc[g]||'';
