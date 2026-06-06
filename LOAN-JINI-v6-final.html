@@ -502,9 +502,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>보증사 선택</label>
       <div class="chips" id="gtr">
-        <button class="chip on" onclick="selC(this,'gtr');updJeonProd()">HF</button>
-        <button class="chip" onclick="selC(this,'gtr');updJeonProd()">HUG</button>
-        <button class="chip" onclick="selC(this,'gtr');updJeonProd()">SGI</button>
+        <button class="chip on" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">HF</button>
+        <button class="chip" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">HUG</button>
+        <button class="chip" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">SGI</button>
       </div>
       <div id="gdsc" class="hint" style="margin-top:5px">hf: 보증금×80% 최대 4.44억 · 1주택 2억 상한</div>
     </div>
@@ -599,7 +599,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
-    <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
+    <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px" id="j-score-section">
       <div style="font-size:11px;font-weight:700;color:var(--g5);margin-bottom:7px">📊 신용점수 <span style="font-weight:400;color:var(--g4)">(선택 · 미입력 시 최대한도 기준)</span></div>
       <div class="frow">
         <div class="f"><label>KCB 점수</label><input type="number" id="j-kcb" placeholder="예: 750" inputmode="numeric" style="height:40px;font-size:14px"></div>
@@ -1491,6 +1491,22 @@ function matchJeonProd(){
     if(el) el.textContent='⚠️ 해당 조합 상품 없음';
   }
 }
+function toggleScoreSection(){
+  var g=gC('gtr')||'HF';
+  var sec=document.getElementById('j-score-section');
+  if(!sec) return;
+  if(g==='HF'){
+    sec.style.opacity='0.35';
+    sec.style.pointerEvents='none';
+    // 값도 초기화
+    document.getElementById('j-kcb').value='';
+    document.getElementById('j-nice').value='';
+  } else {
+    sec.style.opacity='1';
+    sec.style.pointerEvents='';
+  }
+}
+
 function updJeonProd(){
   var sub=gC('gtr');
   var termSel=gC('j-term')||'2년 이상';
@@ -5035,5 +5051,6 @@ function compareMort(){
 </script>
 
 
+<script>toggleScoreSection();</script>
 </body>
 </html>
