@@ -369,6 +369,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         </div>
       </div>
     </div>
+    <div id="m-stress-note" style="font-size:0.78rem;color:#888;margin-top:-6px;margin-bottom:10px;text-align:right;padding-right:2px;"></div>
 
     <div class="f">
       <label>주택 보유 수</label>
@@ -402,17 +403,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>금리 유형</label>
       <div class="chips" id="rtp">
-        <button class="chip on" onclick="selC(this,'rtp')">변동형</button>
-        <button class="chip" onclick="selC(this,'rtp')">혼합5년</button>
-        <button class="chip" onclick="selC(this,'rtp')">주기5년</button>
-        <button class="chip" onclick="selC(this,'rtp')">고정형</button>
+        <button class="chip on" onclick="selC(this,'rtp');updRateBox('m')">변동형</button>
+        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">혼합5년</button>
+        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">주기5년</button>
+        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">고정형</button>
       </div>
     </div>
     <div class="f">
       <label>DSR 산정 지역</label>
       <div class="chips" id="mrg">
-        <button class="chip on" onclick="selC(this,'mrg')">수도권</button>
-        <button class="chip" onclick="selC(this,'mrg')">지방</button>
+        <button class="chip on" onclick="selC(this,'mrg');updRateBox('m')">수도권</button>
+        <button class="chip" onclick="selC(this,'mrg');updRateBox('m')">지방</button>
       </div>
     </div>
     <div class="frow">
@@ -1150,19 +1151,19 @@ var PRODUCTS=[
   /* ── 주담대 (주택자금) ── */
   {id:1, type:'mort', name:'주담대(주택자금) 60개월 변동', index:'mor60',   가산:2.21, 최대우대:1.65, 우대조건:['A','B','D']},
   {id:21,type:'mort', name:'주담대(주택자금) 60개월 혼합', index:'mor60',   가산:2.21, 최대우대:1.10, 우대조건:['A','B']},
-  {id:22,type:'mort', name:'주담대(주택자금) 6개월(신규)', index:'cofix_n', 가산:2.60, 최대우대:1.10, 우대조건:['A','B']},
-  {id:23,type:'mort', name:'주담대(주택자금) 6개월(신잔액)',index:'cofix_b', 가산:2.94, 최대우대:1.10, 우대조건:['A','B']},
-  {id:2, type:'mort', name:'주담대(주택자금) 12개월(신규)',index:'cofix_n', 가산:2.53, 최대우대:1.10, 우대조건:['A','B']},
-  {id:24,type:'mort', name:'주담대(주택자금) 12개월(신잔액)',index:'cofix_b',가산:3.04, 최대우대:1.10, 우대조건:['A','B']},
+  {id:22,type:'mort', name:'주담대(주택자금) 6개월 변동(신규)', index:'cofix_n', 가산:2.60, 최대우대:1.10, 우대조건:['A','B']},
+  {id:23,type:'mort', name:'주담대(주택자금) 6개월 변동(신잔액)',index:'cofix_b', 가산:2.94, 최대우대:1.10, 우대조건:['A','B']},
+  {id:2, type:'mort', name:'주담대(주택자금) 12개월 변동(신규)',index:'cofix_n', 가산:2.53, 최대우대:1.10, 우대조건:['A','B']},
+  {id:24,type:'mort', name:'주담대(주택자금) 12개월 변동(신잔액)',index:'cofix_b',가산:3.04, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 주담대 (생활자금) ── */
   {id:3, type:'mort', name:'주담대(생활자금) 60개월 변동', index:'mor60',   가산:2.27, 최대우대:1.45, 우대조건:['A','D']},
   {id:25,type:'mort', name:'주담대(생활자금) 60개월 혼합', index:'mor60',   가산:2.27, 최대우대:0.90, 우대조건:['A']},
-  {id:26,type:'mort', name:'주담대(생활자금) 6개월(신규)', index:'cofix_n', 가산:2.76, 최대우대:0.90, 우대조건:['A']},
-  {id:27,type:'mort', name:'주담대(생활자금) 6개월(신잔액)',index:'cofix_b', 가산:3.10, 최대우대:0.90, 우대조건:['A']},
-  {id:4, type:'mort', name:'주담대(생활자금) 12개월(신규)',index:'cofix_n', 가산:2.69, 최대우대:0.90, 우대조건:['A']},
-  {id:28,type:'mort', name:'주담대(생활자금) 12개월(신잔액)',index:'cofix_b',가산:3.20, 최대우대:0.90, 우대조건:['A']},
+  {id:26,type:'mort', name:'주담대(생활자금) 6개월 변동(신규)', index:'cofix_n', 가산:2.76, 최대우대:0.90, 우대조건:['A']},
+  {id:27,type:'mort', name:'주담대(생활자금) 6개월 변동(신잔액)',index:'cofix_b', 가산:3.10, 최대우대:0.90, 우대조건:['A']},
+  {id:4, type:'mort', name:'주담대(생활자금) 12개월 변동(신규)',index:'cofix_n', 가산:2.69, 최대우대:0.90, 우대조건:['A']},
+  {id:28,type:'mort', name:'주담대(생활자금) 12개월 변동(신잔액)',index:'cofix_b',가산:3.20, 최대우대:0.90, 우대조건:['A']},
   /* ── 오피스텔 ── */
-  {id:13,type:'mort', name:'오피스텔담보 6개월',           index:'cofix_b', 가산:3.17, 최대우대:0.90, 우대조건:['A']},
+  {id:13,type:'mort', name:'오피스텔담보 6개월 변동',           index:'cofix_b', 가산:3.17, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 HF ── */
   {id:5, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 6개월(신잔액·2년이상)',  index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
   {id:6, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 24개월(2년이상)',       index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
@@ -1367,6 +1368,17 @@ function updRateBox(prefix){
   document.getElementById(prefix+'-r-final').textContent=r.final.toFixed(2)+'%';
   var totEl=document.getElementById(prefix+'-uw-total');
   if(totEl) totEl.textContent=r.uw>0?'(-'+r.uw.toFixed(2)+'% 적용)':'';
+  // 주담대 탭: 스트레스 금리 note 업데이트
+  if(prefix==='m'){
+    var stNote=document.getElementById('m-stress-note');
+    if(stNote){
+      var rt=gC('rtp')||'변동형';
+      var rg=gC('mrg')||'수도권';
+      var stRates={'변동형':{'수도권':3.0,'비수도권':2.5},'혼합5년':{'수도권':2.4,'비수도권':2.0},'주기5년':{'수도권':1.2,'비수도권':1.0},'고정형':{'수도권':0,'비수도권':0}};
+      var st=(stRates[rt]&&stRates[rt][rg])||0;
+      stNote.textContent=st>0?'▲ DSR 스트레스금리 +'+st.toFixed(1)+'% 가산 ('+rt+' · '+rg+')':'▲ DSR 스트레스금리 없음 ('+rt+')';
+    }
+  }
 }
 
 // ── 주담대 상품 변경 ──
@@ -1375,6 +1387,33 @@ function matchMortProd(){
   var rtype=gC('m-rtype')||'변동';
   var period=gC('m-period')||'60개월';
   var idx=gC('m-idx')||'신규COFIX';
+
+  // ── 유효하지 않은 지표금리+기간 조합 자동 교정 ──
+  // COFIX 계열은 6/12개월만 있고, MOR은 60개월만 있음
+  if((idx==='신규COFIX'||idx==='신잔액COFIX') && period==='60개월'){
+    // 60개월+COFIX 조합 없음 → 기간을 12개월로 자동 전환
+    period='12개월';
+    var pBtns=document.querySelectorAll('#m-period .chip');
+    pBtns.forEach(function(b){
+      b.classList.toggle('on', b.textContent.trim()==='12개월');
+    });
+  } else if(idx==='MOR' && (period==='6개월'||period==='12개월')){
+    // 6/12개월+MOR 조합 없음 → 기간을 60개월로 자동 전환
+    period='60개월';
+    var pBtns=document.querySelectorAll('#m-period .chip');
+    pBtns.forEach(function(b){
+      b.classList.toggle('on', b.textContent.trim()==='60개월');
+    });
+  }
+  // 혼합 rtype은 60개월만 있음 → 6/12개월이면 변동으로 자동 전환
+  if(rtype==='혼합' && (period==='6개월'||period==='12개월')){
+    rtype='변동';
+    var rtBtns=document.querySelectorAll('#m-rtype .chip');
+    rtBtns.forEach(function(b){
+      b.classList.toggle('on', b.textContent.trim()==='변동');
+    });
+  }
+
   var idxKey={'신규COFIX':'cofix_n','신잔액COFIX':'cofix_b','MOR':'mor60'}[idx];
   if(period==='24개월'||period==='60개월') idxKey=(idx==='MOR'?'mor60':idxKey);
   if(period==='24개월') idxKey='mor24';
