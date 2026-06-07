@@ -47,6 +47,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 .ddi:last-child{border-bottom:none}.ddi:active{background:var(--pl);color:var(--p)}
 .gutabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}.gutabs::-webkit-scrollbar{display:none}
 .gt{flex:none;height:36px;border:1.5px solid var(--g3);border-radius:20px;background:#fff;font-size:12px;font-weight:500;color:var(--g6);cursor:pointer;white-space:nowrap;padding:0 12px}
+#gu-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:5px!important;margin-top:4px!important}
+#gu-grid button{width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1.5px solid var(--g3)!important;border-radius:8px!important;height:34px!important;background:#fff!important;font-size:11px!important;font-weight:600!important;color:var(--g6)!important;cursor:pointer!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;padding:0 2px!important}
+#gu-grid button.on{background:var(--p)!important;color:#fff!important;border-color:var(--p)!important}
 .gt.on{border-color:var(--p);background:var(--pl);color:var(--p);font-weight:700}
 .ptbl{width:100%;border-collapse:collapse;font-size:13px}
 .ptbl th{background:var(--g2);padding:8px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--g5);border-bottom:1px solid var(--g3)}
@@ -231,32 +234,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="ct">🏠 아파트 시세 조회</div>
     <div class="f">
       <label>구 선택</label>
-      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px">
-        <button class="gt on" id="g0" onclick="selGu(0)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">강남구</button>
-        <button class="gt" id="g1" onclick="selGu(1)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강동구</button>
-        <button class="gt" id="g2" onclick="selGu(2)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강북구</button>
-        <button class="gt" id="g3" onclick="selGu(3)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강서구</button>
-        <button class="gt" id="g4" onclick="selGu(4)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">관악구</button>
-        <button class="gt" id="g5" onclick="selGu(5)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">광진구</button>
-        <button class="gt" id="g6" onclick="selGu(6)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">구로구</button>
-        <button class="gt" id="g7" onclick="selGu(7)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">금천구</button>
-        <button class="gt" id="g8" onclick="selGu(8)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">노원구</button>
-        <button class="gt" id="g9" onclick="selGu(9)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">도봉구</button>
-        <button class="gt" id="g10" onclick="selGu(10)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">동대문</button>
-        <button class="gt" id="g11" onclick="selGu(11)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">동작구</button>
-        <button class="gt" id="g12" onclick="selGu(12)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">마포구</button>
-        <button class="gt" id="g13" onclick="selGu(13)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">서대문</button>
-        <button class="gt" id="g14" onclick="selGu(14)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">서초구</button>
-        <button class="gt" id="g15" onclick="selGu(15)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">성동구</button>
-        <button class="gt" id="g16" onclick="selGu(16)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">성북구</button>
-        <button class="gt" id="g17" onclick="selGu(17)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">송파구</button>
-        <button class="gt" id="g18" onclick="selGu(18)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">양천구</button>
-        <button class="gt" id="g19" onclick="selGu(19)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">영등포</button>
-        <button class="gt" id="g20" onclick="selGu(20)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">용산구</button>
-        <button class="gt" id="g21" onclick="selGu(21)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">은평구</button>
-        <button class="gt" id="g22" onclick="selGu(22)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">종로구</button>
-        <button class="gt" id="g23" onclick="selGu(23)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">중구</button>
-        <button class="gt" id="g24" onclick="selGu(24)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">중랑구</button>
+      <div id="gu-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px">
+        <button class="on" id="g0" onclick="selGu(0)">강남구</button>
+        <button id="g1" onclick="selGu(1)">강동구</button>
+        <button id="g2" onclick="selGu(2)">강북구</button>
+        <button id="g3" onclick="selGu(3)">강서구</button>
+        <button id="g4" onclick="selGu(4)">관악구</button>
+        <button id="g5" onclick="selGu(5)">광진구</button>
+        <button id="g6" onclick="selGu(6)">구로구</button>
+        <button id="g7" onclick="selGu(7)">금천구</button>
+        <button id="g8" onclick="selGu(8)">노원구</button>
+        <button id="g9" onclick="selGu(9)">도봉구</button>
+        <button id="g10" onclick="selGu(10)">동대문</button>
+        <button id="g11" onclick="selGu(11)">동작구</button>
+        <button id="g12" onclick="selGu(12)">마포구</button>
+        <button id="g13" onclick="selGu(13)">서대문</button>
+        <button id="g14" onclick="selGu(14)">서초구</button>
+        <button id="g15" onclick="selGu(15)">성동구</button>
+        <button id="g16" onclick="selGu(16)">성북구</button>
+        <button id="g17" onclick="selGu(17)">송파구</button>
+        <button id="g18" onclick="selGu(18)">양천구</button>
+        <button id="g19" onclick="selGu(19)">영등포</button>
+        <button id="g20" onclick="selGu(20)">용산구</button>
+        <button id="g21" onclick="selGu(21)">은평구</button>
+        <button id="g22" onclick="selGu(22)">종로구</button>
+        <button id="g23" onclick="selGu(23)">중구</button>
+        <button id="g24" onclick="selGu(24)">중랑구</button>
       </div>
     </div>
     <div class="f">
