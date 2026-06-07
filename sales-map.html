@@ -555,11 +555,14 @@ function loadGuApt(guName,code){
   document.getElementById('apt-badge').textContent='';
   document.getElementById('apt-list').innerHTML='<div style="text-align:center;padding:18px;color:var(--g4)"><div class="spin">⟳</div></div>';
   document.getElementById('apt-card').scrollIntoView({behavior:'smooth'});
-  var ym=pr.yms[0];
-  var fbuy=filterType!=='rent'?fetchItems('RTMSDataSvcAptTradeDev',code,ym,100):Promise.resolve([]);
-  var frent=filterType!=='buy'?fetchItems('RTMSDataSvcAptRent',code,ym,100):Promise.resolve([]);
-  Promise.all([fbuy,frent]).then(function(res){
+  // 전체 기간 모든 월 합산 조회
+  var yms=pr.yms;
+  var buyPromises=filterType!=='rent'?yms.map(function(ym){return fetchItems('RTMSDataSvcAptTradeDev',code,ym,100);}):[];
+  var rentPromises=filterType!=='buy'?yms.map(function(ym){return fetchItems('RTMSDataSvcAptRent',code,ym,100);}):[];
+  Promise.all(buyPromises.concat(rentPromises)).then(function(results){
     _aptMap={};_curGuName=guName;
+    var buyResults=filterType!=='rent'?results.slice(0,buyPromises.length):[];
+    var rentResults=filterType!=='buy'?results.slice(buyPromises.length):[];
     function add(items,type){
       items.forEach(function(it){
         var name=it['아파트']||it.aptNm||'미상',dong=it['법정동']||it.umdNm||'';
@@ -569,7 +572,8 @@ function loadGuApt(guName,code){
         _aptMap[k][type]++; _aptMap[k][type+'Items'].push(it);
       });
     }
-    add(res[0],'buy'); add(res[1],'rent');
+    buyResults.forEach(function(items){add(items,'buy');});
+    rentResults.forEach(function(items){add(items,'rent');});
     var apts=Object.values(_aptMap).sort(function(a,b){return(b.buy+b.rent)-(a.buy+a.rent);});
     if(!apts.length){document.getElementById('apt-list').innerHTML='<div style="padding:14px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
     document.getElementById('apt-badge').textContent=apts.length+'개';
