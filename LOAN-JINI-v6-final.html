@@ -26,9 +26,15 @@
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2);color:var(--g8);padding-bottom:74px}
 .topbar{background:var(--p);color:#fff;padding:13px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(26,86,219,.4)}
 .t-icon{font-size:20px}.t-title{font-size:16px;font-weight:700}.t-sub{font-size:11px;opacity:.7;margin-left:auto}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g3);display:flex;height:64px;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.nb{flex:none;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:none;background:none;color:var(--g4);font-size:9px;font-weight:500;cursor:pointer;padding:0 4px}
-.nb.on{color:var(--p)}.nb .ni{font-size:18px}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g3);display:grid;grid-template-columns:repeat(7,1fr);height:64px;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.1)}
+.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--g4);font-size:9px;font-weight:600;cursor:pointer;padding:0;width:100%;height:100%;transition:color .15s}
+.nb.on{color:var(--p)}.nb .ni{font-size:22px;line-height:1;transition:transform .15s}.nb.on .ni{transform:scale(1.12)}
+#more-drawer{position:fixed;bottom:64px;left:0;right:0;background:#fff;border-top:2px solid var(--g3);z-index:99;padding:14px 12px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.13);transform:translateY(101%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
+#more-drawer.open{transform:translateY(0)}
+#drawer-overlay{position:fixed;top:0;left:0;right:0;bottom:64px;background:rgba(0,0,0,.28);z-index:98;opacity:0;pointer-events:none;transition:opacity .25s}
+#drawer-overlay.open{opacity:1;pointer-events:auto}
+.dnb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:var(--g1);border-radius:10px;color:var(--g6);font-size:10px;font-weight:700;cursor:pointer;padding:10px 4px;width:100%}
+.dnb .ni{font-size:22px;line-height:1}.dnb.on{background:var(--pl);color:var(--p)}
 .panel{display:none;padding:12px 12px 4px}.panel.on{display:block}
 .card{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .ct{font-size:11px;font-weight:700;color:var(--p);margin-bottom:13px;text-transform:uppercase;letter-spacing:.6px}
@@ -489,8 +495,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="mres" style="display:none">
     <div class="ct">📈 주담대 계산 결과</div>
     <div class="rg" id="mgrid"></div>
-    <button onclick="shareResult('mort')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    <button onclick="genEstimateImage('mort')" style="margin-top:12px;width:100%;height:48px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">📋</span> 견적서 이미지 저장/공유
     </button>
   </div>
 <div id="mort-compare" style="display:none;margin:0 12px 10px"></div>
@@ -620,8 +626,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="jres" style="display:none">
     <div class="ct">📈 전세대출 계산 결과</div>
     <div class="rg" id="jgrid"></div>
-    <button onclick="shareResult('jeon')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
-      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    <button onclick="genEstimateImage('jeon')" style="margin-top:12px;width:100%;height:48px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">📋</span> 견적서 이미지 저장/공유
     </button>
   </div>
 <div id="jeon-compare" style="display:none;margin:0 12px 10px"></div>
@@ -1122,22 +1128,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   </div>
 </div>
 
+<div id="drawer-overlay" onclick="toggleDrawer(false)"></div>
+<div id="more-drawer">
+  <div style="font-size:11px;font-weight:700;color:var(--g5);margin-bottom:10px;letter-spacing:.04em">전체 메뉴</div>
+  <div id="drawer-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+    <button class="dnb" id="nb4" onclick="swTab(4)"><span class="ni">💼</span>소득산정</button>
+    <button class="dnb" id="nb5" onclick="swTab(5)"><span class="ni">📅</span>상환표</button>
+    <button class="dnb" id="nb6" onclick="swTab(6)"><span class="ni">🛡️</span>방공제</button>
+    <button class="dnb" id="nb7" onclick="swTab(7);swDocTab(0)"><span class="ni">📋</span>대출서류</button>
+    <button class="dnb" id="nb9" onclick="swTab(9)"><span class="ni">🏷️</span>취득세</button>
+    <button class="dnb" id="nb11" onclick="swTab(10)"><span class="ni">📜</span>인지/채권</button>
+    <button class="dnb" id="nb10" onclick="swTab(11);dashInit()"><span class="ni">📊</span>실적</button>
+    <button class="dnb" id="nb13" onclick="swTab(13)"><span class="ni">📐</span>DSR역산</button>
+    <button class="dnb" id="nb14" onclick="swTab(14)"><span class="ni">🔄</span>대환계산</button>
+  </div>
+  <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--g3);display:flex;justify-content:flex-end">
+    <button onclick="openTabSort();toggleDrawer(false)" style="font-size:11px;color:var(--g4);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">⚙️ 탭 순서 설정</button>
+  </div>
+</div>
 <nav class="bnav">
-  <button class="nb on" id="nb0" onclick="swTab(0)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">⚙️</span><span>업데이트</span></button>
-  <button class="nb" id="nb1" onclick="swTab(1)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏠</span><span>시세조회</span></button>
-  <button class="nb" id="nb2" onclick="swTab(2)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏦</span><span>주담대</span></button>
-  <button class="nb" id="nb3" onclick="swTab(3)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🔑</span><span>전세대출</span></button>
-  <button class="nb" id="nb4" onclick="swTab(4)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">💼</span><span>소득산정</span></button>
-  <button class="nb" id="nb5" onclick="swTab(5)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📅</span><span>상환표</span></button>
-  <button class="nb" id="nb6" onclick="swTab(6)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🛡️</span><span>방공제</span></button>
-  <button class="nb" id="nb7" onclick="swTab(7);swDocTab(0)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📋</span><span>대출서류</span></button>
-  <button class="nb" id="nb8" onclick="swTab(8);crmInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">👥</span><span>고객관리</span></button>
-  <button class="nb" id="nb9" onclick="swTab(9)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏷️</span><span>취득세</span></button>
-  <button class="nb" id="nb11" onclick="swTab(10)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📜</span><span>인지/채권</span></button>
-  <button class="nb" id="nb10" onclick="swTab(11);dashInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📊</span><span>실적</span></button>
-
-  <button class="nb" id="nb12" onclick="swTab(12)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--g4);font-size:10px;height:64px"><span style="font-size:20px">🗺️</span>영업지도</button>
-  <button onclick="openTabSort()" style="flex:none;width:36px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--g4);font-size:9px;height:64px;border-left:1px solid var(--g3)"><span style="font-size:15px">⚙️</span>탭순서</button>
+  <button class="nb on" id="nb0" onclick="swTab(0)"><span class="ni">⚙️</span>업데이트</button>
+  <button class="nb" id="nb12" onclick="swTab(12)"><span class="ni">🗺️</span>영업지도</button>
+  <button class="nb" id="nb1" onclick="swTab(1)"><span class="ni">🏠</span>시세조회</button>
+  <button class="nb" id="nb2" onclick="swTab(2)"><span class="ni">🏦</span>주담대</button>
+  <button class="nb" id="nb3" onclick="swTab(3)"><span class="ni">🔑</span>전세대출</button>
+  <button class="nb" id="nb8" onclick="swTab(8);crmInit()"><span class="ni">👥</span>고객관리</button>
+  <button class="nb" id="more-btn" onclick="toggleDrawer()"><span class="ni">☰</span>더보기</button>
 </nav>
 
 <script>
@@ -1147,7 +1163,7 @@ var D={"서울특별시":{"마포구":{"공덕SK리더스뷰":[[26.8,180000,1885
 
 
 var GU=["강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구"];
-var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map'];
+var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-dsr','tab-refi'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
 
 // ── 상품 데이터 ──
@@ -1663,7 +1679,18 @@ function swDocTab(i){
   if(i===1) dsMakeMsg();
 }
 
+function toggleDrawer(force){
+  var d=document.getElementById('more-drawer');
+  var o=document.getElementById('drawer-overlay');
+  if(!d||!o) return;
+  var open=typeof force==='boolean'?force:!d.classList.contains('open');
+  d.classList.toggle('open',open);
+  o.classList.toggle('open',open);
+  var moreBtn=document.getElementById('more-btn');
+  if(moreBtn) moreBtn.classList.toggle('on',open);
+}
 function swTab(i){
+  toggleDrawer(false);
   if(i===10) initBondTab();
   if(i===12){
     var frame=document.getElementById('jm-frame');
@@ -4798,6 +4825,121 @@ function doStampBond(){
 
 </div>
 
+<!-- ══ DSR 역산 탭 ══ -->
+<div class="panel" id="tab-dsr" style="padding:12px 12px 80px">
+  <div class="card">
+    <div class="ct">📐 DSR 역산 계산기</div>
+    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p)">
+      💡 소득과 기존 부채를 입력하면 <strong>DSR 40% 기준 최대 대출가능금액</strong>을 역산합니다 (스트레스DSR 반영)
+    </div>
+    <div class="f"><label>연소득 (만원)</label>
+      <input type="number" id="dsr-income" placeholder="예: 6000" inputmode="numeric" oninput="dsrCalc()">
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px">기존 부채 (없으면 0)</div>
+    <div class="frow">
+      <div class="f"><label>주담대 잔액(만원)</label><input type="number" id="dsr-mort-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
+      <div class="f"><label>금리(%)</label><input type="number" id="dsr-mort-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
+    </div>
+    <div class="f"><label>주담대 남은 기간(년)</label><input type="number" id="dsr-mort-term" placeholder="20" inputmode="numeric" oninput="dsrCalc()"></div>
+    <div class="frow">
+      <div class="f"><label>전세대출 잔액(만원)</label><input type="number" id="dsr-jeon-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
+      <div class="f"><label>금리(%)</label><input type="number" id="dsr-jeon-rate" placeholder="3.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
+    </div>
+    <div class="f"><label>전세대출 남은 기간(년)</label><input type="number" id="dsr-jeon-term" placeholder="2" inputmode="numeric" oninput="dsrCalc()"></div>
+    <div class="frow">
+      <div class="f"><label>신용대출 잔액(만원)</label><input type="number" id="dsr-credit-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
+      <div class="f"><label>금리(%)</label><input type="number" id="dsr-credit-rate" placeholder="5.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
+    </div>
+    <div class="frow">
+      <div class="f"><label>카드론 잔액(만원)</label><input type="number" id="dsr-card-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
+      <div class="f"><label>금리(%)</label><input type="number" id="dsr-card-rate" placeholder="12.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
+    </div>
+    <div class="f"><label>기타 월상환액 합계(만원) <span style="font-size:10px;color:var(--g4)">리스·할부 등</span></label>
+      <input type="number" id="dsr-etc" placeholder="0" inputmode="numeric" oninput="dsrCalc()">
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px">신규 대출 조건</div>
+    <div class="frow">
+      <div class="f"><label>금리유형</label>
+        <select id="dsr-rtype" onchange="dsrCalc()">
+          <option value="변동형">변동형</option>
+          <option value="혼합5년">혼합5년</option>
+          <option value="주기5년">주기5년</option>
+          <option value="고정형">고정형</option>
+        </select>
+      </div>
+      <div class="f"><label>지역</label>
+        <select id="dsr-zone" onchange="dsrCalc()">
+          <option value="수도권">수도권</option>
+          <option value="비수도권">비수도권</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow">
+      <div class="f"><label>예상 금리(%)</label>
+        <input type="number" id="dsr-new-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="dsrCalc()">
+      </div>
+      <div class="f"><label>대출 기간(년)</label>
+        <input type="number" id="dsr-new-term" placeholder="30" value="30" inputmode="numeric" oninput="dsrCalc()">
+      </div>
+    </div>
+  </div>
+  <div class="card" id="dsr-result" style="display:none">
+    <div class="ct">📊 DSR 역산 결과</div>
+    <div class="rg" id="dsr-grid"></div>
+  </div>
+</div>
+
+<!-- ══ 대환 손익 계산기 탭 ══ -->
+<div class="panel" id="tab-refi" style="padding:12px 12px 80px">
+  <div class="card">
+    <div class="ct">🔄 대환(갈아타기) 손익 계산기</div>
+    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p)">
+      💡 중도상환수수료까지 포함하여 <strong>언제부터 이득인지</strong> 손익분기점을 계산합니다
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">현재 대출</div>
+    <div class="f"><label>대출 잔액(만원)</label>
+      <input type="number" id="refi-bal" placeholder="예: 30000" inputmode="numeric" oninput="refiCalc()">
+    </div>
+    <div class="frow">
+      <div class="f"><label>현재 금리(%)</label>
+        <input type="number" id="refi-cur-rate" placeholder="4.5" inputmode="decimal" step="0.01" oninput="refiCalc()">
+      </div>
+      <div class="f"><label>남은 기간(개월)</label>
+        <input type="number" id="refi-cur-term" placeholder="240" inputmode="numeric" oninput="refiCalc()">
+      </div>
+    </div>
+    <div class="frow">
+      <div class="f"><label>중도상환수수료율(%)</label>
+        <input type="number" id="refi-fee-rate" placeholder="1.2" value="1.2" inputmode="decimal" step="0.01" oninput="refiCalc()">
+      </div>
+      <div class="f"><label>기타 부대비용(만원)</label>
+        <input type="number" id="refi-extra" placeholder="0" value="0" inputmode="numeric" oninput="refiCalc()">
+      </div>
+    </div>
+    <div class="f"><label>현재 상환방식</label>
+      <select id="refi-method" onchange="refiCalc()">
+        <option value="원리금균등">원리금균등</option>
+        <option value="원금균등">원금균등</option>
+        <option value="만기일시">만기일시(거치식)</option>
+      </select>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.5px">신규 대출</div>
+    <div class="frow">
+      <div class="f"><label>신규 금리(%)</label>
+        <input type="number" id="refi-new-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="refiCalc()">
+      </div>
+      <div class="f"><label>신규 기간(개월)</label>
+        <input type="number" id="refi-new-term" placeholder="240" inputmode="numeric" oninput="refiCalc()">
+      </div>
+    </div>
+    <button class="cbtn" onclick="refiCalc(true)" style="margin-top:4px">손익 계산하기</button>
+  </div>
+  <div class="card" id="refi-result" style="display:none">
+    <div class="ct">📊 대환 손익 분석</div>
+    <div class="rg" id="refi-grid"></div>
+  </div>
+</div>
+
 <!-- 영업지도 탭 -->
 <div class="panel" id="tab-map" style="padding:0;position:relative">
   <iframe id="jm-frame" src="about:blank"
@@ -4819,20 +4961,22 @@ var TAB_META=[
   {idx:9,label:'🏷️ 취득세',nbId:'nb9'},
   {idx:10,label:'📜 인지/채권',nbId:'nb11'},
   {idx:11,label:'📊 실적',nbId:'nb10'},
-  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'}
+  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'},
+  {idx:13,label:'📐 DSR역산',nbId:'nb13'},
+  {idx:14,label:'🔄 대환계산',nbId:'nb14'}
 ];
 var _tabOrder=null,_tabHidden=null;
 function loadTabConfig(){try{_tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;_tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};}catch(e){_tabOrder=null;_tabHidden={};}}
 function applyTabConfig(){
   loadTabConfig();if(!_tabOrder)return;
-  var nav=document.querySelector('.bnav');if(!nav)return;
-  var sortBtn=nav.querySelector('button:not([id^="nb"])');
-  // 저장된 순서에 없는 신규 탭은 끝에 자동 추가
+  var drawerGrid=document.getElementById('drawer-grid');if(!drawerGrid)return;
+  var mainIds=['nb0','nb12','nb1','nb2','nb3','nb8'];
   TAB_META.forEach(function(meta){if(_tabOrder.indexOf(meta.idx)<0)_tabOrder.push(meta.idx);});
   _tabOrder.forEach(function(idx){
     var meta=TAB_META[idx];if(!meta)return;
     var btn=document.getElementById(meta.nbId);if(!btn)return;
-    nav.insertBefore(btn,sortBtn);
+    if(mainIds.indexOf(meta.nbId)>=0) return;
+    drawerGrid.appendChild(btn);
     btn.style.display=(_tabHidden[idx])?'none':'';
   });
 }
@@ -5066,5 +5210,240 @@ function compareMort(){
 
 
 <script>toggleScoreSection();</script>
+<script>
+// ══ DSR 역산 계산기 ══
+function dsrMonthly(bal,rate,termYrs){
+  if(!bal||!termYrs) return 0;
+  var r=rate/100/12,n=termYrs*12;
+  if(r===0) return bal/n;
+  return bal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+}
+function dsrCalc(){
+  var income=parseFloat(document.getElementById('dsr-income').value)||0;
+  if(!income){document.getElementById('dsr-result').style.display='none';return;}
+  var mortBal=parseFloat(document.getElementById('dsr-mort-bal').value)||0;
+  var mortRate=parseFloat(document.getElementById('dsr-mort-rate').value)||3.5;
+  var mortTerm=parseFloat(document.getElementById('dsr-mort-term').value)||20;
+  var jeonBal=parseFloat(document.getElementById('dsr-jeon-bal').value)||0;
+  var jeonRate=parseFloat(document.getElementById('dsr-jeon-rate').value)||3.0;
+  var jeonTerm=parseFloat(document.getElementById('dsr-jeon-term').value)||2;
+  var creditBal=parseFloat(document.getElementById('dsr-credit-bal').value)||0;
+  var creditRate=parseFloat(document.getElementById('dsr-credit-rate').value)||5.0;
+  var cardBal=parseFloat(document.getElementById('dsr-card-bal').value)||0;
+  var cardRate=parseFloat(document.getElementById('dsr-card-rate').value)||12.0;
+  var etc=parseFloat(document.getElementById('dsr-etc').value)||0;
+  var mMort=dsrMonthly(mortBal,mortRate,mortTerm);
+  var mJeon=dsrMonthly(jeonBal,jeonRate,jeonTerm);
+  var mCredit=dsrMonthly(creditBal,creditRate,5);
+  var mCard=dsrMonthly(cardBal,cardRate,1);
+  var mTotal=mMort+mJeon+mCredit+mCard+etc;
+  var annIncome=income*10000;
+  var existDsr=annIncome>0?(mTotal*12*10000/annIncome*100):0;
+  var newRateType=document.getElementById('dsr-rtype').value;
+  var zone=document.getElementById('dsr-zone').value;
+  var newRate=parseFloat(document.getElementById('dsr-new-rate').value)||3.5;
+  var newTerm=parseFloat(document.getElementById('dsr-new-term').value)||30;
+  var stRates={'변동형':{'수도권':3.0,'비수도권':2.5},'혼합5년':{'수도권':2.4,'비수도권':2.0},'주기5년':{'수도권':1.2,'비수도권':1.0},'고정형':{'수도권':0,'비수도권':0}};
+  var st=(stRates[newRateType]&&stRates[newRateType][zone])||0;
+  var stressRate=newRate+st;
+  var maxMonthly=annIncome*0.4/12/10000;
+  var availMonthly=maxMonthly-mTotal;
+  function calcMaxLoan(monthly,rate,termYrs){
+    if(monthly<=0||termYrs<=0) return 0;
+    var r=rate/100/12,n=termYrs*12;
+    if(r===0) return monthly*n;
+    return monthly*(1-Math.pow(1+r,-n))/r;
+  }
+  var maxLoanNoStress=Math.max(0,Math.floor(calcMaxLoan(availMonthly,newRate,newTerm)));
+  var maxLoanStress=Math.max(0,Math.floor(calcMaxLoan(availMonthly,stressRate,newTerm)));
+  var bindingMax=Math.min(maxLoanNoStress,maxLoanStress);
+  var dsrOk=existDsr<=40;
+  document.getElementById('dsr-grid').innerHTML=
+    '<div class="ri"><div class="rl">현재 기존부채 DSR</div>'+
+    '<div class="rv big '+(dsrOk?'ok':'er')+'">'+existDsr.toFixed(1)+'%</div>'+
+    '<div style="font-size:11px;color:var(--g4);margin-top:3px">기존 월상환 합계: '+fm(Math.round(mTotal))+'만원/월</div></div>'+
+    '<div class="ri" style="background:var(--okl)"><div class="rl" style="color:var(--ok)">✅ DSR 40% 기준 최대 대출</div>'+
+    '<div class="rv big ok">'+fm(maxLoanNoStress)+'<span style="font-size:13px"> 만원</span></div>'+
+    '<div style="font-size:11px;color:var(--ok);margin-top:3px">적용금리 '+newRate.toFixed(2)+'% 기준</div></div>'+
+    '<div class="ri" style="background:#fef9c3"><div class="rl" style="color:#854d0e">⚡ 스트레스DSR 반영 최대</div>'+
+    '<div class="rv big" style="color:#854d0e">'+fm(bindingMax)+'<span style="font-size:13px"> 만원</span></div>'+
+    '<div style="font-size:11px;color:#854d0e;margin-top:3px">스트레스 +'+st.toFixed(1)+'% 가산 ('+newRateType+' · '+zone+')</div></div>'+
+    '<div class="ri w"><div class="rl">기존 부채 상세</div>'+
+    '<div style="font-size:12px;color:var(--g6);margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px">'+
+    (mortBal>0?'<div>주담대</div><div style="text-align:right">'+fm(Math.round(mMort))+'만/월</div>':'')+
+    (jeonBal>0?'<div>전세대출</div><div style="text-align:right">'+fm(Math.round(mJeon))+'만/월</div>':'')+
+    (creditBal>0?'<div>신용대출(5년)</div><div style="text-align:right">'+fm(Math.round(mCredit))+'만/월</div>':'')+
+    (cardBal>0?'<div>카드론(1년)</div><div style="text-align:right">'+fm(Math.round(mCard))+'만/월</div>':'')+
+    (etc>0?'<div>기타</div><div style="text-align:right">'+fm(Math.round(etc))+'만/월</div>':'')+
+    '</div></div>'+
+    '<div class="ri"><div class="rl">남은 DSR 한도</div>'+
+    '<div class="rv '+(availMonthly>=0?'ok':'er')+'">'+fm(Math.round(availMonthly))+'<span style="font-size:11px"> 만원/월</span></div>'+
+    '<div style="font-size:11px;color:var(--g4);margin-top:2px">월 한도 '+fm(Math.round(maxMonthly))+'만 - 기존 '+fm(Math.round(mTotal))+'만</div></div>';
+  document.getElementById('dsr-result').style.display='block';
+}
+
+// ══ 대환 손익 계산기 ══
+function refiCalc(force){
+  var bal=parseFloat(document.getElementById('refi-bal').value)||0;
+  var curRate=parseFloat(document.getElementById('refi-cur-rate').value)||0;
+  var curTerm=parseInt(document.getElementById('refi-cur-term').value)||0;
+  var feeRate=parseFloat(document.getElementById('refi-fee-rate').value)||1.2;
+  var extra=parseFloat(document.getElementById('refi-extra').value)||0;
+  var method=document.getElementById('refi-method').value;
+  var newRate=parseFloat(document.getElementById('refi-new-rate').value)||0;
+  var newTerm=parseInt(document.getElementById('refi-new-term').value)||(curTerm||240);
+  if(!bal||!curRate||!newRate) return;
+  function monthlyAmt(principal,annRate,months,meth){
+    var r=annRate/100/12,n=months;
+    if(meth==='만기일시') return principal*r;
+    if(meth==='원금균등') return principal/n+principal*r;
+    if(r===0) return principal/n;
+    return principal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
+  }
+  var curMonthly=Math.round(monthlyAmt(bal,curRate,curTerm,method));
+  var newMonthly=Math.round(monthlyAmt(bal,newRate,newTerm,'원리금균등'));
+  var saving=curMonthly-newMonthly;
+  var fee=Math.round(bal*feeRate/100);
+  var totalCost=fee+extra;
+  var breakEven=saving>0?Math.ceil(totalCost/saving):0;
+  var netSaving1y=Math.max(0,saving*12-totalCost);
+  var netSaving3y=Math.max(0,saving*36-totalCost);
+  var netSaving5y=Math.max(0,saving*60-totalCost);
+  var beSafe=breakEven>0&&breakEven<=60;
+  document.getElementById('refi-grid').innerHTML=
+    '<div class="ri w"><div class="rl">월 상환액 비교</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">'+
+    '<div style="background:var(--g1);border-radius:8px;padding:10px;text-align:center">'+
+    '<div style="font-size:10px;color:var(--g4)">현재</div>'+
+    '<div style="font-size:18px;font-weight:800;color:var(--g7)">'+fm(curMonthly)+'<span style="font-size:11px">만원</span></div>'+
+    '<div style="font-size:10px;color:var(--g4)">'+curRate.toFixed(2)+'%</div></div>'+
+    '<div style="background:var(--okl);border-radius:8px;padding:10px;text-align:center">'+
+    '<div style="font-size:10px;color:var(--ok)">신규</div>'+
+    '<div style="font-size:18px;font-weight:800;color:var(--ok)">'+fm(newMonthly)+'<span style="font-size:11px">만원</span></div>'+
+    '<div style="font-size:10px;color:var(--ok)">'+newRate.toFixed(2)+'%</div></div></div></div>'+
+    '<div class="ri"><div class="rl">월 절감액</div>'+
+    '<div class="rv big '+(saving>0?'ok':'er')+'">'+fm(Math.abs(saving))+'<span style="font-size:13px"> 만원/월</span></div>'+
+    '<div style="font-size:11px;color:var(--g4);margin-top:2px">'+(saving>0?'절감':'오히려 증가')+'</div></div>'+
+    '<div class="ri"><div class="rl">중도상환수수료</div>'+
+    '<div class="rv">'+fm(fee)+'<span style="font-size:11px"> 만원</span></div>'+
+    '<div style="font-size:11px;color:var(--g4);margin-top:2px">잔액 '+fm(bal)+'만 × '+feeRate+'%'+(extra>0?' + 부대 '+fm(extra)+'만':'')+'</div></div>'+
+    (saving>0?'<div class="ri" style="'+(beSafe?'background:var(--okl)':'background:#fef9c3')+'">'+
+    '<div class="rl" style="color:'+(beSafe?'var(--ok)':'#854d0e')+'">⏱️ 손익분기점</div>'+
+    '<div class="rv big" style="color:'+(beSafe?'var(--ok)':'#854d0e')+'">'+breakEven+'<span style="font-size:13px"> 개월</span></div>'+
+    '<div style="font-size:11px;color:'+(beSafe?'var(--ok)':'#854d0e')+';margin-top:2px">'+
+    (breakEven<=12?'✅ 1년 안에 본전':breakEven<=36?'✅ 3년 안에 본전':breakEven<=60?'✅ 5년 안에 본전':'⚠️ 5년 후 손익분기')+
+    '</div></div>':'')+
+    '<div class="ri w"><div class="rl">기간별 순절감액</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">'+
+    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">1년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving1y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving1y)+'<span style="font-size:10px">만</span></div></div>'+
+    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">3년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving3y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving3y)+'<span style="font-size:10px">만</span></div></div>'+
+    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">5년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving5y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving5y)+'<span style="font-size:10px">만</span></div></div>'+
+    '</div></div>';
+  document.getElementById('refi-result').style.display='block';
+}
+
+// ══ 견적서 이미지 생성 (Canvas PNG) ══
+function genEstimateImage(type){
+  var isMort=(type==='mort');
+  var data=isMort?_lastMort:_lastJeon;
+  if(!data){alert('먼저 계산하기를 눌러주세요.');return;}
+  var W=720,pad=20;
+  var lines=[];
+  var today=new Date();
+  var dateStr=today.getFullYear()+'.'+(today.getMonth()+1).toString().padStart(2,'0')+'.'+today.getDate().toString().padStart(2,'0');
+
+  // 높이 계산용 캔버스
+  var cv=document.createElement('canvas'); cv.width=W;
+  var ctx=cv.getContext('2d');
+  function wrapText(text,maxW){
+    ctx.font='11px sans-serif';
+    var words=text.split(''),line='',out=[];
+    for(var i=0;i<words.length;i++){var test=line+words[i];if(ctx.measureText(test).width>maxW&&line){out.push(line);line=words[i];}else line=test;}
+    if(line)out.push(line);return out;
+  }
+
+  var H=80+20; // header
+  var sections=[];
+  function addSection(label,value,sub,bg){H+=90;sections.push({label:label,value:value,sub:sub,bg:bg||'#f9fafb'});}
+
+  if(isMort){
+    var m=data;
+    H+=50; // 상품명 영역
+    addSection('적용 금리 (예상)',m.rate.toFixed(2)+'%','금리유형: '+m.rateType+(m.stressRate?' · 스트레스 +'+((m.stressRate)*100).toFixed(1)+'%':''),'#eff6ff');
+    addSection('최대 대출 한도',fm(Math.round(m.limit))+' 만원','월 상환: '+fm(Math.round(m.monthly))+'만원 · 기존부채 DSR '+m.existDsr.toFixed(1)+'%');
+    if(m.extraDiff>0) addSection('기타대출 상환 시 한도',fm(Math.round(m.limit0))+' 만원','▲ '+fm(m.extraDiff)+'만원 증가 · 월 '+fm(Math.round(m.monthly0))+'만원','#f0fdf4');
+  } else {
+    var j=data;
+    H+=50;
+    addSection('적용 금리 (예상)',j.rate.toFixed(2)+'%','보증기관: '+j.guarantor,'#eff6ff');
+    addSection('최대 한도',fm(j.limit)+' 만원','월 이자: '+fm(Math.round(j.monthly))+'만원 · 보증료: '+j.annualFee.toFixed(2)+'%/년');
+  }
+  H+=110+30; // 면책+하단
+
+  cv.height=H;
+  ctx=cv.getContext('2d');
+
+  // 배경
+  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
+  // 헤더
+  ctx.fillStyle='#1a56db'; ctx.fillRect(0,0,W,70);
+  ctx.fillStyle='#ffffff'; ctx.font='bold 20px sans-serif'; ctx.textAlign='left';
+  ctx.fillText(isMort?'🏦 주택담보대출 예상 견적서':'🔑 전세자금대출 예상 견적서',pad,42);
+  ctx.font='12px sans-serif'; ctx.textAlign='right';
+  ctx.fillText(dateStr+' · LOAN-JINI',W-pad,42);
+
+  var y=80;
+  // 상품명
+  var d=isMort?data:data;
+  ctx.fillStyle='#1f2937'; ctx.font='bold 15px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('📌 '+(isMort?d.product:d.product),pad,y+18);
+  y+=40;
+
+  // 섹션
+  sections.forEach(function(s){
+    ctx.fillStyle=s.bg;
+    ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(pad,y,W-pad*2,80,8); else ctx.rect(pad,y,W-pad*2,80);
+    ctx.fill();
+    ctx.fillStyle='#6b7280'; ctx.font='11px sans-serif'; ctx.textAlign='left';
+    ctx.fillText(s.label,pad+16,y+20);
+    ctx.fillStyle='#111827'; ctx.font='bold 22px sans-serif';
+    ctx.fillText(s.value,pad+16,y+50);
+    if(s.sub){ctx.fillStyle='#6b7280'; ctx.font='11px sans-serif'; ctx.fillText(s.sub,pad+16,y+68);}
+    y+=90;
+  });
+
+  y+=10;
+  // 면책문구
+  ctx.fillStyle='#fef9c3';
+  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(pad,y,W-pad*2,100,8); else ctx.rect(pad,y,W-pad*2,100);
+  ctx.fill();
+  ctx.fillStyle='#92400e'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
+  ctx.fillText('⚠️ 반드시 확인하세요',pad+14,y+20);
+  ctx.fillStyle='#78350f'; ctx.font='11px sans-serif';
+  var disc=['본 자료는 참고용 예상치이며 실제 대출 금리·한도는 금융기관 심사 결과에 따라 달라질 수 있습니다.',
+            '금리·우대조건·규제사항 등이 변경될 수 있으므로 최종 조건은 해당 금융기관에 확인하세요.',
+            '본 견적서는 법적 효력이 없으며 내용 변경 또는 오용에 대해 책임지지 않습니다.'];
+  disc.forEach(function(l,i){ctx.fillText(l,pad+14,y+38+i*18);});
+  y+=110;
+  // 하단
+  ctx.fillStyle='#e5e7eb'; ctx.fillRect(pad,y,W-pad*2,1);
+  ctx.fillStyle='#9ca3af'; ctx.font='11px sans-serif'; ctx.textAlign='center';
+  ctx.fillText('LOAN-JINI 대출 계산기 · '+dateStr,W/2,y+18);
+
+  cv.toBlob(function(blob){
+    var fname='대출견적서_'+dateStr.replace(/\./g,'')+'.png';
+    if(navigator.share){
+      var file=new File([blob],fname,{type:'image/png'});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){
+        navigator.share({title:'대출 예상 견적서',files:[file]}).catch(function(e){
+          if(e.name!=='AbortError'){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();}
+        });
+        return;
+      }
+    }
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
+  },'image/png');
+}
+</script>
 </body>
 </html>
