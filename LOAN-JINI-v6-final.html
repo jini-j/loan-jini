@@ -1220,49 +1220,67 @@ function getRTYMs(n){
 
 function fetchRealTrade(guName,aptName,area,cb){
   var code=GU_CODES[guName];
-  if(!code){cb(null,null);return;}
+  if(!code){cb(null,null,'구코드 없음: '+guName);return;}
   var yms=getRTYMs(3);
-  var prx='https://corsproxy.io/?';
-  var allMae=[],allJeon=[],done=0,total=yms.length*2;
-  function fin(){if(++done===total) cb(allMae.length?allMae:null,allJeon.length?allJeon:null);}
+  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var allMae=[],allJeon=[],done=0,total=yms.length*2,lastErr='';
+  function fin(err){
+    if(err) lastErr=err;
+    if(++done===total) cb(allMae.length?allMae:null,allJeon.length?allJeon:null,lastErr||null);
+  }
   function matchApt(nm,target){
     var c=nm.replace(/[\s\(\)]/g,''),t=target.replace(/[\s\(\)]/g,'');
     return c.indexOf(t)>=0||t.indexOf(c)>=0;
   }
+  function fetchWithTimeout(url,ms){
+    return Promise.race([
+      fetch(url),
+      new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},ms);})
+    ]);
+  }
+  function tryFetch(apiUrl,prxIdx,onData,onErr){
+    if(prxIdx>=proxies.length){onErr('프록시 모두 실패');return;}
+    var prxUrl=proxies[prxIdx]+encodeURIComponent(apiUrl);
+    fetchWithTimeout(prxUrl,14000)
+      .then(function(r){return r.json();})
+      .then(function(data){
+        // allorigins wraps in {contents:...}
+        if(data&&data.contents) try{data=JSON.parse(data.contents);}catch(e){}
+        var code2=(((data||{}).response||{}).header||{}).resultCode;
+        if(code2&&code2!=='00') throw new Error('API오류:'+code2);
+        onData(data);
+      })
+      .catch(function(){tryFetch(apiUrl,prxIdx+1,onData,onErr);});
+  }
   yms.forEach(function(ym){
-    // 매매
     var mUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    fetch(prx+encodeURIComponent(mUrl),{signal:AbortSignal.timeout(12000)})
-      .then(function(r){return r.json();})
-      .then(function(data){
-        var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
-        if(!Array.isArray(items)) items=items?[items]:[];
-        items.forEach(function(it){
-          if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)) allMae.push(it);
-        });
-        fin();
-      }).catch(fin);
-    // 전세
+    tryFetch(mUrl,0,function(data){
+      var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
+      if(!Array.isArray(items)) items=items?[items]:[];
+      items.forEach(function(it){
+        if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)) allMae.push(it);
+      });
+      fin(null);
+    },function(e){fin(e);});
     var jUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    fetch(prx+encodeURIComponent(jUrl),{signal:AbortSignal.timeout(12000)})
-      .then(function(r){return r.json();})
-      .then(function(data){
-        var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
-        if(!Array.isArray(items)) items=items?[items]:[];
-        items.forEach(function(it){
-          if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)){
-            if(parseInt((it['월세금액']||'0').replace(/,/g,'').trim())===0) allJeon.push(it);
-          }
-        });
-        fin();
-      }).catch(fin);
+    tryFetch(jUrl,0,function(data){
+      var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
+      if(!Array.isArray(items)) items=items?[items]:[];
+      items.forEach(function(it){
+        if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)){
+          if(parseInt((it['월세금액']||'0').replace(/,/g,'').trim())===0) allJeon.push(it);
+        }
+      });
+      fin(null);
+    },function(e){fin(e);});
   });
 }
 
-function renderRealTrade(maeItems,jeonItems,kbPrice){
+function renderRealTrade(maeItems,jeonItems,kbPrice,errMsg){
   var grid=document.getElementById('rtrade-grid');
   if((!maeItems||!maeItems.length)&&(!jeonItems||!jeonItems.length)){
-    grid.innerHTML='<div class="ri w"><div class="rl" style="color:var(--g4)">최근 3개월 실거래 없음</div><div style="font-size:11px;color:var(--g4);margin-top:4px">단지명 매칭 결과 없음 또는 데이터 조회 실패</div></div>';
+    var errDetail=errMsg?('<div style="font-size:10px;color:#dc2626;margin-top:4px">오류: '+errMsg+'</div>'):'<div style="font-size:11px;color:var(--g4);margin-top:4px">단지명 매칭 결과 없음</div>';
+    grid.innerHTML='<div class="ri w"><div class="rl" style="color:var(--g4)">최근 3개월 실거래 없음</div>'+errDetail+'<div style="margin-top:8px"><a href="https://m.land.naver.com/search/result?query='+_apt+'" target="_blank" style="font-size:12px;color:#2563eb">🔍 네이버 부동산에서 직접 확인</a></div></div>';
     return;
   }
   function sortByDate(arr){
@@ -1978,8 +1996,8 @@ function showPriceRes(r){
   if(naverLink&&_apt) naverLink.href='https://m.land.naver.com/search/result?query='+encodeURIComponent(_apt+' '+guName);
 
   // 국토부 실거래가 비동기 조회 (매매+전세, 평형 무관)
-  fetchRealTrade(guName,_apt,r[0],function(maeItems,jeonItems){
-    renderRealTrade(maeItems,jeonItems,price);
+  fetchRealTrade(guName,_apt,r[0],function(maeItems,jeonItems,errMsg){
+    renderRealTrade(maeItems,jeonItems,price,errMsg);
   });
   var ZONE_MAP={
     '투기과열지구':{무주택:0.50,_1주택:0.50,_2주택:0},
