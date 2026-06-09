@@ -307,18 +307,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="ct">📊 시세 및 LTV 한도</div>
     <div class="rg" id="pgrid"></div>
 
-    <!-- 국토부 실거래가 비교 -->
-    <div id="rtrade-wrap" style="display:none;margin-top:14px">
-      <div style="margin-bottom:6px;font-size:11px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px">📋 최근 실거래가 (국토부)</div>
-      <div class="rg" id="rtrade-grid">
-        <div class="ri w" id="rtrade-loading" style="text-align:center;color:var(--g4);font-size:13px">
-          ⏳ 실거래가 조회 중...
-        </div>
-      </div>
-      <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between">
-        <span style="font-size:10px;color:var(--g4)">출처: 국토교통부 실거래가공개시스템</span>
-        <a id="naver-land-link" href="#" target="_blank" style="font-size:11px;color:var(--p);text-decoration:none;font-weight:700">🔗 네이버 부동산 →</a>
-      </div>
+    <!-- 네이버 부동산 링크 -->
+    <div id="rtrade-wrap" style="display:none;margin-top:10px">
+      <a id="naver-land-link" href="#" target="_blank" style="display:block;text-align:center;padding:10px;background:var(--pl);border:1.5px solid var(--p);border-radius:10px;font-size:13px;font-weight:700;color:var(--p);text-decoration:none">🔗 네이버 부동산에서 시세 확인 →</a>
     </div>
 
     <div style="margin:12px 0 6px;font-size:11px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px">LTV 한도 (일반거래가 기준)</div>
@@ -1984,21 +1975,12 @@ function showPriceRes(r){
   document.getElementById('m-p').value=price;
   document.getElementById('m-p-src').style.display='inline';
 
-  // 실거래가 카드 초기화 → 로딩 표시
-  var rtWrap=document.getElementById('rtrade-wrap');
-  var rtGrid=document.getElementById('rtrade-grid');
-  rtGrid.innerHTML='<div class="ri w" style="text-align:center;color:var(--g4);font-size:13px">⏳ 실거래가 조회 중...</div>';
-  rtWrap.style.display='block';
-
-  // 네이버 부동산 검색 링크 세팅
+  // 네이버 부동산 링크 세팅
   var guName=GU[curGu];
+  var rtWrap=document.getElementById('rtrade-wrap');
   var naverLink=document.getElementById('naver-land-link');
   if(naverLink&&_apt) naverLink.href='https://m.land.naver.com/search/result?query='+encodeURIComponent(_apt+' '+guName);
-
-  // 국토부 실거래가 비동기 조회 (매매+전세, 평형 무관)
-  fetchRealTrade(guName,_apt,r[0],function(maeItems,jeonItems,errMsg){
-    renderRealTrade(maeItems,jeonItems,price,errMsg);
-  });
+  if(rtWrap) rtWrap.style.display='block';
   var ZONE_MAP={
     '투기과열지구':{무주택:0.50,_1주택:0.50,_2주택:0},
     '조정대상지역':{무주택:0.70,_1주택:0.60,_2주택:0},
