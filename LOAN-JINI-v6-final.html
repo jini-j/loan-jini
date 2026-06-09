@@ -1220,69 +1220,100 @@ function getRTYMs(n){
 
 function fetchRealTrade(guName,aptName,area,cb){
   var code=GU_CODES[guName];
-  if(!code){cb(null);return;}
+  if(!code){cb(null,null);return;}
   var yms=getRTYMs(3);
   var prx='https://corsproxy.io/?';
-  var all=[],done=0;
+  var allMae=[],allJeon=[],done=0,total=yms.length*2;
+  function fin(){if(++done===total) cb(allMae.length?allMae:null,allJeon.length?allJeon:null);}
+  function matchApt(nm,target){
+    var c=nm.replace(/[\s\(\)]/g,''),t=target.replace(/[\s\(\)]/g,'');
+    return c.indexOf(t)>=0||t.indexOf(c)>=0;
+  }
   yms.forEach(function(ym){
-    var url='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    fetch(prx+encodeURIComponent(url),{signal:AbortSignal.timeout(12000)})
+    // 매매
+    var mUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
+    fetch(prx+encodeURIComponent(mUrl),{signal:AbortSignal.timeout(12000)})
       .then(function(r){return r.json();})
       .then(function(data){
         var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
         if(!Array.isArray(items)) items=items?[items]:[];
         items.forEach(function(it){
-          if(!it||!it['아파트']) return;
-          var nm=it['아파트'].trim();
-          var clean=nm.replace(/[\s\(\)]/g,'');
-          var target=aptName.replace(/[\s\(\)]/g,'');
-          if(clean.indexOf(target)>=0||target.indexOf(clean)>=0){
-            var itA=parseFloat((it['전용면적']||'0').trim());
-            // r[0]은 전용평형(평) → ㎡ 변환: 평×3.3 (±12㎡ 허용)
-            var areaM2=area*3.3;
-            if(Math.abs(itA-areaM2)<=25) all.push(it);
+          if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)) allMae.push(it);
+        });
+        fin();
+      }).catch(fin);
+    // 전세
+    var jUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
+    fetch(prx+encodeURIComponent(jUrl),{signal:AbortSignal.timeout(12000)})
+      .then(function(r){return r.json();})
+      .then(function(data){
+        var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
+        if(!Array.isArray(items)) items=items?[items]:[];
+        items.forEach(function(it){
+          if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)){
+            if(parseInt((it['월세금액']||'0').replace(/,/g,'').trim())===0) allJeon.push(it);
           }
         });
-        if(++done===yms.length) cb(all.length?all:null);
-      })
-      .catch(function(){if(++done===yms.length) cb(all.length?all:null);});
+        fin();
+      }).catch(fin);
   });
 }
 
-function renderRealTrade(items,kbPrice){
+function renderRealTrade(maeItems,jeonItems,kbPrice){
   var grid=document.getElementById('rtrade-grid');
-  if(!items||!items.length){
-    grid.innerHTML='<div class="ri w"><div class="rl" style="color:var(--g4)">최근 3개월 실거래 없음</div><div style="font-size:11px;color:var(--g4);margin-top:4px">동일 단지·평형 거래가 없거나 데이터 조회 실패</div></div>';
+  if((!maeItems||!maeItems.length)&&(!jeonItems||!jeonItems.length)){
+    grid.innerHTML='<div class="ri w"><div class="rl" style="color:var(--g4)">최근 3개월 실거래 없음</div><div style="font-size:11px;color:var(--g4);margin-top:4px">단지명 매칭 결과 없음 또는 데이터 조회 실패</div></div>';
     return;
   }
-  items.sort(function(a,b){
-    var da=parseInt(a['년']||0)*10000+parseInt(a['월']||0)*100+parseInt(a['일']||0);
-    var db=parseInt(b['년']||0)*10000+parseInt(b['월']||0)*100+parseInt(b['일']||0);
-    return db-da;
-  });
-  var prices=items.map(function(it){
-    return parseInt(((it['거래금액']||'0')).replace(/,/g,'').trim())||0;
-  }).filter(function(p){return p>0;});
-  var cnt=prices.length;
-  var avg=cnt?Math.round(prices.reduce(function(s,p){return s+p;},0)/cnt):0;
-  var mn=Math.min.apply(null,prices), mx=Math.max.apply(null,prices);
-  var diff=avg-kbPrice;
-  var diffAbs=Math.abs(diff);
-  var diffPct=kbPrice>0?Math.abs(Math.round(diff/kbPrice*100)):0;
-  var diffColor=diff>0?'#dc2626':diff<0?'#2563eb':'var(--g4)';
-  var diffLabel=diff>0?'▲ KB일반가보다 '+fm(diffAbs)+'만 (+'+diffPct+'%) 높음':
-                diff<0?'▼ KB일반가보다 '+fm(diffAbs)+'만 (-'+diffPct+'%) 낮음':'KB일반가와 동일';
-  var recentHtml=items.slice(0,3).map(function(it){
-    var p=parseInt(((it['거래금액']||'0')).replace(/,/g,'').trim())||0;
-    return it['년']+'년 '+it['월']+'월 · '+it['층']+'층 <strong>'+fm(p)+'만원</strong>';
-  }).join('<br>');
-  grid.innerHTML=
-    '<div class="ri hi"><div class="rl">최근 3개월 평균 실거래가</div>'+
-    '<div class="rv big">'+fm(avg)+'<span style="font-size:13px"> 만원</span></div>'+
-    '<div style="font-size:11px;color:'+diffColor+';margin-top:3px;font-weight:600">'+diffLabel+'</div></div>'+
-    '<div class="ri"><div class="rl">거래 건수</div><div class="rv">'+cnt+'<span style="font-size:11px"> 건</span></div></div>'+
-    '<div class="ri"><div class="rl">거래 범위</div><div class="rv" style="font-size:13px">'+fm(mn)+'<span style="font-size:10px"> ~ </span>'+fm(mx)+'<span style="font-size:10px"> 만원</span></div></div>'+
-    '<div class="ri w"><div class="rl">최근 거래</div><div style="font-size:12px;color:var(--g6);margin-top:6px;line-height:2">'+recentHtml+'</div></div>';
+  function sortByDate(arr){
+    return arr.slice().sort(function(a,b){
+      var da=parseInt(a['년']||0)*10000+parseInt(a['월']||0)*100+parseInt(a['일']||parseInt(a['계약일']||0));
+      var db=parseInt(b['년']||0)*10000+parseInt(b['월']||0)*100+parseInt(b['일']||parseInt(b['계약일']||0));
+      return db-da;
+    });
+  }
+  var html='';
+  // ── 매매 ──
+  if(maeItems&&maeItems.length){
+    var mae=sortByDate(maeItems);
+    var maePrices=mae.map(function(it){return parseInt((it['거래금액']||'0').replace(/,/g,'').trim())||0;}).filter(Boolean);
+    var maeAvg=Math.round(maePrices.reduce(function(s,p){return s+p;},0)/maePrices.length);
+    var diff=maeAvg-kbPrice;
+    var diffLabel=diff>0?'▲ KB일반가 대비 +'+fm(Math.abs(diff))+'만':diff<0?'▼ KB일반가 대비 -'+fm(Math.abs(diff))+'만':'KB일반가와 동일';
+    var diffColor=diff>0?'#dc2626':diff<0?'#2563eb':'var(--g4)';
+    html+='<div class="ri w" style="background:#eff6ff"><div style="font-size:11px;font-weight:700;color:#1a56db;margin-bottom:6px">🔵 매매 실거래 ('+maePrices.length+'건)</div>';
+    html+='<div style="font-size:20px;font-weight:800;color:#1f2937">'+fm(maeAvg)+'<span style="font-size:12px;font-weight:400;color:var(--g5)"> 만원 평균</span></div>';
+    html+='<div style="font-size:11px;color:'+diffColor+';margin-top:2px;font-weight:600">'+diffLabel+'</div>';
+    html+='<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">';
+    mae.slice(0,5).forEach(function(it){
+      var p=parseInt((it['거래금액']||'0').replace(/,/g,'').trim())||0;
+      var a=parseFloat((it['전용면적']||'0').trim());
+      var py=a>0?Math.round(a/3.3)+'평':'';
+      html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--g2)">';
+      html+='<span style="color:var(--g5)">'+it['년']+'년 '+it['월']+'월 · '+(it['층']||'-')+'층'+(py?' · '+py:'')+'</span>';
+      html+='<strong style="color:#1f2937">'+fm(p)+'만</strong></div>';
+    });
+    html+='</div></div>';
+  }
+  // ── 전세 ──
+  if(jeonItems&&jeonItems.length){
+    var jeon=sortByDate(jeonItems);
+    var jeonPrices=jeon.map(function(it){return parseInt((it['보증금액']||'0').replace(/,/g,'').trim())||0;}).filter(Boolean);
+    var jeonAvg=Math.round(jeonPrices.reduce(function(s,p){return s+p;},0)/jeonPrices.length);
+    html+='<div class="ri w" style="background:#f0fdf4"><div style="font-size:11px;font-weight:700;color:#059669;margin-bottom:6px">🟢 전세 실거래 ('+jeonPrices.length+'건)</div>';
+    html+='<div style="font-size:20px;font-weight:800;color:#1f2937">'+fm(jeonAvg)+'<span style="font-size:12px;font-weight:400;color:var(--g5)"> 만원 평균</span></div>';
+    html+='<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">';
+    jeon.slice(0,5).forEach(function(it){
+      var p=parseInt((it['보증금액']||'0').replace(/,/g,'').trim())||0;
+      var a=parseFloat((it['전용면적']||'0').trim());
+      var py=a>0?Math.round(a/3.3)+'평':'';
+      html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--g2)">';
+      html+='<span style="color:var(--g5)">'+it['년']+'년 '+it['월']+'월'+(py?' · '+py:'')+'</span>';
+      html+='<strong style="color:#059669">'+fm(p)+'만</strong></div>';
+    });
+    html+='</div></div>';
+  }
+  grid.innerHTML=html;
 }
 var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-dsr','tab-refi'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
@@ -1946,10 +1977,9 @@ function showPriceRes(r){
   var naverLink=document.getElementById('naver-land-link');
   if(naverLink&&_apt) naverLink.href='https://m.land.naver.com/search/result?query='+encodeURIComponent(_apt+' '+guName);
 
-  // 국토부 실거래가 비동기 조회
-  var area=r[0]; // 평형(전용평) → fetchRealTrade 내에서 ×3.3 변환
-  fetchRealTrade(guName,_apt,area,function(items){
-    renderRealTrade(items,price);
+  // 국토부 실거래가 비동기 조회 (매매+전세, 평형 무관)
+  fetchRealTrade(guName,_apt,r[0],function(maeItems,jeonItems){
+    renderRealTrade(maeItems,jeonItems,price);
   });
   var ZONE_MAP={
     '투기과열지구':{무주택:0.50,_1주택:0.50,_2주택:0},
@@ -3323,7 +3353,10 @@ function crmRender(){
     var logLatest=logCount>0?' · 최근 '+c.logs[c.logs.length-1].date:'';
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--g2)">';
     html+='<span style="font-size:11px;color:var(--g5)">'+(logCount>0?'📋 '+logCount+'건'+logLatest:'상담 기록 없음')+'</span>';
+    html+='<div style="display:flex;gap:6px">';
     html+='<button onclick="event.stopPropagation();logOpen(\''+c.id+'\')" style="background:var(--pl);border:1px solid var(--p);border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--p);cursor:pointer">📋 일지</button>';
+    html+='<button onclick="event.stopPropagation();addToGoogleCal(\''+c.id+'\')" style="background:#e8f0fe;border:1px solid #4285f4;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;color:#4285f4;cursor:pointer">📅 캘린더</button>';
+    html+='</div>';
     html+='</div>';
     html+='</div>';
   });
@@ -3457,6 +3490,36 @@ function crmExportXlsx(){
   setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
   alert('✅ CSV 파일 저장 완료!\nExcel에서 바로 열 수 있습니다.\n(인터넷 연결 시 .xlsx로도 저장 가능)');
 }
+// ── 구글 캘린더 연동 ──
+function addToGoogleCal(id){
+  var customers=crmLoad();
+  var c=customers.find(function(x){return x.id===id;});
+  if(!c) return;
+  var title='[LOAN-JINI] '+c.name+' 상담';
+  var baseDate;
+  if(c.nextcall){
+    baseDate=c.nextcall.replace(/-/g,'');
+  } else {
+    var d=new Date(); d.setDate(d.getDate()+1);
+    baseDate=d.toISOString().slice(0,10).replace(/-/g,'');
+  }
+  var start=baseDate+'T100000';
+  var end=baseDate+'T110000';
+  var details=[];
+  if(c.product) details.push('상품: '+c.product);
+  if(c.amount) details.push('한도: '+Number(c.amount).toLocaleString()+'만원');
+  if(c.rate) details.push('금리: '+c.rate+'%');
+  if(c.bank) details.push('은행: '+c.bank);
+  if(c.memo) details.push('메모: '+c.memo);
+  var detailStr=details.join('\n');
+  var url='https://calendar.google.com/calendar/render?action=TEMPLATE'
+    +'&text='+encodeURIComponent(title)
+    +'&dates='+start+'/'+end
+    +'&details='+encodeURIComponent(detailStr);
+  if(c.addr) url+='&location='+encodeURIComponent(c.addr);
+  window.open(url,'_blank');
+}
+
 
 // 초기화 (탭 진입 시)
 function crmInit(){
