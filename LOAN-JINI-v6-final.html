@@ -1222,7 +1222,7 @@ function fetchRealTrade(guName,aptName,area,cb){
   var code=GU_CODES[guName];
   if(!code){cb(null,null,'구코드 없음: '+guName);return;}
   var yms=getRTYMs(3);
-  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var proxies=['','https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://corsproxy.io/?url='];
   var allMae=[],allJeon=[],done=0,total=yms.length*2,lastErr='';
   function fin(err){
     if(err) lastErr=err;
@@ -1240,7 +1240,7 @@ function fetchRealTrade(guName,aptName,area,cb){
   }
   function tryFetch(apiUrl,prxIdx,onData,onErr){
     if(prxIdx>=proxies.length){onErr('프록시 모두 실패');return;}
-    var prxUrl=proxies[prxIdx]+encodeURIComponent(apiUrl);
+    var prxUrl=proxies[prxIdx]===''?apiUrl:proxies[prxIdx]+encodeURIComponent(apiUrl);
     fetchWithTimeout(prxUrl,14000)
       .then(function(r){return r.json();})
       .then(function(data){
