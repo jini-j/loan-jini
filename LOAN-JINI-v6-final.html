@@ -1240,7 +1240,7 @@ function fetchRealTrade(guName,aptName,area,cb){
             var itA=parseFloat((it['전용면적']||'0').trim());
             // r[0]은 전용평형(평) → ㎡ 변환: 평×3.3 (±12㎡ 허용)
             var areaM2=area*3.3;
-            if(Math.abs(itA-areaM2)<=12) all.push(it);
+            if(Math.abs(itA-areaM2)<=25) all.push(it);
           }
         });
         if(++done===yms.length) cb(all.length?all:null);
@@ -1944,7 +1944,7 @@ function showPriceRes(r){
   // 네이버 부동산 검색 링크 세팅
   var guName=GU[curGu];
   var naverLink=document.getElementById('naver-land-link');
-  if(naverLink&&_apt) naverLink.href='https://land.naver.com/search/?query='+encodeURIComponent(_apt+' '+guName);
+  if(naverLink&&_apt) naverLink.href='https://m.land.naver.com/search/result?query='+encodeURIComponent(_apt+' '+guName);
 
   // 국토부 실거래가 비동기 조회
   var area=r[0]; // 평형(전용평) → fetchRealTrade 내에서 ×3.3 변환
@@ -5680,4 +5680,4 @@ function genEstimateImage(type){
 }
 </script>
 </body>
-</html>ate/100);
+</html>
