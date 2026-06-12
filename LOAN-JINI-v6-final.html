@@ -192,6 +192,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div style="display:flex;gap:8px"><button class="cbtn" style="flex:1" onclick="applyTabOrder()">✅ 적용</button><button class="cbtn" style="flex:1;background:var(--g2);color:var(--g6)" onclick="resetTabOrder()">↩️ 초기화</button></div>
     <div style="font-size:11px;color:var(--g4);margin-top:8px;text-align:center">적용 후 새로고침됩니다</div>
   </div>
+
+  <div class="card">
+    <div class="ct">💾 데이터 백업 / 복원</div>
+    <div style="font-size:12px;color:var(--g5);margin-bottom:12px">고객정보, 서식함, 금리·설정값을 파일 하나로 저장하거나 복원합니다. 휴대폰을 바꾸거나 브라우저 데이터가 삭제돼도 이 파일로 되돌릴 수 있어요.</div>
+    <button class="cbtn" onclick="backupExport()">📤 전체 백업 (파일로 저장)</button>
+    <input type="file" id="backup-restore-file" accept="application/json,.json" style="display:none" onchange="backupRestore(this)">
+    <button class="cbtn" style="background:var(--g2);color:var(--g6)" onclick="document.getElementById('backup-restore-file').click()">📥 백업 파일로 복원</button>
+    <div id="backup-status" style="margin-top:8px;font-size:12px;color:var(--g5)"></div>
+  </div>
 </div>
 
 <!-- 홈화면 추가 안내 -->
@@ -1173,6 +1182,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <button class="dnb" id="nb10" onclick="swTab(11);dashInit()"><span class="ni">📊</span>실적</button>
     <button class="dnb" id="nb13" onclick="swTab(13)"><span class="ni">📐</span>DSR역산</button>
     <button class="dnb" id="nb14" onclick="swTab(14)"><span class="ni">🔄</span>대환계산</button>
+    <button class="dnb" id="nb15" onclick="swTab(15);formsRender()"><span class="ni">🖨️</span>서식함</button>
+    <button class="dnb" id="nb16" onclick="swTab(16)"><span class="ni">🔗</span>바로가기</button>
   </div>
   <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--g3);display:flex;justify-content:flex-end">
     <button onclick="openTabSort();toggleDrawer(false)" style="font-size:11px;color:var(--g4);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">⚙️ 탭 순서 설정</button>
@@ -1324,7 +1335,7 @@ function renderRealTrade(maeItems,jeonItems,kbPrice,errMsg){
   }
   grid.innerHTML=html;
 }
-var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-dsr','tab-refi'];
+var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-dsr','tab-refi','tab-forms','tab-links'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
 
 // ── 상품 데이터 ──
@@ -5142,6 +5153,65 @@ function doStampBond(){
   </div>
 </div>
 
+<div class="panel" id="tab-forms" style="padding:12px 12px 80px">
+  <div class="card">
+    <div class="ct">🖨️ 서식함</div>
+    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p);line-height:1.6">
+      💡 자주 쓰는 대출 서류 양식(위임장, 개인정보 동의서 등)을 미리 저장해두고, 고객 상담 시 와이파이 프린터로 바로 인쇄하세요.
+    </div>
+    <div class="f"><label>서식 이름</label>
+      <input type="text" id="form-name" placeholder="예: 개인정보 수집·이용 동의서">
+    </div>
+    <div class="f"><label>파일 선택 (이미지 또는 PDF)</label>
+      <input type="file" id="form-file" accept="image/*,.pdf,application/pdf">
+    </div>
+    <button onclick="formAdd()" style="width:100%;height:42px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">➕ 서식 추가</button>
+  </div>
+  <div class="card">
+    <div class="ct">📁 저장된 서식</div>
+    <input type="text" id="form-search" placeholder="🔍 이름으로 검색" oninput="formsRender()" style="width:100%;height:38px;border:1px solid var(--g3);border-radius:8px;padding:0 12px;font-size:13px;margin-bottom:10px;box-sizing:border-box">
+    <div id="forms-list"></div>
+  </div>
+</div>
+
+<!-- 서식 미리보기 모달 -->
+<div id="form-preview-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999">
+  <div style="background:#fff;margin:20px;border-radius:12px;max-height:calc(100vh - 40px);overflow:auto;display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--g2)">
+      <span id="form-preview-title" style="font-weight:700;font-size:15px"></span>
+      <button onclick="formPreviewClose()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--g5)">✕</button>
+    </div>
+    <div id="form-preview-body" style="padding:12px;flex:1;overflow:auto;text-align:center"></div>
+    <div style="padding:12px 16px;border-top:1px solid var(--g2);display:flex;gap:8px">
+      <button onclick="formPrint()" style="flex:1;height:44px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🖨️ 인쇄</button>
+      <button onclick="formDelete()" style="height:44px;padding:0 16px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🗑️ 삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 바로가기 탭 -->
+<div class="panel" id="tab-links" style="padding:12px 12px 80px">
+  <div class="card">
+    <div class="ct">🔗 바로가기</div>
+    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p);line-height:1.6">
+      💡 자주 쓰는 부동산 시세·매물·등기 정보 사이트로 바로 이동합니다. (새 탭에서 열림)
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">🏠 시세 · 매물 조회</div>
+    <button onclick="openLink(\'https://m.land.naver.com/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">네이버 부동산</button>
+    <button onclick="openLink(\'https://onland.kbstar.com/quics?page=C059744\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">KB부동산</button>
+    <button onclick="openLink(\'https://asil.kr/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">아실 (아파트 실거래가)</button>
+    <button onclick="openLink(\'https://hogangnono.com/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">호갱노노</button>
+    <button onclick="openLink(\'https://www.disco.re/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px; margin-bottom:0">디스코 (토지·빌딩)</button>
+  </div>
+  <div class="card">
+    <div class="ct">📑 등기 · 공적 정보</div>
+    <button onclick="openLink(\'https://www.iros.go.kr/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">대법원 인터넷등기소 (등기부등본 열람·발급)</button>
+    <button onclick="openLink(\'https://www.gov.kr/\')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px; margin-bottom:0">정부24 (건축물대장 · 토지이용계획)</button>
+  </div>
+</div>
+
 <!-- 영업지도 탭 -->
 <div class="panel" id="tab-map" style="padding:0;position:relative">
   <iframe id="jm-frame" src="about:blank"
@@ -5165,7 +5235,9 @@ var TAB_META=[
   {idx:11,label:'📊 실적',nbId:'nb10'},
   {idx:12,label:'🗺️ 영업지도',nbId:'nb12'},
   {idx:13,label:'📐 DSR역산',nbId:'nb13'},
-  {idx:14,label:'🔄 대환계산',nbId:'nb14'}
+  {idx:14,label:'🔄 대환계산',nbId:'nb14'},
+  {idx:15,label:'🖨️ 서식함',nbId:'nb15'},
+  {idx:16,label:'🔗 바로가기',nbId:'nb16'}
 ];
 var _tabOrder=null,_tabHidden=null;
 function loadTabConfig(){try{_tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;_tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};}catch(e){_tabOrder=null;_tabHidden={};}}
@@ -5741,6 +5813,235 @@ function genEstimateImage(type){
     var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
   },'image/png');
 }
+
+
+// ── 서식함 (IndexedDB 기반 서류 보관/인쇄) ──
+var FORMS_DB_NAME='loanjini_forms_db', FORMS_STORE='forms';
+var _formsDB=null, _formPreviewId=null;
+function formsDBOpen(cb){
+  if(_formsDB){cb(_formsDB);return;}
+  if(!window.indexedDB){alert('이 브라우저는 서식함 저장을 지원하지 않습니다.');return;}
+  var req=indexedDB.open(FORMS_DB_NAME,1);
+  req.onupgradeneeded=function(e){
+    var db=e.target.result;
+    if(!db.objectStoreNames.contains(FORMS_STORE)){
+      db.createObjectStore(FORMS_STORE,{keyPath:'id',autoIncrement:true});
+    }
+  };
+  req.onsuccess=function(e){_formsDB=e.target.result;cb(_formsDB);};
+  req.onerror=function(){alert('서식함 저장소를 열 수 없습니다.');};
+}
+function formAdd(){
+  var nameEl=document.getElementById('form-name');
+  var fileInput=document.getElementById('form-file');
+  var name=(nameEl.value||'').trim();
+  var file=fileInput.files[0];
+  if(!name){alert('서식 이름을 입력해주세요');return;}
+  if(!file){alert('파일을 선택해주세요');return;}
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var item={name:name,fileName:file.name,mimeType:file.type||'',dataUrl:e.target.result,date:new Date().toISOString().slice(0,10)};
+    formsDBOpen(function(db){
+      var tx=db.transaction(FORMS_STORE,'readwrite');
+      tx.objectStore(FORMS_STORE).add(item);
+      tx.oncomplete=function(){
+        nameEl.value='';
+        fileInput.value='';
+        formsRender();
+      };
+      tx.onerror=function(){alert('저장 실패');};
+    });
+  };
+  reader.readAsDataURL(file);
+}
+function formsRender(){
+  var q=(document.getElementById('form-search')||{}).value||'';
+  q=q.trim();
+  formsDBOpen(function(db){
+    var tx=db.transaction(FORMS_STORE,'readonly');
+    var items=[];
+    var cursorReq=tx.objectStore(FORMS_STORE).openCursor();
+    cursorReq.onsuccess=function(e){
+      var cursor=e.target.result;
+      if(cursor){
+        items.push(cursor.value);
+        cursor.continue();
+      } else {
+        renderFormsList(items,q);
+      }
+    };
+  });
+}
+function renderFormsList(items,q){
+  var listEl=document.getElementById('forms-list');
+  if(!listEl) return;
+  if(q) items=items.filter(function(it){return it.name.indexOf(q)>=0;});
+  items.sort(function(a,b){return (b.id||0)-(a.id||0);});
+  if(items.length===0){
+    listEl.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--g4);font-size:13px">'+(q?'검색 결과가 없습니다':'저장된 서식이 없습니다')+'</div>';
+    return;
+  }
+  var html='';
+  items.forEach(function(it){
+    var icon=(it.mimeType&&it.mimeType.indexOf('pdf')>=0)?'📄':'🖼️';
+    html+='<div onclick="formPreview('+it.id+')" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer">';
+    html+='<div style="font-size:24px">'+icon+'</div>';
+    html+='<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--g7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.name+'</div><div style="font-size:11px;color:var(--g4);margin-top:2px">'+it.date+'</div></div>';
+    html+='<div style="font-size:18px;color:var(--g4)">›</div>';
+    html+='</div>';
+  });
+  listEl.innerHTML=html;
+}
+function formPreview(id){
+  _formPreviewId=id;
+  formsDBOpen(function(db){
+    var tx=db.transaction(FORMS_STORE,'readonly');
+    tx.objectStore(FORMS_STORE).get(id).onsuccess=function(e){
+      var it=e.target.result;
+      if(!it)return;
+      document.getElementById('form-preview-title').textContent=it.name;
+      var body=document.getElementById('form-preview-body');
+      if(it.mimeType&&it.mimeType.indexOf('pdf')>=0){
+        body.innerHTML='<embed src="'+it.dataUrl+'" type="application/pdf" style="width:100%;height:65vh;border:none">';
+      } else {
+        body.innerHTML='<img src="'+it.dataUrl+'" style="max-width:100%;border-radius:8px">';
+      }
+      document.getElementById('form-preview-modal').style.display='block';
+    };
+  });
+}
+function formPreviewClose(){
+  document.getElementById('form-preview-modal').style.display='none';
+  _formPreviewId=null;
+}
+function formPrint(){
+  if(_formPreviewId===null)return;
+  formsDBOpen(function(db){
+    var tx=db.transaction(FORMS_STORE,'readonly');
+    tx.objectStore(FORMS_STORE).get(_formPreviewId).onsuccess=function(e){
+      var it=e.target.result;
+      if(!it)return;
+      var w=window.open('','_blank');
+      if(!w){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');return;}
+      var isPdf=it.mimeType&&it.mimeType.indexOf('pdf')>=0;
+      if(isPdf){
+        w.document.write('<html><head><title>'+it.name+'</title></head><body style="margin:0"><embed src="'+it.dataUrl+'" type="application/pdf" style="width:100%;height:100vh;border:none"></body></html>');
+        w.document.close();
+        setTimeout(function(){try{w.focus();w.print();}catch(e){}},800);
+      } else {
+        w.document.write('<html><head><title>'+it.name+'</title></head><body style="margin:0;text-align:center"><img src="'+it.dataUrl+'" style="max-width:100%" onload="window.focus();window.print()"></body></html>');
+        w.document.close();
+      }
+    };
+  });
+}
+function formDelete(){
+  if(_formPreviewId===null)return;
+  if(!confirm('이 서식을 삭제하시겠습니까?'))return;
+  var delId=_formPreviewId;
+  formsDBOpen(function(db){
+    var tx=db.transaction(FORMS_STORE,'readwrite');
+    tx.objectStore(FORMS_STORE).delete(delId);
+    tx.oncomplete=function(){
+      formPreviewClose();
+      formsRender();
+    };
+  });
+}
+
+
+
+// ── 전체 데이터 백업 / 복원 ──
+var BACKUP_LS_KEYS=['lj_crm_v1','loan_rates','apt_data','apt_data_prev','update_log','tabOrder','tabHidden','kakao_app_key'];
+function backupExport(){
+  var st=document.getElementById('backup-status');
+  if(st) st.textContent='⏳ 백업 파일 생성 중...';
+  var data={version:1,date:new Date().toISOString(),localStorage:{},forms:[]};
+  BACKUP_LS_KEYS.forEach(function(k){
+    var v=localStorage.getItem(k);
+    if(v!==null) data.localStorage[k]=v;
+  });
+  function finish(){
+    var json=JSON.stringify(data);
+    var blob=new Blob([json],{type:'application/json'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a');
+    var dateStr=new Date().toISOString().slice(0,10);
+    a.href=url; a.download='LOAN-JINI_백업_'+dateStr+'.json'; a.style.display='none';
+    document.body.appendChild(a); a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
+    if(st) st.textContent='✅ 백업 완료: '+a.download;
+  }
+  if(window.indexedDB){
+    formsDBOpen(function(db){
+      try{
+        var tx=db.transaction(FORMS_STORE,'readonly');
+        var items=[];
+        var cursorReq=tx.objectStore(FORMS_STORE).openCursor();
+        cursorReq.onsuccess=function(e){
+          var cursor=e.target.result;
+          if(cursor){ items.push(cursor.value); cursor.continue(); }
+          else { data.forms=items; finish(); }
+        };
+        cursorReq.onerror=finish;
+      }catch(e){finish();}
+    });
+  } else {
+    finish();
+  }
+}
+function backupRestore(input){
+  var file=input.files[0];
+  if(!file) return;
+  if(!confirm('백업 파일로 복원하면 현재 저장된 고객정보·서식함·설정이 백업 시점 데이터로 모두 교체됩니다.\n계속할까요?')){
+    input.value='';
+    return;
+  }
+  var st=document.getElementById('backup-status');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var data;
+    try{ data=JSON.parse(e.target.result); }
+    catch(err){ alert('백업 파일을 읽을 수 없습니다.'); input.value=''; return; }
+    if(!data||typeof data.localStorage!=='object'){ alert('올바른 백업 파일이 아닙니다.'); input.value=''; return; }
+    Object.keys(data.localStorage).forEach(function(k){
+      localStorage.setItem(k,data.localStorage[k]);
+    });
+    function done(){
+      if(st) st.textContent='✅ 복원 완료! 잠시 후 새로고침됩니다...';
+      setTimeout(function(){location.reload();},1000);
+    }
+    if(Array.isArray(data.forms)&&window.indexedDB){
+      formsDBOpen(function(db){
+        try{
+          var tx=db.transaction(FORMS_STORE,'readwrite');
+          var store=tx.objectStore(FORMS_STORE);
+          var clearReq=store.clear();
+          clearReq.onsuccess=function(){
+            data.forms.forEach(function(item){
+              var copy=Object.assign({},item);
+              delete copy.id;
+              store.add(copy);
+            });
+          };
+          tx.oncomplete=done;
+          tx.onerror=done;
+        }catch(e){done();}
+      });
+    } else {
+      done();
+    }
+  };
+  reader.readAsText(file);
+}
+
+
+
+// ── 바로가기 링크 ──
+function openLink(url){
+  window.open(url,'_blank');
+}
+
 </script>
 </body>
 </html>
