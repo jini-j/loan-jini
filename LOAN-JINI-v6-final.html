@@ -380,10 +380,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간 (구간 가산금리)</label>
       <div class="chips" id="m-tier">
-        <button class="chip on" onclick="selC(this,'m-tier');onMortProdChange()">≤1.245억 (-0.03%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">&gt;4.98억 (+0.17%)</button>
+        <button class="chip on" onclick="selC(this,'m-tier');updRateBox('m')">≤1.245억 (-0.03%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
 
@@ -5183,7 +5183,7 @@ function doStampBond(){
     </div>
     <div id="form-preview-body" style="padding:12px;flex:1;overflow:auto;text-align:center"></div>
     <div style="padding:12px 16px;border-top:1px solid var(--g2);display:flex;gap:8px">
-      <button onclick="formPrint()" style="flex:1;height:44px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🖨️ 인쇄</button>
+      <button id="form-print-btn" onclick="formPrint()" style="flex:1;height:44px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🖨️ 인쇄</button>
       <button onclick="formDelete()" style="height:44px;padding:0 16px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🗑️ 삭제</button>
     </div>
   </div>
@@ -5289,7 +5289,7 @@ function renderTabSortList(){
   if(!window._tsTempOrder){loadTabConfig();window._tsTempOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();window._tsTempHidden=Object.assign({},(_tabHidden||{}));}
   _renderSortModal();
 }
-(function(){applyTabConfig();renderTabSortList();})();
+(function(){applyTabConfig();renderTabSortList();addDocIssuerCols();})();
 
 /* ══ 전체 상품 비교 ══ */
 function calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc){
@@ -5883,7 +5883,7 @@ function renderFormsList(items,q){
   }
   var html='';
   items.forEach(function(it){
-    var icon=(it.mimeType&&it.mimeType.indexOf('pdf')>=0)?'📄':'🖼️';
+    var icon=formFileIcon(it);
     html+='<div onclick="formPreview('+it.id+')" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer">';
     html+='<div style="font-size:24px">'+icon+'</div>';
     html+='<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--g7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.name+'</div><div style="font-size:11px;color:var(--g4);margin-top:2px">'+it.date+'</div></div>';
@@ -5891,6 +5891,23 @@ function renderFormsList(items,q){
     html+='</div>';
   });
   listEl.innerHTML=html;
+}
+// ── 파일 형식 판별 (mimeType + 확장자 기준) ──
+function formFileKind(it){
+  var mt=(it.mimeType||'').toLowerCase();
+  var fn=(it.fileName||'').toLowerCase();
+  if(mt.indexOf('pdf')>=0||/\.pdf$/.test(fn)) return 'pdf';
+  if(mt.indexOf('image')>=0||/\.(png|jpe?g|gif|webp|bmp|heic)$/.test(fn)) return 'image';
+  return 'other';
+}
+function formFileIcon(it){
+  var k=formFileKind(it);
+  if(k==='pdf') return '📄';
+  if(k==='image') return '🖼️';
+  var fn=(it.fileName||'').toLowerCase();
+  if(/\.(doc|docx|hwp|hwpx)$/.test(fn)) return '📝';
+  if(/\.(xls|xlsx)$/.test(fn)) return '📊';
+  return '📎';
 }
 function formPreview(id){
   _formPreviewId=id;
@@ -5901,12 +5918,35 @@ function formPreview(id){
       if(!it)return;
       document.getElementById('form-preview-title').textContent=it.name;
       var body=document.getElementById('form-preview-body');
-      if(it.mimeType&&it.mimeType.indexOf('pdf')>=0){
+      var kind=formFileKind(it);
+      var printBtn=document.getElementById('form-print-btn');
+      if(kind==='pdf'){
         body.innerHTML='<embed src="'+it.dataUrl+'" type="application/pdf" style="width:100%;height:65vh;border:none">';
-      } else {
+        if(printBtn){printBtn.textContent='🖨️ 인쇄';printBtn.onclick=formPrint;}
+      } else if(kind==='image'){
         body.innerHTML='<img src="'+it.dataUrl+'" style="max-width:100%;border-radius:8px">';
+        if(printBtn){printBtn.textContent='🖨️ 인쇄';printBtn.onclick=formPrint;}
+      } else {
+        body.innerHTML='<div style="padding:40px 16px;color:var(--g5);font-size:13px;line-height:1.8">📎 <b>'+(it.fileName||it.name)+'</b><br><br>이 파일 형식은 앱 내 미리보기를 지원하지 않습니다.<br>아래 버튼으로 다운로드한 뒤 워드/한글 프로그램에서 열어 인쇄해주세요.</div>';
+        if(printBtn){printBtn.textContent='⬇️ 다운로드';printBtn.onclick=formDownload;}
       }
       document.getElementById('form-preview-modal').style.display='block';
+    };
+  });
+}
+function formDownload(){
+  if(_formPreviewId===null)return;
+  formsDBOpen(function(db){
+    var tx=db.transaction(FORMS_STORE,'readonly');
+    tx.objectStore(FORMS_STORE).get(_formPreviewId).onsuccess=function(e){
+      var it=e.target.result;
+      if(!it)return;
+      var a=document.createElement('a');
+      a.href=it.dataUrl;
+      a.download=it.fileName||it.name;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     };
   });
 }
@@ -6040,6 +6080,77 @@ function backupRestore(input){
 // ── 바로가기 링크 ──
 function openLink(url){
   window.open(url,'_blank');
+}
+
+
+
+// ── 대출서류 안내에 발급처 정보 통합 표시 ──
+var DOC_ISSUER=[
+  ['신분증','본인 확인 (주민등록증·운전면허증·여권)'],
+  ['재직증명서','회사 인사팀'],
+  ['소득금액증명원','홈택스 / 세무서'],
+  ['소득확인증명서','홈택스'],
+  ['원천징수영수증','홈택스 / 회사 인사팀'],
+  ['급여명세표','회사 인사팀'],
+  ['사업자등록증명원','홈택스 / 세무서'],
+  ['종합소득세','홈택스'],
+  ['확정신고납부서','홈택스 / 세무서'],
+  ['주민등록등본','정부24 / 주민센터'],
+  ['주민등록초본','정부24 / 주민센터'],
+  ['인감도장','주민센터 (방문 필수)'],
+  ['인감증명서','주민센터 (방문 필수)'],
+  ['가족관계증명서','정부24 / 주민센터'],
+  ['건물 등기사항전부증명서','대법원 인터넷등기소'],
+  ['등기사항전부증명서','대법원 인터넷등기소'],
+  ['등기권리증','본인 보관 (분실 시 매도인 확인)'],
+  ['매매계약서','본인 보관 (공인중개사)'],
+  ['전입세대열람내역','주민센터 (방문 필수)'],
+  ['확정일자 전세계약서','주민센터 / 법원 (확정일자)'],
+  ['임대소득','홈택스 / 임대차계약서'],
+  ['연금수령확인서','국민연금공단 / 정부24']
+];
+function findIssuerSingle(name){
+  for(var i=0;i<DOC_ISSUER.length;i++){
+    if(name.indexOf(DOC_ISSUER[i][0])>=0) return DOC_ISSUER[i][1];
+  }
+  return '-';
+}
+function findIssuer(name){
+  var parts=name.split(/[,·]/).map(function(s){return s.trim();}).filter(Boolean);
+  if(parts.length>1){
+    var results=[];
+    parts.forEach(function(p){
+      var iss=findIssuerSingle(p);
+      if(iss!=='-'&&results.indexOf(iss)<0) results.push(iss);
+    });
+    return results.length?results.join(' / '):'-';
+  }
+  return findIssuerSingle(name);
+}
+function addDocIssuerCols(){
+  ['dp0','dp1','dp2'].forEach(function(pid){
+    var panel=document.getElementById(pid);
+    if(!panel) return;
+    var table=panel.querySelector('table');
+    if(!table||table.dataset.issuerAdded) return;
+    table.dataset.issuerAdded='1';
+    var headRow=table.querySelector('thead tr');
+    if(headRow){
+      var th=document.createElement('th');
+      th.setAttribute('style','background:var(--g2);padding:7px 6px;text-align:left;font-size:11px;color:var(--g5);border-bottom:1px solid var(--g3)');
+      th.textContent='발급처';
+      headRow.appendChild(th);
+    }
+    table.querySelectorAll('tbody tr').forEach(function(tr){
+      var tds=tr.querySelectorAll('td');
+      if(tds.length<2) return;
+      var name=tds[0].textContent.replace(/^└\s*/,'').trim();
+      var td=document.createElement('td');
+      td.setAttribute('style','padding:8px 6px;color:var(--g5);font-size:10px;line-height:1.4');
+      td.textContent=findIssuer(name);
+      tr.appendChild(td);
+    });
+  });
 }
 
 </script>

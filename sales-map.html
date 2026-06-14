@@ -411,7 +411,7 @@ function fetchWithFallback(url){
 }
 function fetchCount(ep,code,ym){
   return fetchWithFallback(buildUrl(ep,code,ym,1))
-    .then(function(d){return d&&d.response&&d.response.body?d.response.body.totalCount||0:0;})
+    .then(function(d){return d&&d.response&&d.response.body?(d.response.body.totalCount||0):-1;})
     .catch(function(){return -1;});
 }
 function fetchItems(ep,code,ym,rows){
@@ -434,8 +434,8 @@ function setLoadingUI(label){
 
 function loadGuMonthly(pr){
   setLoadingUI(pr.label+' 조회 중...');
-  var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length;
-  guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
+  var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length,failCnt=0;
+  guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0,fail:0};});
   var _timeout=setTimeout(function(){
     if(done<total){console.warn('타임아웃');finish();}
   },60000);
@@ -447,8 +447,14 @@ function loadGuMonthly(pr){
   function finish(){
     var badge=document.getElementById('data-badge');
     badge.style.display='inline-block';
-    badge.textContent='실데이터 · '+pr.label;
-    badge.className='badge badge-g';
+    if(failCnt>0){
+      badge.textContent='⚠️ 일부 조회 실패('+failCnt+'건) · '+pr.label;
+      badge.className='badge badge-w';
+      toast('일부 구의 데이터 조회에 실패했습니다('+failCnt+'건). 합계가 실제보다 적게 표시될 수 있어요. 🔄 새로고침으로 재시도하세요.');
+    } else {
+      badge.textContent='실데이터 · '+pr.label;
+      badge.className='badge badge-g';
+    }
     renderRank();
   }
   var batch=5,idx=0;
@@ -461,10 +467,14 @@ function loadGuMonthly(pr){
         var rentPromises=yms.map(function(ym){return fetchCount('RTMSDataSvcAptRent',SEOUL_GU[i].code,ym);});
         Promise.all(buyPromises).then(function(vals){
           guData[i].buy=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
+          var f=vals.filter(function(v){return v<0;}).length;
+          guData[i].fail+=f;failCnt+=f;
           for(var k=0;k<yms.length;k++)tick();
         });
         Promise.all(rentPromises).then(function(vals){
           guData[i].rent=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
+          var f=vals.filter(function(v){return v<0;}).length;
+          guData[i].fail+=f;failCnt+=f;
           for(var k=0;k<yms.length;k++)tick();
         });
       })(i);
@@ -526,7 +536,7 @@ function renderRank(){
     var pr2=guDataPrev[i]?Math.max(guDataPrev[i].rent,0):0;
     var cnt=filterType==='buy'?b:filterType==='rent'?r:b+r;
     var pcnt=filterType==='buy'?pb:filterType==='rent'?pr2:pb+pr2;
-    return{name:d.name,code:d.code,buy:b,rent:r,prevBuy:pb,prevRent:pr2,cnt:cnt,prevCnt:pcnt};
+    return{name:d.name,code:d.code,buy:b,rent:r,prevBuy:pb,prevRent:pr2,cnt:cnt,prevCnt:pcnt,fail:d.fail||0};
   }).sort(function(a,b){return sortDesc?b.cnt-a.cnt:a.cnt-b.cnt;});
   if(!list.length){document.getElementById('rank-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
   var maxB=Math.max.apply(null,list.map(function(d){return d.buy;}))||1;
@@ -540,7 +550,7 @@ function renderRank(){
       '<span style="font-size:13px;font-weight:800;color:var(--p)">'+d.cnt+'건</span>'+cmpHtml(d.cnt,d.prevCnt);
     return '<div class="rank-item" onclick="loadGuApt(\''+d.name+'\',\''+d.code+'\')">'+
       '<div class="rank-n '+cls+'">'+(i+1)+'</div>'+
-      '<div class="rank-info"><div class="rank-name">'+d.name+'</div>'+
+      '<div class="rank-info"><div class="rank-name">'+d.name+(d.fail>0?' <span title="일부 데이터 조회 실패 - 합계가 적게 표시될 수 있음" style="font-size:11px">⚠️</span>':'')+'</div>'+
         (filterType!=='rent'?'<div class="bar-wrap"><div class="bar-buy" style="width:'+pctB+'%"></div></div>':'')+
         (filterType!=='buy'?'<div class="bar-wrap" style="margin-top:2px"><div class="bar-rent" style="width:'+pctR+'%"></div></div>':'')+
       '</div><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:115px">'+cntHtml+'<span style="font-size:15px;color:var(--g3)">›</span></div></div>';
