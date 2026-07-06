@@ -28,8 +28,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-s{background:var(--g2);color:var(--g6);border:1.5px solid var(--g3)}
 #map{width:100%;height:260px;border-radius:10px;overflow:hidden;margin-bottom:10px}
 /* est */
-.est-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--g2)}
-.est-item:last-child{border-bottom:none}
+.est-wrap{border-bottom:1px solid var(--g2)}.est-wrap:last-child{border-bottom:none}
+.est-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0}
+.nearby-apt-panel{margin:0 0 8px 33px;padding:8px 10px;background:var(--g1);border-radius:8px;font-size:11px;display:none}
 .est-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px;background:var(--p);color:#fff}
 .est-num.visited{background:var(--ok)}
 .est-num.fav{background:#f59e0b}
@@ -131,6 +132,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <button onclick="closeAptModal()" style="background:var(--g2);border:none;border-radius:50%;width:30px;height:30px;font-size:15px;cursor:pointer;flex-shrink:0">✕</button>
     </div>
     <div id="apt-modal-summary" style="display:flex;gap:7px;margin-bottom:12px"></div>
+    <div id="apt-modal-typebar"></div>
     <div id="apt-modal-buy-wrap"><div style="font-size:11px;font-weight:700;color:var(--p);margin-bottom:5px">🔵 매매 실거래 내역</div><div id="apt-modal-buy"></div></div>
     <div id="apt-modal-rent-wrap" style="margin-top:12px"><div style="font-size:11px;font-weight:700;color:var(--ok);margin-bottom:5px">🟢 전세 실거래 내역</div><div id="apt-modal-rent"></div></div>
     <div style="display:flex;gap:7px;margin-top:14px">
@@ -411,7 +413,7 @@ function fetchWithFallback(url){
 }
 function fetchCount(ep,code,ym){
   return fetchWithFallback(buildUrl(ep,code,ym,1))
-    .then(function(d){return d&&d.response&&d.response.body?(d.response.body.totalCount||0):-1;})
+    .then(function(d){return d&&d.response&&d.response.body?d.response.body.totalCount||0:0;})
     .catch(function(){return -1;});
 }
 function fetchItems(ep,code,ym,rows){
@@ -434,8 +436,8 @@ function setLoadingUI(label){
 
 function loadGuMonthly(pr){
   setLoadingUI(pr.label+' 조회 중...');
-  var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length,failCnt=0;
-  guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0,fail:0};});
+  var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length;
+  guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
   var _timeout=setTimeout(function(){
     if(done<total){console.warn('타임아웃');finish();}
   },60000);
@@ -447,14 +449,8 @@ function loadGuMonthly(pr){
   function finish(){
     var badge=document.getElementById('data-badge');
     badge.style.display='inline-block';
-    if(failCnt>0){
-      badge.textContent='⚠️ 일부 조회 실패('+failCnt+'건) · '+pr.label;
-      badge.className='badge badge-w';
-      toast('일부 구의 데이터 조회에 실패했습니다('+failCnt+'건). 합계가 실제보다 적게 표시될 수 있어요. 🔄 새로고침으로 재시도하세요.');
-    } else {
-      badge.textContent='실데이터 · '+pr.label;
-      badge.className='badge badge-g';
-    }
+    badge.textContent='실데이터 · '+pr.label;
+    badge.className='badge badge-g';
     renderRank();
   }
   var batch=5,idx=0;
@@ -467,14 +463,10 @@ function loadGuMonthly(pr){
         var rentPromises=yms.map(function(ym){return fetchCount('RTMSDataSvcAptRent',SEOUL_GU[i].code,ym);});
         Promise.all(buyPromises).then(function(vals){
           guData[i].buy=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
-          var f=vals.filter(function(v){return v<0;}).length;
-          guData[i].fail+=f;failCnt+=f;
           for(var k=0;k<yms.length;k++)tick();
         });
         Promise.all(rentPromises).then(function(vals){
           guData[i].rent=vals.reduce(function(s,v){return s+(v>0?v:0);},0);
-          var f=vals.filter(function(v){return v<0;}).length;
-          guData[i].fail+=f;failCnt+=f;
           for(var k=0;k<yms.length;k++)tick();
         });
       })(i);
@@ -536,7 +528,7 @@ function renderRank(){
     var pr2=guDataPrev[i]?Math.max(guDataPrev[i].rent,0):0;
     var cnt=filterType==='buy'?b:filterType==='rent'?r:b+r;
     var pcnt=filterType==='buy'?pb:filterType==='rent'?pr2:pb+pr2;
-    return{name:d.name,code:d.code,buy:b,rent:r,prevBuy:pb,prevRent:pr2,cnt:cnt,prevCnt:pcnt,fail:d.fail||0};
+    return{name:d.name,code:d.code,buy:b,rent:r,prevBuy:pb,prevRent:pr2,cnt:cnt,prevCnt:pcnt};
   }).sort(function(a,b){return sortDesc?b.cnt-a.cnt:a.cnt-b.cnt;});
   if(!list.length){document.getElementById('rank-list').innerHTML='<div style="padding:20px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
   var maxB=Math.max.apply(null,list.map(function(d){return d.buy;}))||1;
@@ -550,7 +542,7 @@ function renderRank(){
       '<span style="font-size:13px;font-weight:800;color:var(--p)">'+d.cnt+'건</span>'+cmpHtml(d.cnt,d.prevCnt);
     return '<div class="rank-item" onclick="loadGuApt(\''+d.name+'\',\''+d.code+'\')">'+
       '<div class="rank-n '+cls+'">'+(i+1)+'</div>'+
-      '<div class="rank-info"><div class="rank-name">'+d.name+(d.fail>0?' <span title="일부 데이터 조회 실패 - 합계가 적게 표시될 수 있음" style="font-size:11px">⚠️</span>':'')+'</div>'+
+      '<div class="rank-info"><div class="rank-name">'+d.name+'</div>'+
         (filterType!=='rent'?'<div class="bar-wrap"><div class="bar-buy" style="width:'+pctB+'%"></div></div>':'')+
         (filterType!=='buy'?'<div class="bar-wrap" style="margin-top:2px"><div class="bar-rent" style="width:'+pctR+'%"></div></div>':'')+
       '</div><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:flex-end;max-width:115px">'+cntHtml+'<span style="font-size:15px;color:var(--g3)">›</span></div></div>';
@@ -565,14 +557,11 @@ function loadGuApt(guName,code){
   document.getElementById('apt-badge').textContent='';
   document.getElementById('apt-list').innerHTML='<div style="text-align:center;padding:18px;color:var(--g4)"><div class="spin">⟳</div></div>';
   document.getElementById('apt-card').scrollIntoView({behavior:'smooth'});
-  // 전체 기간 모든 월 합산 조회
-  var yms=pr.yms;
-  var buyPromises=filterType!=='rent'?yms.map(function(ym){return fetchItems('RTMSDataSvcAptTradeDev',code,ym,100);}):[];
-  var rentPromises=filterType!=='buy'?yms.map(function(ym){return fetchItems('RTMSDataSvcAptRent',code,ym,100);}):[];
-  Promise.all(buyPromises.concat(rentPromises)).then(function(results){
+  var ym=pr.yms[0];
+  var fbuy=filterType!=='rent'?fetchItems('RTMSDataSvcAptTradeDev',code,ym,100):Promise.resolve([]);
+  var frent=filterType!=='buy'?fetchItems('RTMSDataSvcAptRent',code,ym,100):Promise.resolve([]);
+  Promise.all([fbuy,frent]).then(function(res){
     _aptMap={};_curGuName=guName;
-    var buyResults=filterType!=='rent'?results.slice(0,buyPromises.length):[];
-    var rentResults=filterType!=='buy'?results.slice(buyPromises.length):[];
     function add(items,type){
       items.forEach(function(it){
         var name=it['아파트']||it.aptNm||'미상',dong=it['법정동']||it.umdNm||'';
@@ -582,8 +571,7 @@ function loadGuApt(guName,code){
         _aptMap[k][type]++; _aptMap[k][type+'Items'].push(it);
       });
     }
-    buyResults.forEach(function(items){add(items,'buy');});
-    rentResults.forEach(function(items){add(items,'rent');});
+    add(res[0],'buy'); add(res[1],'rent');
     var apts=Object.values(_aptMap).sort(function(a,b){return(b.buy+b.rent)-(a.buy+a.rent);});
     if(!apts.length){document.getElementById('apt-list').innerHTML='<div style="padding:14px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
     document.getElementById('apt-badge').textContent=apts.length+'개';
@@ -626,6 +614,30 @@ function showAptDetail(key){
       (avgR?'<div style="font-size:10px;color:var(--ok)">평균 '+fmtPrice(avgR)+'</div>':'')+
       (minR&&maxR2?'<div style="font-size:9px;color:var(--g4)">'+fmtPrice(minR)+'~'+fmtPrice(maxR2)+'</div>':'')+
     '</div>':'');
+  // 직거래/중개거래 비율 바 (거래유형 필드 있을 때만 표시)
+  var allItems=apt.buyItems.concat(apt.rentItems);
+  var hasType=allItems.some(function(it){return it['거래유형']||it.dealType;});
+  var typeBarHtml='';
+  if(hasType){
+    var direct=allItems.filter(function(it){var t=it['거래유형']||it.dealType||'';return t.indexOf('직거래')>=0;}).length;
+    var brokered=allItems.filter(function(it){var t=it['거래유형']||it.dealType||'';return t&&t.indexOf('직거래')<0;}).length;
+    var total=direct+brokered;
+    if(total>0){
+      var dPct=Math.round(direct/total*100);
+      typeBarHtml='<div style="margin-bottom:10px;background:var(--g1);border-radius:8px;padding:8px 10px">'+
+        '<div style="font-size:10px;color:var(--g5);margin-bottom:5px">📊 거래유형 분석 (매매+전세)</div>'+
+        '<div style="display:flex;height:10px;border-radius:5px;overflow:hidden;margin-bottom:5px">'+
+          (direct?'<div style="flex:'+direct+';background:#dc2626"></div>':'')+
+          (brokered?'<div style="flex:'+brokered+';background:#1d4ed8"></div>':'')+
+        '</div>'+
+        '<div style="display:flex;justify-content:space-between;font-size:10px">'+
+          '<span style="color:#dc2626">■ 직거래 '+direct+'건 ('+dPct+'%)</span>'+
+          '<span style="color:#1d4ed8">■ 중개거래 '+brokered+'건 ('+(100-dPct)+'%)</span>'+
+        '</div>'+
+      '</div>';
+    }
+  }
+  document.getElementById('apt-modal-typebar').innerHTML=typeBarHtml;
   document.getElementById('apt-modal-buy-wrap').style.display=apt.buyItems.length?'block':'none';
   document.getElementById('apt-modal-rent-wrap').style.display=apt.rentItems.length?'block':'none';
   document.getElementById('apt-modal-buy').innerHTML=makeTxTable(apt.buyItems,'buy');
@@ -641,6 +653,12 @@ function getPrices(items,type){
   var f=type==='buy'?'거래금액':'보증금액',af=type==='buy'?'dealAmount':'deposit';
   return items.map(function(it){return parseInt(((it[f]||it[af]||'0')+'').replace(/,/g,''))||0;}).filter(function(v){return v>0;});
 }
+function txTypeBadge(it){
+  var t=it['거래유형']||(it.dealType)||'';
+  if(!t) return '';
+  var direct=t.indexOf('직거래')>=0;
+  return '<span style="font-size:9px;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;'+(direct?'background:#fee2e2;color:#dc2626':'background:#dbeafe;color:#1d4ed8')+'">'+( direct?'직거래':'중개')+'</span>';
+}
 function makeTxTable(items,type){
   if(!items.length) return '<div style="padding:8px;text-align:center;font-size:11px;color:var(--g4)">내역 없음</div>';
   var pf=type==='buy'?'거래금액':'보증금액',apf=type==='buy'?'dealAmount':'deposit';
@@ -651,7 +669,7 @@ function makeTxTable(items,type){
     var pyeong=area?(area/3.305).toFixed(0)+'평':'';
     var unitPrice=area&&priceRaw?Math.round(priceRaw/area)+'만/㎡':'';
     return '<tr style="border-bottom:1px solid var(--g2)">'+
-      '<td style="padding:6px 3px;font-size:12px;font-weight:700;color:'+(type==='buy'?'var(--p)':'var(--ok)')+'">'+fmtPrice(priceRaw)+'</td>'+
+      '<td style="padding:6px 3px;font-size:12px;font-weight:700;color:'+(type==='buy'?'var(--p)':'var(--ok)')+'">'+fmtPrice(priceRaw)+txTypeBadge(it)+'</td>'+
       '<td style="padding:6px 3px;font-size:10px;color:var(--g5);text-align:center">'+(area?area.toFixed(0)+'㎡':'–')+'<br><span style="color:var(--g4)">'+pyeong+'</span></td>'+
       '<td style="padding:6px 3px;font-size:10px;color:var(--g5);text-align:center">'+(it['층']||it.floor||'–')+'층</td>'+
       '<td style="padding:6px 3px;font-size:10px;color:var(--g5);text-align:center">'+unitPrice+'</td>'+
@@ -784,29 +802,77 @@ function renderEstList(data,loc){
       var lastVisitHtml=lastVisit?'<span style="font-size:9px;color:var(--g4)">최근방문: '+lastVisit.date+'</span> ':'';
       var rvHtml='';
       if(rv){var dd2=dday(rv);rvHtml='<span class="'+(dd2<=3?'dday-soon':'dday-ok')+'" style="font-size:9px">재방문 D-'+dd2+'</span> ';}
-      html+='<div class="est-item">'+
-        '<div class="est-num '+numCls+'">'+numTxt+'</div>'+
-        '<div class="est-info">'+
-          '<div class="est-name">'+d.place_name+'</div>'+
-          '<div class="est-addr">'+(d.road_address_name||d.address_name)+'</div>'+
-          '<div class="est-dist">📍 '+dist+'m &nbsp;'+lastVisitHtml+rvHtml+'</div>'+
-          '<div class="est-tags">'+statusLabel(d.id)+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,12)+(memo.length>12?'…':'')+'</span>':'')+'</div>'+
-        '</div>'+
-        '<div class="est-actions">'+
-          '<div style="display:flex;gap:3px">'+
-            (d.phone?'<button class="btn-sm" onclick="window.open(\'tel:'+d.phone+'\')" style="color:var(--ok)">📞</button>':'')+
-            '<button class="btn-sm '+(isFav?'':'')+'" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
-              (isFav?'⭐':'☆')+'</button>'+
+      html+='<div class="est-wrap">'+
+        '<div class="est-item">'+
+          '<div class="est-num '+numCls+'">'+numTxt+'</div>'+
+          '<div class="est-info">'+
+            '<div class="est-name">'+d.place_name+'</div>'+
+            '<div class="est-addr">'+(d.road_address_name||d.address_name)+'</div>'+
+            '<div class="est-dist">📍 '+dist+'m &nbsp;'+lastVisitHtml+rvHtml+'</div>'+
+            '<div class="est-tags">'+statusLabel(d.id)+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,12)+(memo.length>12?'…':'')+'</span>':'')+'</div>'+
           '</div>'+
-          '<button class="btn-sm" onclick="cycleStatus(\''+d.id+'\')" style="font-size:9px">상태변경</button>'+
-          '<button class="btn-sm '+(isAdded?'':'')+'" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
-            (isAdded?'✅동선':'＋동선')+'</button>'+
-          '<button class="btn-sm" onclick="openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')">📝메모</button>'+
+          '<div class="est-actions">'+
+            '<div style="display:flex;gap:3px">'+
+              (d.phone?'<button class="btn-sm" onclick="window.open(\'tel:'+d.phone+'\')" style="color:var(--ok)">📞</button>':'')+
+              '<button class="btn-sm" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
+                (isFav?'⭐':'☆')+'</button>'+
+            '</div>'+
+            '<button class="btn-sm" onclick="cycleStatus(\''+d.id+'\')" style="font-size:9px">상태변경</button>'+
+            '<button class="btn-sm" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
+              (isAdded?'✅동선':'＋동선')+'</button>'+
+            '<button class="btn-sm" onclick="openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')">📝메모</button>'+
+            '<button class="btn-sm" onclick="toggleNearbyApt(\''+d.id+'\','+d.y+','+d.x+')" style="color:#7c3aed" id="napt-btn-'+d.id+'">🏢아파트</button>'+
+          '</div>'+
         '</div>'+
+        '<div class="nearby-apt-panel" id="nearby-apt-'+d.id+'"></div>'+
       '</div>';
     });
     document.getElementById('est-list').innerHTML=html;
 }
+/* ═══ 인근 아파트 ═══ */
+var _nearbyAptCache={};
+function toggleNearbyApt(id,lat,lng){
+  var el=document.getElementById('nearby-apt-'+id);
+  var btn=document.getElementById('napt-btn-'+id);
+  if(!el) return;
+  if(el.style.display==='block'){
+    el.style.display='none';
+    if(btn) btn.style.fontWeight='';
+    return;
+  }
+  el.style.display='block';
+  if(btn) btn.style.fontWeight='800';
+  if(_nearbyAptCache[id]){renderNearbyApt(id,_nearbyAptCache[id],lat,lng);return;}
+  el.innerHTML='<div style="text-align:center;padding:6px;color:var(--g4)">🔍 검색 중...</div>';
+  var loc=new kakao.maps.LatLng(lat,lng);
+  var r=Math.min(searchRadius,500);
+  ps.keywordSearch('아파트',function(data,status){
+    if(status===kakao.maps.services.Status.OK&&data.length){
+      _nearbyAptCache[id]=data;
+      renderNearbyApt(id,data,lat,lng);
+    } else {
+      el.innerHTML='<div style="text-align:center;padding:6px;color:var(--g4);font-size:10px">반경 내 아파트 없음</div>';
+    }
+  },{location:loc,radius:r,sort:kakao.maps.services.SortBy.DISTANCE});
+}
+function renderNearbyApt(id,data,lat,lng){
+  var el=document.getElementById('nearby-apt-'+id);
+  if(!el) return;
+  var list=data.slice(0,6);
+  el.innerHTML='<div style="font-size:10px;font-weight:700;color:#7c3aed;margin-bottom:6px">🏢 인근 아파트 ('+list.length+'곳)</div>'+
+    list.map(function(d){
+      var dist=distM(lat,lng,parseFloat(d.y),parseFloat(d.x));
+      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--g2)">'+
+        '<div>'+
+          '<div style="font-size:11px;font-weight:700;color:var(--g7)">'+d.place_name+'</div>'+
+          '<div style="font-size:9px;color:var(--g4)">📍 '+dist+'m · '+(d.road_address_name||d.address_name)+'</div>'+
+        '</div>'+
+        '<button class="btn-sm" onclick="document.getElementById(\'search-kw\').value=\''+escQ(d.place_name)+'\';swTab(1);setTimeout(searchAddr,400)" style="font-size:9px;color:var(--p)">거래조회</button>'+
+      '</div>';
+    }).join('')+
+    '<div style="font-size:9px;color:var(--g4);margin-top:4px;text-align:right">탭해서 해당 아파트 거래내역 조회</div>';
+}
+
 function distM(lat1,lng1,lat2,lng2){var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;var a=Math.pow(Math.sin(dLat/2),2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.pow(Math.sin(dLng/2),2);return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));}
 
 /* ═══ 즐겨찾기 ═══ */
