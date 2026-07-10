@@ -26,15 +26,9 @@
 body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2);color:var(--g8);padding-bottom:74px}
 .topbar{background:var(--p);color:#fff;padding:13px 16px;position:sticky;top:0;z-index:100;display:flex;align-items:center;gap:8px;box-shadow:0 2px 8px rgba(26,86,219,.4)}
 .t-icon{font-size:20px}.t-title{font-size:16px;font-weight:700}.t-sub{font-size:11px;opacity:.7;margin-left:auto}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g3);display:grid;grid-template-columns:repeat(7,1fr);height:64px;z-index:100;box-shadow:0 -2px 10px rgba(0,0,0,.1)}
-.nb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;color:var(--g4);font-size:9px;font-weight:600;cursor:pointer;padding:0;width:100%;height:100%;transition:color .15s}
-.nb.on{color:var(--p)}.nb .ni{font-size:22px;line-height:1;transition:transform .15s}.nb.on .ni{transform:scale(1.12)}
-#more-drawer{position:fixed;bottom:64px;left:0;right:0;background:#fff;border-top:2px solid var(--g3);z-index:99;padding:14px 12px 10px;box-shadow:0 -6px 24px rgba(0,0,0,.13);transform:translateY(101%);transition:transform .25s cubic-bezier(.4,0,.2,1)}
-#more-drawer.open{transform:translateY(0)}
-#drawer-overlay{position:fixed;top:0;left:0;right:0;bottom:64px;background:rgba(0,0,0,.28);z-index:98;opacity:0;pointer-events:none;transition:opacity .25s}
-#drawer-overlay.open{opacity:1;pointer-events:auto}
-.dnb{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;border:none;background:var(--g1);border-radius:10px;color:var(--g6);font-size:10px;font-weight:700;cursor:pointer;padding:10px 4px;width:100%}
-.dnb .ni{font-size:22px;line-height:1}.dnb.on{background:var(--pl);color:var(--p)}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--g3);display:flex;height:64px;z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.08);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nb{flex:none;min-width:52px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:none;background:none;color:var(--g4);font-size:9px;font-weight:500;cursor:pointer;padding:0 4px}
+.nb.on{color:var(--p)}.nb .ni{font-size:18px}
 .panel{display:none;padding:12px 12px 4px}.panel.on{display:block}
 .card{background:#fff;border-radius:var(--r);padding:16px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.08)}
 .ct{font-size:11px;font-weight:700;color:var(--p);margin-bottom:13px;text-transform:uppercase;letter-spacing:.6px}
@@ -53,9 +47,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 .ddi:last-child{border-bottom:none}.ddi:active{background:var(--pl);color:var(--p)}
 .gutabs{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;scrollbar-width:none}.gutabs::-webkit-scrollbar{display:none}
 .gt{flex:none;height:36px;border:1.5px solid var(--g3);border-radius:20px;background:#fff;font-size:12px;font-weight:500;color:var(--g6);cursor:pointer;white-space:nowrap;padding:0 12px}
-#gu-grid{display:grid!important;grid-template-columns:repeat(5,1fr)!important;gap:5px!important;margin-top:4px!important}
-#gu-grid button{width:100%!important;min-width:0!important;box-sizing:border-box!important;border:1.5px solid var(--g3)!important;border-radius:8px!important;height:34px!important;background:#fff!important;font-size:11px!important;font-weight:600!important;color:var(--g6)!important;cursor:pointer!important;white-space:nowrap!important;overflow:hidden!important;text-overflow:ellipsis!important;padding:0 2px!important}
-#gu-grid button.on{background:var(--p)!important;color:#fff!important;border-color:var(--p)!important}
 .gt.on{border-color:var(--p);background:var(--pl);color:var(--p);font-weight:700}
 .ptbl{width:100%;border-collapse:collapse;font-size:13px}
 .ptbl th{background:var(--g2);padding:8px 6px;text-align:center;font-size:11px;font-weight:600;color:var(--g5);border-bottom:1px solid var(--g3)}
@@ -86,7 +77,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 .ctbl tr.hl td{background:var(--pl);font-weight:700;color:var(--p)}
 .abadge{display:inline-block;background:var(--p);color:#fff;padding:5px 13px;border-radius:20px;font-size:13px;font-weight:600;margin-bottom:8px}
 </style>
-<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" integrity="sha384-TiCUE00h649CAMonG018J2ujOgDKW/kVWlChEuu4jK2vxfAAD0eZxzCKakxg55G4" crossorigin="anonymous"></script>
 <script>
 (function(){
   function loadXlsxLib(urls, idx){
@@ -171,35 +161,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 
 
   <div class="card">
-    <div class="ct">💛 카카오 공유 설정</div>
-    <div style="font-size:12px;color:var(--g5);margin-bottom:12px">견적서를 카카오톡으로 바로 보내려면 카카오 앱 키가 필요합니다. 최초 1회만 등록하면 됩니다.</div>
-    <div class="f">
-      <label>카카오 JavaScript 앱 키</label>
-      <div class="sw">
-        <input type="text" id="kakao-app-key" placeholder="예: a1b2c3d4e5f6..." oninput="document.querySelector('.xbtn[data-kk]').classList.toggle('on',this.value.length>0)">
-        <button class="xbtn on" data-kk onclick="document.getElementById('kakao-app-key').value='';this.classList.remove('on')">✕</button>
-      </div>
-      <div class="hint">발급 방법: <a href="https://developers.kakao.com" target="_blank" style="color:var(--p)">developers.kakao.com</a> → 내 애플리케이션 → 앱 만들기 → 앱 키 → JavaScript 키 복사 → 플랫폼 등록에 <strong>jini-j.github.io</strong> 추가</div>
-    </div>
-    <button class="cbtn" style="background:#FEE500;color:#3a1d1d" onclick="saveKakaoKey()">💾 저장</button>
-    <div id="kakao-key-status" style="margin-top:8px;font-size:13px;display:none"></div>
-  </div>
-
-  <div class="card">
     <div class="ct">⚙️ 탭 순서 / 숨김 설정</div>
     <div style="font-size:12px;color:var(--g5);margin-bottom:12px">탭을 원하는 순서로 바꾸거나 자주 안 쓰는 탭을 숨길 수 있어요.</div>
     <div id="tab-sort-list" style="margin-bottom:12px"></div>
     <div style="display:flex;gap:8px"><button class="cbtn" style="flex:1" onclick="applyTabOrder()">✅ 적용</button><button class="cbtn" style="flex:1;background:var(--g2);color:var(--g6)" onclick="resetTabOrder()">↩️ 초기화</button></div>
     <div style="font-size:11px;color:var(--g4);margin-top:8px;text-align:center">적용 후 새로고침됩니다</div>
-  </div>
-
-  <div class="card">
-    <div class="ct">💾 데이터 백업 / 복원</div>
-    <div style="font-size:12px;color:var(--g5);margin-bottom:12px">고객정보, 서식함, 금리·설정값을 파일 하나로 저장하거나 복원합니다. 휴대폰을 바꾸거나 브라우저 데이터가 삭제돼도 이 파일로 되돌릴 수 있어요.</div>
-    <button class="cbtn" onclick="backupExport()">📤 전체 백업 (파일로 저장)</button>
-    <input type="file" id="backup-restore-file" accept="application/json,.json" style="display:none" onchange="backupRestore(this)">
-    <button class="cbtn" style="background:var(--g2);color:var(--g6)" onclick="document.getElementById('backup-restore-file').click()">📥 백업 파일로 복원</button>
-    <div id="backup-status" style="margin-top:8px;font-size:12px;color:var(--g5)"></div>
   </div>
 </div>
 
@@ -265,32 +231,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="ct">🏠 아파트 시세 조회</div>
     <div class="f">
       <label>구 선택</label>
-      <div id="gu-grid" style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px">
-        <button class="on" id="g0" onclick="selGu(0)">강남구</button>
-        <button id="g1" onclick="selGu(1)">강동구</button>
-        <button id="g2" onclick="selGu(2)">강북구</button>
-        <button id="g3" onclick="selGu(3)">강서구</button>
-        <button id="g4" onclick="selGu(4)">관악구</button>
-        <button id="g5" onclick="selGu(5)">광진구</button>
-        <button id="g6" onclick="selGu(6)">구로구</button>
-        <button id="g7" onclick="selGu(7)">금천구</button>
-        <button id="g8" onclick="selGu(8)">노원구</button>
-        <button id="g9" onclick="selGu(9)">도봉구</button>
-        <button id="g10" onclick="selGu(10)">동대문</button>
-        <button id="g11" onclick="selGu(11)">동작구</button>
-        <button id="g12" onclick="selGu(12)">마포구</button>
-        <button id="g13" onclick="selGu(13)">서대문</button>
-        <button id="g14" onclick="selGu(14)">서초구</button>
-        <button id="g15" onclick="selGu(15)">성동구</button>
-        <button id="g16" onclick="selGu(16)">성북구</button>
-        <button id="g17" onclick="selGu(17)">송파구</button>
-        <button id="g18" onclick="selGu(18)">양천구</button>
-        <button id="g19" onclick="selGu(19)">영등포</button>
-        <button id="g20" onclick="selGu(20)">용산구</button>
-        <button id="g21" onclick="selGu(21)">은평구</button>
-        <button id="g22" onclick="selGu(22)">종로구</button>
-        <button id="g23" onclick="selGu(23)">중구</button>
-        <button id="g24" onclick="selGu(24)">중랑구</button>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin-top:4px">
+        <button class="gt on" id="g0" onclick="selGu(0)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">강남구</button>
+        <button class="gt" id="g1" onclick="selGu(1)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강동구</button>
+        <button class="gt" id="g2" onclick="selGu(2)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강북구</button>
+        <button class="gt" id="g3" onclick="selGu(3)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">강서구</button>
+        <button class="gt" id="g4" onclick="selGu(4)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">관악구</button>
+        <button class="gt" id="g5" onclick="selGu(5)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">광진구</button>
+        <button class="gt" id="g6" onclick="selGu(6)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">구로구</button>
+        <button class="gt" id="g7" onclick="selGu(7)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">금천구</button>
+        <button class="gt" id="g8" onclick="selGu(8)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">노원구</button>
+        <button class="gt" id="g9" onclick="selGu(9)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">도봉구</button>
+        <button class="gt" id="g10" onclick="selGu(10)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">동대문</button>
+        <button class="gt" id="g11" onclick="selGu(11)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">동작구</button>
+        <button class="gt" id="g12" onclick="selGu(12)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">마포구</button>
+        <button class="gt" id="g13" onclick="selGu(13)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">서대문</button>
+        <button class="gt" id="g14" onclick="selGu(14)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">서초구</button>
+        <button class="gt" id="g15" onclick="selGu(15)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">성동구</button>
+        <button class="gt" id="g16" onclick="selGu(16)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">성북구</button>
+        <button class="gt" id="g17" onclick="selGu(17)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">송파구</button>
+        <button class="gt" id="g18" onclick="selGu(18)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">양천구</button>
+        <button class="gt" id="g19" onclick="selGu(19)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">영등포</button>
+        <button class="gt" id="g20" onclick="selGu(20)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">용산구</button>
+        <button class="gt" id="g21" onclick="selGu(21)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">은평구</button>
+        <button class="gt" id="g22" onclick="selGu(22)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">종로구</button>
+        <button class="gt" id="g23" onclick="selGu(23)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">중구</button>
+        <button class="gt" id="g24" onclick="selGu(24)" style="border-radius:8px;height:34px;font-size:11px;font-weight:600">중랑구</button>
       </div>
     </div>
     <div class="f">
@@ -315,12 +281,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="pres" style="display:none">
     <div class="ct">📊 시세 및 LTV 한도</div>
     <div class="rg" id="pgrid"></div>
-
-    <!-- 네이버 부동산 링크 -->
-    <div id="rtrade-wrap" style="display:none;margin-top:10px">
-      <a id="naver-land-link" href="#" target="_blank" style="display:block;text-align:center;padding:10px;background:var(--pl);border:1.5px solid var(--p);border-radius:10px;font-size:13px;font-weight:700;color:var(--p);text-decoration:none">🔗 네이버 부동산에서 시세 확인 →</a>
-    </div>
-
     <div style="margin:12px 0 6px;font-size:11px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px">LTV 한도 (일반거래가 기준)</div>
     <div id="ltvd"></div>
   </div>
@@ -380,10 +340,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간 (구간 가산금리)</label>
       <div class="chips" id="m-tier">
-        <button class="chip on" onclick="selC(this,'m-tier');updRateBox('m')">≤1.245억 (-0.03%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">&gt;4.98억 (+0.17%)</button>
+        <button class="chip on" onclick="selC(this,'m-tier');onMortProdChange()">≤1.245억 (-0.03%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
 
@@ -409,7 +369,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         </div>
       </div>
     </div>
-    <div id="m-stress-note" style="font-size:0.78rem;color:#888;margin-top:-6px;margin-bottom:10px;text-align:right;padding-right:2px;"></div>
 
     <div class="f">
       <label>주택 보유 수</label>
@@ -443,17 +402,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>금리 유형</label>
       <div class="chips" id="rtp">
-        <button class="chip on" onclick="selC(this,'rtp');updRateBox('m')">변동형</button>
-        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">혼합5년</button>
-        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">주기5년</button>
-        <button class="chip" onclick="selC(this,'rtp');updRateBox('m')">고정형</button>
+        <button class="chip on" onclick="selC(this,'rtp')">변동형</button>
+        <button class="chip" onclick="selC(this,'rtp')">혼합5년</button>
+        <button class="chip" onclick="selC(this,'rtp')">주기5년</button>
+        <button class="chip" onclick="selC(this,'rtp')">고정형</button>
       </div>
     </div>
     <div class="f">
       <label>DSR 산정 지역</label>
       <div class="chips" id="mrg">
-        <button class="chip on" onclick="selC(this,'mrg');updRateBox('m')">수도권</button>
-        <button class="chip" onclick="selC(this,'mrg');updRateBox('m')">지방</button>
+        <button class="chip on" onclick="selC(this,'mrg')">수도권</button>
+        <button class="chip" onclick="selC(this,'mrg')">지방</button>
       </div>
     </div>
     <div class="frow">
@@ -526,14 +485,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="mres" style="display:none">
     <div class="ct">📈 주담대 계산 결과</div>
     <div class="rg" id="mgrid"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button onclick="genEstimateImage('mort')" style="flex:1;height:48px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-        <span style="font-size:16px">📋</span> 이미지 저장
-      </button>
-      <button onclick="kakaoShare('mort')" style="flex:1;height:48px;background:#FEE500;color:#3a1d1d;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-        <span style="font-size:16px">💬</span> 카카오 공유
-      </button>
-    </div>
+    <button onclick="shareResult('mort')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    </button>
   </div>
 <div id="mort-compare" style="display:none;margin:0 12px 10px"></div>
 </div>
@@ -547,9 +501,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>보증사 선택</label>
       <div class="chips" id="gtr">
-        <button class="chip on" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">HF</button>
-        <button class="chip" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">HUG</button>
-        <button class="chip" onclick="selC(this,'gtr');updJeonProd();toggleScoreSection()">SGI</button>
+        <button class="chip on" onclick="selC(this,'gtr');updJeonProd()">HF</button>
+        <button class="chip" onclick="selC(this,'gtr');updJeonProd()">HUG</button>
+        <button class="chip" onclick="selC(this,'gtr');updJeonProd()">SGI</button>
       </div>
       <div id="gdsc" class="hint" style="margin-top:5px">hf: 보증금×80% 최대 4.44억 · 1주택 2억 상한</div>
     </div>
@@ -607,7 +561,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
         </div>
       </div>
     </div>
-    <div id="j-tier-note" style="font-size:0.78rem;color:#888;margin-top:-6px;margin-bottom:10px;text-align:right;padding-right:2px;"></div>
 
     <div class="frow">
       <div class="f"><label>연간 소득 (만원)</label><input type="number" id="j-i" value="7000" inputmode="numeric"></div>
@@ -639,13 +592,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간</label>
       <div class="chips" id="j-tier">
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤1.245억 (-0.03%)</button>
-        <button class="chip on" onclick="selC(this,'j-tier');updRateBox('j')">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'j-tier');updRateBox('j')">&gt;4.98억 (+0.17%)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">≤1.245억 (-0.03%)</button>
+        <button class="chip on" onclick="selC(this,'j-tier')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'j-tier')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
-    <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px" id="j-score-section">
+    <div style="background:var(--g1);border-radius:8px;padding:10px 12px;margin-bottom:11px">
       <div style="font-size:11px;font-weight:700;color:var(--g5);margin-bottom:7px">📊 신용점수 <span style="font-weight:400;color:var(--g4)">(선택 · 미입력 시 최대한도 기준)</span></div>
       <div class="frow">
         <div class="f"><label>KCB 점수</label><input type="number" id="j-kcb" placeholder="예: 750" inputmode="numeric" style="height:40px;font-size:14px"></div>
@@ -662,14 +615,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   <div class="card" id="jres" style="display:none">
     <div class="ct">📈 전세대출 계산 결과</div>
     <div class="rg" id="jgrid"></div>
-    <div style="display:flex;gap:8px;margin-top:12px">
-      <button onclick="genEstimateImage('jeon')" style="flex:1;height:48px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-        <span style="font-size:16px">📋</span> 이미지 저장
-      </button>
-      <button onclick="kakaoShare('jeon')" style="flex:1;height:48px;background:#FEE500;color:#3a1d1d;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px">
-        <span style="font-size:16px">💬</span> 카카오 공유
-      </button>
-    </div>
+    <button onclick="shareResult('jeon')" style="margin-top:12px;width:100%;height:44px;background:#fee500;color:#3c1e1e;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px">
+      <span style="font-size:18px">💬</span> 카카오톡으로 결과 공유
+    </button>
   </div>
 <div id="jeon-compare" style="display:none;margin:0 12px 10px"></div>
 </div>
@@ -1169,34 +1117,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   </div>
 </div>
 
-<div id="drawer-overlay" onclick="toggleDrawer(false)"></div>
-<div id="more-drawer">
-  <div style="font-size:11px;font-weight:700;color:var(--g5);margin-bottom:10px;letter-spacing:.04em">전체 메뉴</div>
-  <div id="drawer-grid" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
-    <button class="dnb" id="nb4" onclick="swTab(4)"><span class="ni">💼</span>소득산정</button>
-    <button class="dnb" id="nb5" onclick="swTab(5)"><span class="ni">📅</span>상환표</button>
-    <button class="dnb" id="nb6" onclick="swTab(6)"><span class="ni">🛡️</span>방공제</button>
-    <button class="dnb" id="nb7" onclick="swTab(7);swDocTab(0)"><span class="ni">📋</span>대출서류</button>
-    <button class="dnb" id="nb9" onclick="swTab(9)"><span class="ni">🏷️</span>취득세</button>
-    <button class="dnb" id="nb11" onclick="swTab(10)"><span class="ni">📜</span>인지/채권</button>
-    <button class="dnb" id="nb10" onclick="swTab(11);dashInit()"><span class="ni">📊</span>실적</button>
-    <button class="dnb" id="nb13" onclick="swTab(13)"><span class="ni">📐</span>DSR역산</button>
-    <button class="dnb" id="nb14" onclick="swTab(14)"><span class="ni">🔄</span>대환계산</button>
-    <button class="dnb" id="nb15" onclick="swTab(15);formsRender()"><span class="ni">🖨️</span>서식함</button>
-    <button class="dnb" id="nb16" onclick="swTab(16)"><span class="ni">🔗</span>바로가기</button>
-  </div>
-  <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--g3);display:flex;justify-content:flex-end">
-    <button onclick="openTabSort();toggleDrawer(false)" style="font-size:11px;color:var(--g4);background:none;border:none;cursor:pointer;padding:4px 8px;border-radius:6px">⚙️ 탭 순서 설정</button>
-  </div>
-</div>
 <nav class="bnav">
-  <button class="nb on" id="nb0" onclick="swTab(0)"><span class="ni">⚙️</span>업데이트</button>
-  <button class="nb" id="nb12" onclick="swTab(12)"><span class="ni">🗺️</span>영업지도</button>
-  <button class="nb" id="nb1" onclick="swTab(1)"><span class="ni">🏠</span>시세조회</button>
-  <button class="nb" id="nb2" onclick="swTab(2)"><span class="ni">🏦</span>주담대</button>
-  <button class="nb" id="nb3" onclick="swTab(3)"><span class="ni">🔑</span>전세대출</button>
-  <button class="nb" id="nb8" onclick="swTab(8);crmInit()"><span class="ni">👥</span>고객관리</button>
-  <button class="nb" id="more-btn" onclick="toggleDrawer()"><span class="ni">☰</span>더보기</button>
+  <button class="nb on" id="nb0" onclick="swTab(0)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">⚙️</span><span>업데이트</span></button>
+  <button class="nb" id="nb1" onclick="swTab(1)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏠</span><span>시세조회</span></button>
+  <button class="nb" id="nb2" onclick="swTab(2)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏦</span><span>주담대</span></button>
+  <button class="nb" id="nb3" onclick="swTab(3)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🔑</span><span>전세대출</span></button>
+  <button class="nb" id="nb4" onclick="swTab(4)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">💼</span><span>소득산정</span></button>
+  <button class="nb" id="nb5" onclick="swTab(5)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📅</span><span>상환표</span></button>
+  <button class="nb" id="nb6" onclick="swTab(6)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🛡️</span><span>방공제</span></button>
+  <button class="nb" id="nb7" onclick="swTab(7);swDocTab(0)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📋</span><span>대출서류</span></button>
+  <button class="nb" id="nb8" onclick="swTab(8);crmInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">👥</span><span>고객관리</span></button>
+  <button class="nb" id="nb9" onclick="swTab(9)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">🏷️</span><span>취득세</span></button>
+  <button class="nb" id="nb11" onclick="swTab(10)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📜</span><span>인지/채권</span></button>
+  <button class="nb" id="nb10" onclick="swTab(11);dashInit()" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer"><span class="ni">📊</span><span>실적</span></button>
+
+  <button class="nb" id="nb12" onclick="swTab(12)" style="flex:none;min-width:52px;padding:0 6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:none;background:none;cursor:pointer;color:var(--g4);font-size:10px;height:64px"><span style="font-size:20px">🗺️</span>영업지도</button>
+  <button onclick="openTabSort()" style="flex:none;width:36px;padding:0;display:flex;flex-direction:column;align-items:center;justify-content:center;border:none;background:none;cursor:pointer;color:var(--g4);font-size:9px;height:64px;border-left:1px solid var(--g3)"><span style="font-size:15px">⚙️</span>탭순서</button>
 </nav>
 
 <script>
@@ -1206,136 +1142,7 @@ var D={"서울특별시":{"마포구":{"공덕SK리더스뷰":[[26.8,180000,1885
 
 
 var GU=["강남구","강동구","강북구","강서구","관악구","광진구","구로구","금천구","노원구","도봉구","동대문구","동작구","마포구","서대문구","서초구","성동구","성북구","송파구","양천구","영등포구","용산구","은평구","종로구","중구","중랑구"];
-
-// ══ 국토부 실거래가 API ══
-var LOAN_API_KEY='309f2867723c36600c6c0b64a974752d51b0a08e629a82b2526d3b703742cfa7';
-var GU_CODES={'강남구':'11680','강동구':'11740','강북구':'11305','강서구':'11500','관악구':'11620','광진구':'11215','구로구':'11530','금천구':'11545','노원구':'11350','도봉구':'11320','동대문구':'11230','동작구':'11590','마포구':'11440','서대문구':'11410','서초구':'11650','성동구':'11200','성북구':'11290','송파구':'11710','양천구':'11470','영등포구':'11560','용산구':'11170','은평구':'11380','종로구':'11110','중구':'11140','중랑구':'11260'};
-
-function getRTYMs(n){
-  var now=new Date(),res=[];
-  for(var i=0;i<n;i++){
-    var d=new Date(now.getFullYear(),now.getMonth()-i,1);
-    res.push(''+d.getFullYear()+('0'+(d.getMonth()+1)).slice(-2));
-  }
-  return res;
-}
-
-function fetchRealTrade(guName,aptName,area,cb){
-  var code=GU_CODES[guName];
-  if(!code){cb(null,null,'구코드 없음: '+guName);return;}
-  var yms=getRTYMs(3);
-  var proxies=['','https://corsproxy.io/?','https://api.allorigins.win/raw?url=','https://corsproxy.io/?url='];
-  var allMae=[],allJeon=[],done=0,total=yms.length*2,lastErr='';
-  function fin(err){
-    if(err) lastErr=err;
-    if(++done===total) cb(allMae.length?allMae:null,allJeon.length?allJeon:null,lastErr||null);
-  }
-  function matchApt(nm,target){
-    var c=nm.replace(/[\s\(\)]/g,''),t=target.replace(/[\s\(\)]/g,'');
-    return c.indexOf(t)>=0||t.indexOf(c)>=0;
-  }
-  function fetchWithTimeout(url,ms){
-    return Promise.race([
-      fetch(url),
-      new Promise(function(_,rej){setTimeout(function(){rej(new Error('timeout'));},ms);})
-    ]);
-  }
-  function tryFetch(apiUrl,prxIdx,onData,onErr){
-    if(prxIdx>=proxies.length){onErr('프록시 모두 실패');return;}
-    var prxUrl=proxies[prxIdx]===''?apiUrl:proxies[prxIdx]+encodeURIComponent(apiUrl);
-    fetchWithTimeout(prxUrl,14000)
-      .then(function(r){return r.json();})
-      .then(function(data){
-        // allorigins wraps in {contents:...}
-        if(data&&data.contents) try{data=JSON.parse(data.contents);}catch(e){}
-        var code2=(((data||{}).response||{}).header||{}).resultCode;
-        if(code2&&code2!=='00') throw new Error('API오류:'+code2);
-        onData(data);
-      })
-      .catch(function(){tryFetch(apiUrl,prxIdx+1,onData,onErr);});
-  }
-  yms.forEach(function(ym){
-    var mUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    tryFetch(mUrl,0,function(data){
-      var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
-      if(!Array.isArray(items)) items=items?[items]:[];
-      items.forEach(function(it){
-        if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)) allMae.push(it);
-      });
-      fin(null);
-    },function(e){fin(e);});
-    var jUrl='https://apis.data.go.kr/1613000/RTMSDataSvcAptRent/getRTMSDataSvcAptRent?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    tryFetch(jUrl,0,function(data){
-      var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
-      if(!Array.isArray(items)) items=items?[items]:[];
-      items.forEach(function(it){
-        if(it&&it['아파트']&&matchApt(it['아파트'].trim(),aptName)){
-          if(parseInt((it['월세금액']||'0').replace(/,/g,'').trim())===0) allJeon.push(it);
-        }
-      });
-      fin(null);
-    },function(e){fin(e);});
-  });
-}
-
-function renderRealTrade(maeItems,jeonItems,kbPrice,errMsg){
-  var grid=document.getElementById('rtrade-grid');
-  if((!maeItems||!maeItems.length)&&(!jeonItems||!jeonItems.length)){
-    var errDetail=errMsg?('<div style="font-size:10px;color:#dc2626;margin-top:4px">오류: '+errMsg+'</div>'):'<div style="font-size:11px;color:var(--g4);margin-top:4px">단지명 매칭 결과 없음</div>';
-    grid.innerHTML='<div class="ri w"><div class="rl" style="color:var(--g4)">최근 3개월 실거래 없음</div>'+errDetail+'<div style="margin-top:8px"><a href="https://m.land.naver.com/search/result?query='+_apt+'" target="_blank" style="font-size:12px;color:#2563eb">🔍 네이버 부동산에서 직접 확인</a></div></div>';
-    return;
-  }
-  function sortByDate(arr){
-    return arr.slice().sort(function(a,b){
-      var da=parseInt(a['년']||0)*10000+parseInt(a['월']||0)*100+parseInt(a['일']||parseInt(a['계약일']||0));
-      var db=parseInt(b['년']||0)*10000+parseInt(b['월']||0)*100+parseInt(b['일']||parseInt(b['계약일']||0));
-      return db-da;
-    });
-  }
-  var html='';
-  // ── 매매 ──
-  if(maeItems&&maeItems.length){
-    var mae=sortByDate(maeItems);
-    var maePrices=mae.map(function(it){return parseInt((it['거래금액']||'0').replace(/,/g,'').trim())||0;}).filter(Boolean);
-    var maeAvg=Math.round(maePrices.reduce(function(s,p){return s+p;},0)/maePrices.length);
-    var diff=maeAvg-kbPrice;
-    var diffLabel=diff>0?'▲ KB일반가 대비 +'+fm(Math.abs(diff))+'만':diff<0?'▼ KB일반가 대비 -'+fm(Math.abs(diff))+'만':'KB일반가와 동일';
-    var diffColor=diff>0?'#dc2626':diff<0?'#2563eb':'var(--g4)';
-    html+='<div class="ri w" style="background:#eff6ff"><div style="font-size:11px;font-weight:700;color:#1a56db;margin-bottom:6px">🔵 매매 실거래 ('+maePrices.length+'건)</div>';
-    html+='<div style="font-size:20px;font-weight:800;color:#1f2937">'+fm(maeAvg)+'<span style="font-size:12px;font-weight:400;color:var(--g5)"> 만원 평균</span></div>';
-    html+='<div style="font-size:11px;color:'+diffColor+';margin-top:2px;font-weight:600">'+diffLabel+'</div>';
-    html+='<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">';
-    mae.slice(0,5).forEach(function(it){
-      var p=parseInt((it['거래금액']||'0').replace(/,/g,'').trim())||0;
-      var a=parseFloat((it['전용면적']||'0').trim());
-      var py=a>0?Math.round(a/3.3)+'평':'';
-      html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--g2)">';
-      html+='<span style="color:var(--g5)">'+it['년']+'년 '+it['월']+'월 · '+(it['층']||'-')+'층'+(py?' · '+py:'')+'</span>';
-      html+='<strong style="color:#1f2937">'+fm(p)+'만</strong></div>';
-    });
-    html+='</div></div>';
-  }
-  // ── 전세 ──
-  if(jeonItems&&jeonItems.length){
-    var jeon=sortByDate(jeonItems);
-    var jeonPrices=jeon.map(function(it){return parseInt((it['보증금액']||'0').replace(/,/g,'').trim())||0;}).filter(Boolean);
-    var jeonAvg=Math.round(jeonPrices.reduce(function(s,p){return s+p;},0)/jeonPrices.length);
-    html+='<div class="ri w" style="background:#f0fdf4"><div style="font-size:11px;font-weight:700;color:#059669;margin-bottom:6px">🟢 전세 실거래 ('+jeonPrices.length+'건)</div>';
-    html+='<div style="font-size:20px;font-weight:800;color:#1f2937">'+fm(jeonAvg)+'<span style="font-size:12px;font-weight:400;color:var(--g5)"> 만원 평균</span></div>';
-    html+='<div style="margin-top:8px;display:flex;flex-direction:column;gap:4px">';
-    jeon.slice(0,5).forEach(function(it){
-      var p=parseInt((it['보증금액']||'0').replace(/,/g,'').trim())||0;
-      var a=parseFloat((it['전용면적']||'0').trim());
-      var py=a>0?Math.round(a/3.3)+'평':'';
-      html+='<div style="display:flex;justify-content:space-between;font-size:12px;padding:4px 0;border-bottom:1px solid var(--g2)">';
-      html+='<span style="color:var(--g5)">'+it['년']+'년 '+it['월']+'월'+(py?' · '+py:'')+'</span>';
-      html+='<strong style="color:#059669">'+fm(p)+'만</strong></div>';
-    });
-    html+='</div></div>';
-  }
-  grid.innerHTML=html;
-}
-var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map','tab-dsr','tab-refi','tab-forms','tab-links'];
+var TABS=['tab-s','tab-p','tab-m','tab-j','tab-income','tab-r','tab-g','tab-x','tab-c','tab-t','tab-b','tab-d','tab-map'];
 var curGu=0, _sr=[], _apt=null, _pyRows=[];
 
 // ── 상품 데이터 ──
@@ -1343,89 +1150,89 @@ var PRODUCTS=[
   /* ── 주담대 (주택자금) ── */
   {id:1, type:'mort', name:'주담대(주택자금) 60개월 변동', index:'mor60',   가산:2.21, 최대우대:1.65, 우대조건:['A','B','D']},
   {id:21,type:'mort', name:'주담대(주택자금) 60개월 혼합', index:'mor60',   가산:2.21, 최대우대:1.10, 우대조건:['A','B']},
-  {id:22,type:'mort', name:'주담대(주택자금) 6개월 변동(신규)', index:'cofix_n', 가산:2.60, 최대우대:1.10, 우대조건:['A','B']},
-  {id:23,type:'mort', name:'주담대(주택자금) 6개월 변동(신잔액)',index:'cofix_b', 가산:2.94, 최대우대:1.10, 우대조건:['A','B']},
-  {id:2, type:'mort', name:'주담대(주택자금) 12개월 변동(신규)',index:'cofix_n', 가산:2.53, 최대우대:1.10, 우대조건:['A','B']},
-  {id:24,type:'mort', name:'주담대(주택자금) 12개월 변동(신잔액)',index:'cofix_b',가산:3.04, 최대우대:1.10, 우대조건:['A','B']},
+  {id:22,type:'mort', name:'주담대(주택자금) 6개월(신규)', index:'cofix_n', 가산:2.57, 최대우대:1.10, 우대조건:['A','B']},
+  {id:23,type:'mort', name:'주담대(주택자금) 6개월(신잔액)',index:'cofix_b', 가산:3.18, 최대우대:1.10, 우대조건:['A','B']},
+  {id:2, type:'mort', name:'주담대(주택자금) 12개월(신규)',index:'cofix_n', 가산:2.50, 최대우대:1.10, 우대조건:['A','B']},
+  {id:24,type:'mort', name:'주담대(주택자금) 12개월(신잔액)',index:'cofix_b',가산:3.15, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 주담대 (생활자금) ── */
   {id:3, type:'mort', name:'주담대(생활자금) 60개월 변동', index:'mor60',   가산:2.27, 최대우대:1.45, 우대조건:['A','D']},
   {id:25,type:'mort', name:'주담대(생활자금) 60개월 혼합', index:'mor60',   가산:2.27, 최대우대:0.90, 우대조건:['A']},
-  {id:26,type:'mort', name:'주담대(생활자금) 6개월 변동(신규)', index:'cofix_n', 가산:2.76, 최대우대:0.90, 우대조건:['A']},
-  {id:27,type:'mort', name:'주담대(생활자금) 6개월 변동(신잔액)',index:'cofix_b', 가산:3.10, 최대우대:0.90, 우대조건:['A']},
-  {id:4, type:'mort', name:'주담대(생활자금) 12개월 변동(신규)',index:'cofix_n', 가산:2.69, 최대우대:0.90, 우대조건:['A']},
-  {id:28,type:'mort', name:'주담대(생활자금) 12개월 변동(신잔액)',index:'cofix_b',가산:3.20, 최대우대:0.90, 우대조건:['A']},
+  {id:26,type:'mort', name:'주담대(생활자금) 6개월(신규)', index:'cofix_n', 가산:2.73, 최대우대:0.90, 우대조건:['A']},
+  {id:27,type:'mort', name:'주담대(생활자금) 6개월(신잔액)',index:'cofix_b', 가산:3.24, 최대우대:0.90, 우대조건:['A']},
+  {id:4, type:'mort', name:'주담대(생활자금) 12개월(신규)',index:'cofix_n', 가산:2.66, 최대우대:0.90, 우대조건:['A']},
+  {id:28,type:'mort', name:'주담대(생활자금) 12개월(신잔액)',index:'cofix_b',가산:3.21, 최대우대:0.90, 우대조건:['A']},
   /* ── 오피스텔 ── */
-  {id:13,type:'mort', name:'오피스텔담보 6개월 변동',           index:'cofix_b', 가산:3.17, 최대우대:0.90, 우대조건:['A']},
+  {id:13,type:'mort', name:'오피스텔담보 6개월',           index:'cofix_b', 가산:3.17, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 HF ── */
-  {id:5, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 6개월(신잔액·2년이상)',  index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
+  {id:5, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 6개월(신잔액·2년이상)',  index:'cofix_b', 가산:3.07, 최대우대:1.10, 우대조건:['A','B']},
   {id:6, type:'jeon', sub:'HF', term:'이상',name:'협약전세(HF·주택) 24개월(2년이상)',       index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
-  {id:7, type:'jeon', sub:'HF', term:'이상',name:'안심전세(HF·주택) 6개월(신잔액·2년이상)', index:'cofix_b', 가산:2.51, 최대우대:1.10, 우대조건:['A','B']},
+  {id:7, type:'jeon', sub:'HF', term:'이상',name:'안심전세(HF·주택) 6개월(신잔액·2년이상)', index:'cofix_b', 가산:3.07, 최대우대:1.10, 우대조건:['A','B']},
   {id:8, type:'jeon', sub:'HF', term:'이상',name:'안심전세(HF·주택) 24개월(2년이상)',       index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
   {id:14,type:'jeon', sub:'HF', name:'협약전세(HF·오피스텔) 6개월',     index:'cofix_b', 가산:2.40, 최대우대:1.10, 우대조건:['A','B']},
   {id:15,type:'jeon', sub:'HF', name:'협약전세(HF·오피스텔) 24개월',    index:'mor24',   가산:2.02, 최대우대:1.10, 우대조건:['A','B']},
   {id:16,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 6개월',     index:'cofix_b', 가산:2.57, 최대우대:1.10, 우대조건:['A','B']},
   {id:17,type:'jeon', sub:'HF', name:'안심전세(HF·오피스텔) 24개월',    index:'mor24',   가산:2.11, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 전세 HUG ── */
-  {id:9, type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 6개월(신규·2년이상)',     index:'cofix_n', 가산:2.29, 최대우대:1.10, 우대조건:['A','B']},
-  {id:29,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 6개월(신잔액·2년이상)',   index:'cofix_b', 가산:2.54, 최대우대:1.10, 우대조건:['A','B']},
-  {id:30,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 12개월(신규·2년이상)',    index:'cofix_n', 가산:2.27, 최대우대:1.10, 우대조건:['A','B']},
-  {id:31,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 12개월(신잔액·2년이상)', index:'cofix_b', 가산:2.80, 최대우대:1.10, 우대조건:['A','B']},
-  {id:10,type:'jeon', sub:'HUG', term:'이상',name:'전세자가안심(HUG) 24개월(2년이상)',        index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
+  {id:9, type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',     index:'cofix_n', 가산:2.34, 최대우대:1.10, 우대조건:['A','B']},
+  {id:29,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',   index:'cofix_b', 가산:3.05, 최대우대:1.10, 우대조건:['A','B']},
+  {id:30,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',    index:'cofix_n', 가산:2.46, 최대우대:1.10, 우대조건:['A','B']},
+  {id:31,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)', index:'cofix_b', 가산:3.02, 최대우대:1.10, 우대조건:['A','B']},
+  {id:10,type:'jeon', sub:'HUG', term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',        index:'mor24',   가산:2.09, 최대우대:1.10, 우대조건:['A','B']},
   {id:18,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 6개월', index:'cofix_n', 가산:2.33, 최대우대:0.90, 우대조건:['A']},
   {id:19,type:'jeon', sub:'HUG', name:'플러스전세(HUG·오피스텔) 24개월',index:'mor24',   가산:2.42, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 SGI (주택자금) ── */
-  {id:32,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.38, 최대우대:1.10, 우대조건:['A','B']},
-  {id:33,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.83, 최대우대:1.10, 우대조건:['A','B']},
-  {id:34,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.50, 최대우대:1.10, 우대조건:['A','B']},
-  {id:35,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.96,최대우대:1.10, 우대조건:['A','B']},
+  {id:32,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.36, 최대우대:1.10, 우대조건:['A','B']},
+  {id:33,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:3.07, 최대우대:1.10, 우대조건:['A','B']},
+  {id:34,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.48, 최대우대:1.10, 우대조건:['A','B']},
+  {id:35,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.04,최대우대:1.10, 우대조건:['A','B']},
   {id:36,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·주택) 24개월(2년이상)',    index:'mor24',  가산:2.39, 최대우대:1.10, 우대조건:['A','B']},
   /* ── 전세 SGI (생활자금) ── */
-  {id:11,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.44, 최대우대:0.90, 우대조건:['A']},
-  {id:37,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.89, 최대우대:0.90, 우대조건:['A']},
-  {id:38,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.56, 최대우대:0.90, 우대조건:['A']},
-  {id:39,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.02,최대우대:0.90, 우대조건:['A']},
+  {id:11,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)', index:'cofix_n', 가산:2.42, 최대우대:0.90, 우대조건:['A']},
+  {id:37,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:3.13, 최대우대:0.90, 우대조건:['A']},
+  {id:38,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.54, 최대우대:0.90, 우대조건:['A']},
+  {id:39,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.10,최대우대:0.90, 우대조건:['A']},
   {id:12,type:'jeon', sub:'SGI', term:'이상',name:'플러스전세(SGI·생활) 24개월(2년이상)',    index:'mor24',   가산:2.45, 최대우대:0.90, 우대조건:['A']},
   /* ── 전세 2년 미만 별도 상품 ── */
-  {id:50,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신규·2년미만)',   index:'cofix_n',가산:2.18,최대우대:1.10,우대조건:['A','B']},
-  {id:51,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신잔액·2년미만)', index:'cofix_b',가산:2.40,최대우대:1.10,우대조건:['A','B']},
-  {id:52,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신규·2년미만)',  index:'cofix_n',가산:2.35,최대우대:1.10,우대조건:['A','B']},
-  {id:53,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.79,최대우대:1.10,우대조건:['A','B']},
+  {id:50,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신규·2년미만)',   index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
+  {id:51,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 6개월(신잔액·2년미만)', index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:52,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신규·2년미만)',  index:'cofix_n',가산:2.46,최대우대:1.10,우대조건:['A','B']},
+  {id:53,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.98,최대우대:1.10,우대조건:['A','B']},
   {id:54,type:'jeon',sub:'HF', term:'미만',name:'협약전세(HF) 24개월(2년미만)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
-  {id:55,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 6개월(신규·2년미만)',index:'cofix_n',가산:2.21,최대우대:1.10,우대조건:['A','B']},
-  {id:56,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.43,최대우대:1.10,우대조건:['A','B']},
-  {id:57,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 12개월(신규·2년미만)',index:'cofix_n',가산:2.25,최대우대:1.10,우대조건:['A','B']},
-  {id:58,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.69,최대우대:1.10,우대조건:['A','B']},
-  {id:59,type:'jeon',sub:'HUG',term:'미만',name:'전세자가안심(HUG) 24개월(2년미만)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
-  {id:60,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신규·2년미만)',index:'cofix_n',가산:2.30,최대우대:1.10,우대조건:['A','B']},
-  {id:61,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.72,최대우대:1.10,우대조건:['A','B']},
-  {id:62,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신규·2년미만)',index:'cofix_n',가산:2.48,최대우대:1.10,우대조건:['A','B']},
-  {id:63,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.90,최대우대:1.10,우대조건:['A','B']},
+  {id:55,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신규·2년미만)',index:'cofix_n',가산:2.25,최대우대:1.10,우대조건:['A','B']},
+  {id:56,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.94,최대우대:1.10,우대조건:['A','B']},
+  {id:57,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신규·2년미만)',index:'cofix_n',가산:2.44,최대우대:1.10,우대조건:['A','B']},
+  {id:58,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:59,type:'jeon',sub:'HUG',term:'미만',name:'플러스전세(HUG) 24개월(2년미만)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:60,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신규·2년미만)',index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
+  {id:61,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:62,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신규·2년미만)',index:'cofix_n',가산:2.46,최대우대:1.10,우대조건:['A','B']},
+  {id:63,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.98,최대우대:1.10,우대조건:['A','B']},
   {id:64,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·주택) 24개월(2년미만)',index:'mor24', 가산:2.39,최대우대:1.10,우대조건:['A','B']},
-  {id:65,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신규·2년미만)',index:'cofix_n',가산:2.36,최대우대:0.90,우대조건:['A']},
-  {id:66,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신잔액·2년미만)',index:'cofix_b',가산:2.78,최대우대:0.90,우대조건:['A']},
-  {id:67,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신규·2년미만)',index:'cofix_n',가산:2.54,최대우대:0.90,우대조건:['A']},
-  {id:68,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신잔액·2년미만)',index:'cofix_b',가산:2.96,최대우대:0.90,우대조건:['A']},
+  {id:65,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신규·2년미만)',index:'cofix_n',가산:2.33,최대우대:0.90,우대조건:['A']},
+  {id:66,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 6개월(신잔액·2년미만)',index:'cofix_b',가산:3.02,최대우대:0.90,우대조건:['A']},
+  {id:67,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신규·2년미만)',index:'cofix_n',가산:2.52,최대우대:0.90,우대조건:['A']},
+  {id:68,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 12개월(신잔액·2년미만)',index:'cofix_b',가산:3.04,최대우대:0.90,우대조건:['A']},
   {id:69,type:'jeon',sub:'SGI',term:'미만',name:'플러스전세(SGI·생활) 24개월(2년미만)',index:'mor24', 가산:2.45,최대우대:0.90,우대조건:['A']},
   /* ── 전세 2년 이상 별도 상품 ── */
-  {id:70,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신규·2년이상)',   index:'cofix_n',가산:2.26,최대우대:1.10,우대조건:['A','B']},
-  {id:71,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신잔액·2년이상)', index:'cofix_b',가산:2.51,최대우대:1.10,우대조건:['A','B']},
-  {id:72,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신규·2년이상)',  index:'cofix_n',가산:2.37,최대우대:1.10,우대조건:['A','B']},
-  {id:73,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.90,최대우대:1.10,우대조건:['A','B']},
+  {id:70,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신규·2년이상)',   index:'cofix_n',가산:2.36,최대우대:1.10,우대조건:['A','B']},
+  {id:71,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 6개월(신잔액·2년이상)', index:'cofix_b',가산:3.07,최대우대:1.10,우대조건:['A','B']},
+  {id:72,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신규·2년이상)',  index:'cofix_n',가산:2.48,최대우대:1.10,우대조건:['A','B']},
+  {id:73,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.04,최대우대:1.10,우대조건:['A','B']},
   {id:74,type:'jeon',sub:'HF', term:'이상',name:'협약전세(HF) 24개월(2년이상)',       index:'mor24',  가산:2.02,최대우대:1.10,우대조건:['A','B']},
-  {id:75,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 6개월(신규·2년이상)',index:'cofix_n',가산:2.29,최대우대:1.10,우대조건:['A','B']},
-  {id:76,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.54,최대우대:1.10,우대조건:['A','B']},
-  {id:77,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 12개월(신규·2년이상)',index:'cofix_n',가산:2.27,최대우대:1.10,우대조건:['A','B']},
-  {id:78,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.80,최대우대:1.10,우대조건:['A','B']},
-  {id:79,type:'jeon',sub:'HUG',term:'이상',name:'전세자가안심(HUG) 24개월(2년이상)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
-  {id:80,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)',index:'cofix_n',가산:2.38,최대우대:1.10,우대조건:['A','B']},
-  {id:81,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.83,최대우대:1.10,우대조건:['A','B']},
-  {id:82,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.50,최대우대:1.10,우대조건:['A','B']},
-  {id:83,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:2.96,최대우대:1.10,우대조건:['A','B']},
+  {id:75,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신규·2년이상)',index:'cofix_n',가산:2.34,최대우대:1.10,우대조건:['A','B']},
+  {id:76,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 6개월(신잔액·2년이상)',index:'cofix_b',가산:3.05,최대우대:1.10,우대조건:['A','B']},
+  {id:77,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신규·2년이상)',index:'cofix_n',가산:2.46,최대우대:1.10,우대조건:['A','B']},
+  {id:78,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.02,최대우대:1.10,우대조건:['A','B']},
+  {id:79,type:'jeon',sub:'HUG',term:'이상',name:'플러스전세(HUG) 24개월(2년이상)',    index:'mor24',  가산:2.09,최대우대:1.10,우대조건:['A','B']},
+  {id:80,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신규·2년이상)',index:'cofix_n',가산:2.36,최대우대:1.10,우대조건:['A','B']},
+  {id:81,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 6개월(신잔액·2년이상)',index:'cofix_b',가산:3.07,최대우대:1.10,우대조건:['A','B']},
+  {id:82,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신규·2년이상)',index:'cofix_n',가산:2.48,최대우대:1.10,우대조건:['A','B']},
+  {id:83,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.04,최대우대:1.10,우대조건:['A','B']},
   {id:84,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·주택) 24개월(2년이상)',index:'mor24', 가산:2.39,최대우대:1.10,우대조건:['A','B']},
-  {id:85,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)',index:'cofix_n',가산:2.44,최대우대:0.90,우대조건:['A']},
-  {id:86,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:2.89,최대우대:0.90,우대조건:['A']},
-  {id:87,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.56,최대우대:0.90,우대조건:['A']},
-  {id:88,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.02,최대우대:0.90,우대조건:['A']},
+  {id:85,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신규·2년이상)',index:'cofix_n',가산:2.42,최대우대:0.90,우대조건:['A']},
+  {id:86,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 6개월(신잔액·2년이상)',index:'cofix_b',가산:3.13,최대우대:0.90,우대조건:['A']},
+  {id:87,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신규·2년이상)',index:'cofix_n',가산:2.54,최대우대:0.90,우대조건:['A']},
+  {id:88,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 12개월(신잔액·2년이상)',index:'cofix_b',가산:3.10,최대우대:0.90,우대조건:['A']},
   {id:89,type:'jeon',sub:'SGI',term:'이상',name:'플러스전세(SGI·생활) 24개월(2년이상)',index:'mor24', 가산:2.45,최대우대:0.90,우대조건:['A']},
 ];
 
@@ -1560,27 +1367,6 @@ function updRateBox(prefix){
   document.getElementById(prefix+'-r-final').textContent=r.final.toFixed(2)+'%';
   var totEl=document.getElementById(prefix+'-uw-total');
   if(totEl) totEl.textContent=r.uw>0?'(-'+r.uw.toFixed(2)+'% 적용)':'';
-  // 전세 탭: 구간 tier note 업데이트
-  if(prefix==='j'){
-    var tNote=document.getElementById('j-tier-note');
-    if(tNote){
-      var tc2=gC('j-tier')||'≤2.49억';
-      var tierAmt=tc2.indexOf('1.245')>=0?'≤1.245억':tc2.indexOf('4.98')>=0&&tc2.indexOf('>')>=0?'>4.98억':tc2.indexOf('4.98')>=0?'≤4.98억':'≤2.49억';
-      var tierPct={'≤1.245억':'-0.03%','≤2.49억':'기준','≤4.98억':'+0.14%','>4.98억':'+0.17%'}[tierAmt]||'';
-      tNote.textContent='▲ 구간: '+tierAmt+' ('+tierPct+') · 실제 대출금액에 따라 달라짐';
-    }
-  }
-  // 주담대 탭: 스트레스 금리 note 업데이트
-  if(prefix==='m'){
-    var stNote=document.getElementById('m-stress-note');
-    if(stNote){
-      var rt=gC('rtp')||'변동형';
-      var rg=gC('mrg')||'수도권';
-      var stRates={'변동형':{'수도권':3.0,'비수도권':2.5},'혼합5년':{'수도권':2.4,'비수도권':2.0},'주기5년':{'수도권':1.2,'비수도권':1.0},'고정형':{'수도권':0,'비수도권':0}};
-      var st=(stRates[rt]&&stRates[rt][rg])||0;
-      stNote.textContent=st>0?'▲ DSR 스트레스금리 +'+st.toFixed(1)+'% 가산 ('+rt+' · '+rg+')':'▲ DSR 스트레스금리 없음 ('+rt+')';
-    }
-  }
 }
 
 // ── 주담대 상품 변경 ──
@@ -1589,33 +1375,6 @@ function matchMortProd(){
   var rtype=gC('m-rtype')||'변동';
   var period=gC('m-period')||'60개월';
   var idx=gC('m-idx')||'신규COFIX';
-
-  // ── 유효하지 않은 지표금리+기간 조합 자동 교정 ──
-  // COFIX 계열은 6/12개월만 있고, MOR은 60개월만 있음
-  if((idx==='신규COFIX'||idx==='신잔액COFIX') && period==='60개월'){
-    // 60개월+COFIX 조합 없음 → 기간을 12개월로 자동 전환
-    period='12개월';
-    var pBtns=document.querySelectorAll('#m-period .chip');
-    pBtns.forEach(function(b){
-      b.classList.toggle('on', b.textContent.trim()==='12개월');
-    });
-  } else if(idx==='MOR' && (period==='6개월'||period==='12개월')){
-    // 6/12개월+MOR 조합 없음 → 기간을 60개월로 자동 전환
-    period='60개월';
-    var pBtns=document.querySelectorAll('#m-period .chip');
-    pBtns.forEach(function(b){
-      b.classList.toggle('on', b.textContent.trim()==='60개월');
-    });
-  }
-  // 혼합 rtype은 60개월만 있음 → 6/12개월이면 변동으로 자동 전환
-  if(rtype==='혼합' && (period==='6개월'||period==='12개월')){
-    rtype='변동';
-    var rtBtns=document.querySelectorAll('#m-rtype .chip');
-    rtBtns.forEach(function(b){
-      b.classList.toggle('on', b.textContent.trim()==='변동');
-    });
-  }
-
   var idxKey={'신규COFIX':'cofix_n','신잔액COFIX':'cofix_b','MOR':'mor60'}[idx];
   if(period==='24개월'||period==='60개월') idxKey=(idx==='MOR'?'mor60':idxKey);
   if(period==='24개월') idxKey='mor24';
@@ -1693,28 +1452,12 @@ function matchJeonProd(){
     if(el) el.textContent='⚠️ 해당 조합 상품 없음';
   }
 }
-function toggleScoreSection(){
-  var g=gC('gtr')||'HF';
-  var sec=document.getElementById('j-score-section');
-  if(!sec) return;
-  if(g==='HF'){
-    sec.style.opacity='0.35';
-    sec.style.pointerEvents='none';
-    // 값도 초기화
-    document.getElementById('j-kcb').value='';
-    document.getElementById('j-nice').value='';
-  } else {
-    sec.style.opacity='1';
-    sec.style.pointerEvents='';
-  }
-}
-
 function updJeonProd(){
   var sub=gC('gtr');
   var termSel=gC('j-term')||'2년 이상';
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var desc={'HF':'hf(주금공): 보증금×80% · 최대 4.44억 · 1주택 2억 상한 · 신용점수 무관',
-            'HUG':'hug(주택도시보증): 전세자가안심대출 · 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
+            'HUG':'hug(주택도시보증): 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
             'SGI':'sgi(서울보증): 보증금×80% · 신용점수별 최대 5억 · 1주택 3억 상한'};
   document.getElementById('gdsc').textContent=desc[sub]||'';
   matchJeonProd();
@@ -1851,18 +1594,7 @@ function swDocTab(i){
   if(i===1) dsMakeMsg();
 }
 
-function toggleDrawer(force){
-  var d=document.getElementById('more-drawer');
-  var o=document.getElementById('drawer-overlay');
-  if(!d||!o) return;
-  var open=typeof force==='boolean'?force:!d.classList.contains('open');
-  d.classList.toggle('open',open);
-  o.classList.toggle('open',open);
-  var moreBtn=document.getElementById('more-btn');
-  if(moreBtn) moreBtn.classList.toggle('on',open);
-}
 function swTab(i){
-  toggleDrawer(false);
   if(i===10) initBondTab();
   if(i===12){
     var frame=document.getElementById('jm-frame');
@@ -1897,7 +1629,7 @@ function gC(gid){
 function updG(){
   var g=gC('gtr');
   var desc={'HF':'hf(주금공): 보증금×80% · 최대 4.44억 · 1주택 2억 상한 · 신용점수 무관',
-            'HUG':'hug(주택도시보증): 전세자가안심대출 · 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
+            'HUG':'hug(주택도시보증): 보증금×80% · CB점수별 최대 4억(수도권) · 1주택 2억 상한',
             'SGI':'sgi(서울보증): 보증금×80% · 신용점수별 최대 5억 · 1주택 3억 상한'};
   var el=document.getElementById('gdsc');
   if(el) el.textContent=desc[g]||'';
@@ -1935,7 +1667,6 @@ function clrApt(){
   document.getElementById('abw').style.display='none';
   document.getElementById('pcard').style.display='none';
   document.getElementById('pres').style.display='none';
-  var rw=document.getElementById('rtrade-wrap');if(rw)rw.style.display='none';
   _apt=null;_pyRows=[];
 }
 
@@ -1985,13 +1716,6 @@ function showPriceRes(r){
   var price=r[2];
   document.getElementById('m-p').value=price;
   document.getElementById('m-p-src').style.display='inline';
-
-  // 네이버 부동산 링크 세팅
-  var guName=GU[curGu];
-  var rtWrap=document.getElementById('rtrade-wrap');
-  var naverLink=document.getElementById('naver-land-link');
-  if(naverLink&&_apt) naverLink.href='https://m.land.naver.com/search/result?query='+encodeURIComponent(_apt+' '+guName);
-  if(rtWrap) rtWrap.style.display='block';
   var ZONE_MAP={
     '투기과열지구':{무주택:0.50,_1주택:0.50,_2주택:0},
     '조정대상지역':{무주택:0.70,_1주택:0.60,_2주택:0},
@@ -3364,10 +3088,7 @@ function crmRender(){
     var logLatest=logCount>0?' · 최근 '+c.logs[c.logs.length-1].date:'';
     html+='<div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:8px;border-top:1px solid var(--g2)">';
     html+='<span style="font-size:11px;color:var(--g5)">'+(logCount>0?'📋 '+logCount+'건'+logLatest:'상담 기록 없음')+'</span>';
-    html+='<div style="display:flex;gap:6px">';
     html+='<button onclick="event.stopPropagation();logOpen(\''+c.id+'\')" style="background:var(--pl);border:1px solid var(--p);border-radius:8px;padding:5px 14px;font-size:12px;font-weight:700;color:var(--p);cursor:pointer">📋 일지</button>';
-    html+='<button onclick="event.stopPropagation();addToGoogleCal(\''+c.id+'\')" style="background:#e8f0fe;border:1px solid #4285f4;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:700;color:#4285f4;cursor:pointer">📅 캘린더</button>';
-    html+='</div>';
     html+='</div>';
     html+='</div>';
   });
@@ -3501,36 +3222,6 @@ function crmExportXlsx(){
   setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
   alert('✅ CSV 파일 저장 완료!\nExcel에서 바로 열 수 있습니다.\n(인터넷 연결 시 .xlsx로도 저장 가능)');
 }
-// ── 구글 캘린더 연동 ──
-function addToGoogleCal(id){
-  var customers=crmLoad();
-  var c=customers.find(function(x){return x.id===id;});
-  if(!c) return;
-  var title='[LOAN-JINI] '+c.name+' 상담';
-  var baseDate;
-  if(c.nextcall){
-    baseDate=c.nextcall.replace(/-/g,'');
-  } else {
-    var d=new Date(); d.setDate(d.getDate()+1);
-    baseDate=d.toISOString().slice(0,10).replace(/-/g,'');
-  }
-  var start=baseDate+'T100000';
-  var end=baseDate+'T110000';
-  var details=[];
-  if(c.product) details.push('상품: '+c.product);
-  if(c.amount) details.push('한도: '+Number(c.amount).toLocaleString()+'만원');
-  if(c.rate) details.push('금리: '+c.rate+'%');
-  if(c.bank) details.push('은행: '+c.bank);
-  if(c.memo) details.push('메모: '+c.memo);
-  var detailStr=details.join('\n');
-  var url='https://calendar.google.com/calendar/render?action=TEMPLATE'
-    +'&text='+encodeURIComponent(title)
-    +'&dates='+start+'/'+end
-    +'&details='+encodeURIComponent(detailStr);
-  if(c.addr) url+='&location='+encodeURIComponent(c.addr);
-  window.open(url,'_blank');
-}
-
 
 // 초기화 (탭 진입 시)
 function crmInit(){
@@ -4100,13 +3791,12 @@ var IC_TABLE=[
 // 장래예상소득 연령대 테이블
 // birthStart/End: YYYYMMDD 숫자 기준 (2026-05-25 기준)
 var FI_TABLE=[
-  {label:'만 20~24', birthStart:20050526, birthEnd:20060525, rates:[120.65,131.13,139.69,150.69], rowId:'fi-row-0'},
-  {label:'만 25~29', birthStart:19960526, birthEnd:20010525, rates:[116.82,123.51,128.44,131.62], rowId:'fi-row-1'},
-  {label:'만 30~34', birthStart:19910526, birthEnd:19960525, rates:[112.99,116.61,118.41,118.41], rowId:'fi-row-2'},
-  {label:'만 35~39', birthStart:19860526, birthEnd:19910525, rates:[105.79,106.54,106.54,106.54], rowId:'fi-row-3'},
-  {label:'만 40~44', birthStart:19810526, birthEnd:19860525, rates:[101.62,101.62,101.62,101.62], rowId:'fi-row-4'}
+  {label:'만 20~24', birthStart:20050526, birthEnd:20060525, rate:150.69, rowId:'fi-row-0'},
+  {label:'만 25~29', birthStart:19960526, birthEnd:20010525, rate:131.62, rowId:'fi-row-1'},
+  {label:'만 30~34', birthStart:19910526, birthEnd:19960525, rate:118.41, rowId:'fi-row-2'},
+  {label:'만 35~39', birthStart:19860526, birthEnd:19910525, rate:106.54, rowId:'fi-row-3'},
+  {label:'만 40~44', birthStart:19810526, birthEnd:19860525, rate:101.62, rowId:'fi-row-4'}
 ];
-var _fiTermIdx=3; // 0:10~14년 1:15~19년 2:20~29년 3:30년+
 
 function icSwTab(i){
   [0,1,2].forEach(function(j){
@@ -4237,17 +3927,16 @@ function calcFutureIncome(){
   var hr=document.getElementById(matched.rowId);
   if(hr) hr.style.background='var(--pl)';
 
-  var rate=matched.rates[_fiTermIdx];
-  var futureIncome=Math.round(cur*(rate/100)/10)*10; // 10만원 단위
+  var futureIncome=Math.round(cur*(matched.rate/100)/10)*10; // 10만원 단위
   var diff=futureIncome-cur;
 
   document.getElementById('ic-fi-age').textContent=age+'세 ('+matched.label+')';
-  document.getElementById('ic-fi-rate').textContent=rate+'%';
+  document.getElementById('ic-fi-rate').textContent=matched.rate+'%';
   document.getElementById('ic-fi-cur').textContent=cur.toLocaleString()+'만원';
   document.getElementById('ic-fi-future').textContent=futureIncome.toLocaleString()+'만원';
   document.getElementById('ic-fi-note').innerHTML=
-    '현재소득 <strong>'+cur.toLocaleString()+'만원</strong> × '+rate+'% = 장래예상소득 <strong>'+futureIncome.toLocaleString()+'만원</strong><br>'+
-    '증가분: +'+diff.toLocaleString()+'만원 / 만기 구간: '+['10~14년','15~19년','20~29년','30년+'][_fiTermIdx]+'<br>'+
+    '현재소득 <strong>'+cur.toLocaleString()+'만원</strong> × '+matched.rate+'% = 장래예상소득 <strong>'+futureIncome.toLocaleString()+'만원</strong><br>'+
+    '증가분: +'+diff.toLocaleString()+'만원<br>'+
     '※ 적용대상: 대출신청일 기준 무주택 근로자 (주택구입목적 주담대)';
   document.getElementById('ic-fi-result').style.display='block';
 }
@@ -4610,32 +4299,47 @@ function doStampBond(){
   <!-- 장래예상소득 평균소득증가율 -->
   <div class="card">
     <div class="ct">📈 장래예상소득 평균소득증가율</div>
-    <div style="font-size:11px;color:var(--g5);margin-bottom:10px">무주택 근로자 | 주택구입목적 주담대 | 만기 10년↑ 비거치식 | 시행 2026.01.01 (KB내규)</div>
+    <div style="font-size:12px;color:var(--g5);margin-bottom:10px">기준일: 2026-05-25 | 주담대(주택구입목적) 소유권 등기 3개월 이내 실행 | 만기 10년 이상 비거치식(거치 1년 이하)</div>
     <div class="sx">
-      <table style="width:100%;border-collapse:collapse;font-size:11px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px">
         <thead>
           <tr>
-            <th style="background:#1F3864;color:#fff;padding:8px 5px;text-align:center;font-size:11px;border-bottom:1px solid #2a5299">연령대</th>
-            <th style="background:#dc2626;color:#fff;padding:8px 5px;text-align:center;font-size:11px;font-weight:700;border-bottom:1px solid #a00">10~14년</th>
-            <th style="background:#dc2626;color:#fff;padding:8px 5px;text-align:center;font-size:11px;font-weight:700;border-bottom:1px solid #a00">15~19년</th>
-            <th style="background:#dc2626;color:#fff;padding:8px 5px;text-align:center;font-size:11px;font-weight:700;border-bottom:1px solid #a00">20~29년</th>
-            <th style="background:#dc2626;color:#fff;padding:8px 5px;text-align:center;font-size:11px;font-weight:700;border-bottom:1px solid #a00;background:#b91c1c">30년+</th>
+            <th style="background:#1F3864;color:#fff;padding:9px 8px;text-align:center;font-size:12px">연령대</th>
+            <th style="background:#1F3864;color:#fff;padding:9px 8px;text-align:center;font-size:12px">적용 생년월일 범위</th>
+            <th style="background:#dc2626;color:#fff;padding:9px 8px;text-align:center;font-size:13px;font-weight:700">평균소득증가율</th>
           </tr>
         </thead>
         <tbody>
-          <tr style="border-bottom:1px solid var(--g3);"><td style="padding:9px 6px;text-align:center;font-weight:600;color:var(--g7);font-size:12px">만 20~24</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">120.65%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">131.13%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">139.69%</td><td style="padding:9px 5px;text-align:center;font-weight:800;color:#dc2626;font-size:13px;background:var(--pl)">150.69%</td></tr>
-<tr style="border-bottom:1px solid var(--g3);background:var(--g1);"><td style="padding:9px 6px;text-align:center;font-weight:600;color:var(--g7);font-size:12px">만 25~29</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">116.82%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">123.51%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">128.44%</td><td style="padding:9px 5px;text-align:center;font-weight:800;color:#dc2626;font-size:13px;background:var(--pl)">131.62%</td></tr>
-<tr style="border-bottom:1px solid var(--g3);"><td style="padding:9px 6px;text-align:center;font-weight:600;color:var(--g7);font-size:12px">만 30~34</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">112.99%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">116.61%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">118.41%</td><td style="padding:9px 5px;text-align:center;font-weight:800;color:#dc2626;font-size:13px;background:var(--pl)">118.41%</td></tr>
-<tr style="border-bottom:1px solid var(--g3);background:var(--g1);"><td style="padding:9px 6px;text-align:center;font-weight:600;color:var(--g7);font-size:12px">만 35~39</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">105.79%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">106.54%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">106.54%</td><td style="padding:9px 5px;text-align:center;font-weight:800;color:#dc2626;font-size:13px;background:var(--pl)">106.54%</td></tr>
-<tr style=""><td style="padding:9px 6px;text-align:center;font-weight:600;color:var(--g7);font-size:12px">만 40~44</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">101.62%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">101.62%</td><td style="padding:9px 5px;text-align:center;font-weight:700;color:#dc2626;font-size:12px">101.62%</td><td style="padding:9px 5px;text-align:center;font-weight:800;color:#dc2626;font-size:13px;background:var(--pl)">101.62%</td></tr>
-
+          <tr style="border-bottom:1px solid var(--g3)">
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:var(--g7)">만 20~24</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--g6)">2005.05.26 ~ 2006.05.25</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:800;color:#dc2626;font-size:15px">150.69%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--g3);background:var(--g1)">
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:var(--g7)">만 25~29</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--g6)">1996.05.26 ~ 2001.05.25</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:800;color:#dc2626;font-size:15px">131.62%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--g3)">
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:var(--g7)">만 30~34</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--g6)">1991.05.26 ~ 1996.05.25</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:800;color:#dc2626;font-size:15px">118.41%</td>
+          </tr>
+          <tr style="border-bottom:1px solid var(--g3);background:var(--g1)">
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:var(--g7)">만 35~39</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--g6)">1986.05.26 ~ 1991.05.25</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:800;color:#dc2626;font-size:15px">106.54%</td>
+          </tr>
+          <tr style="background:var(--g1)">
+            <td style="padding:10px 8px;text-align:center;font-weight:600;color:var(--g7)">만 40~44</td>
+            <td style="padding:10px 8px;text-align:center;color:var(--g6)">1981.05.26 ~ 1986.05.25</td>
+            <td style="padding:10px 8px;text-align:center;font-weight:800;color:#dc2626;font-size:15px">101.62%</td>
+          </tr>
         </tbody>
       </table>
     </div>
-    <div style="margin-top:6px;font-size:10px;color:var(--g4)">※ 30년 이상 열 = 최대 인정 소득 (음영 표시)</div>
-    <div style="margin-top:8px;padding:9px 12px;background:var(--pl);border-radius:8px;font-size:12px;color:var(--p)">
-      <strong>적용대상:</strong> 대출신청일 기준 <span style="color:#dc2626;font-weight:700">무주택 &amp; 근로자</span> (대출용도: 주택구입목적 주택담보대출)<br>
-      <span style="font-size:11px">산식: 최근년도소득 × 평균소득증가율 (연령+만기 구간에 따라 결정)</span>
+    <div style="margin-top:10px;padding:9px 12px;background:var(--pl);border-radius:8px;font-size:12px;color:var(--p)">
+      <strong>적용대상:</strong> 대출신청일 기준 <span style="color:#dc2626;font-weight:700">무주택 &amp; 근로자</span> (대출용도: 주택구입목적 주택담보대출)
     </div>
   </div>
 
@@ -4870,16 +4574,6 @@ function doStampBond(){
       </div>
 
       <div class="f">
-        <label>대출 약정 만기</label>
-        <div style="display:flex;gap:5px">
-          <button id="fi-term-0" onclick="setFiTerm(0)" style="flex:1;height:36px;border:1.5px solid var(--g3);border-radius:7px;background:var(--g1);color:var(--g6);font-size:11px;font-weight:600;cursor:pointer">10~14년</button>
-          <button id="fi-term-1" onclick="setFiTerm(1)" style="flex:1;height:36px;border:1.5px solid var(--g3);border-radius:7px;background:var(--g1);color:var(--g6);font-size:11px;font-weight:600;cursor:pointer">15~19년</button>
-          <button id="fi-term-2" onclick="setFiTerm(2)" style="flex:1;height:36px;border:1.5px solid var(--g3);border-radius:7px;background:var(--g1);color:var(--g6);font-size:11px;font-weight:600;cursor:pointer">20~29년</button>
-          <button id="fi-term-3" onclick="setFiTerm(3)" style="flex:1;height:36px;border:1.5px solid var(--p);border-radius:7px;background:var(--p);color:#fff;font-size:11px;font-weight:700;cursor:pointer">30년+</button>
-        </div>
-        <div style="font-size:10px;color:var(--g4);margin-top:3px">대출 약정 만기에 따라 증가율이 달라집니다</div>
-      </div>
-      <div class="f">
         <label>생년월일</label>
         <div style="display:flex;gap:6px">
           <input type="number" id="ic-birth-y" placeholder="출생연도 (예: 1992)" inputmode="numeric" min="1975" max="2006"
@@ -4946,27 +4640,27 @@ function doStampBond(){
             <tr id="fi-row-0" style="border-bottom:1px solid var(--g2)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 20~24</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">2005.05.26~2006.05.25</td>
-              <td id="fi-row-0-rate" style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">150.69%</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">150.69%</td>
             </tr>
             <tr id="fi-row-1" style="border-bottom:1px solid var(--g2);background:var(--g1)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 25~29</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1996.05.26~2001.05.25</td>
-              <td id="fi-row-1-rate" style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">131.62%</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">131.62%</td>
             </tr>
             <tr id="fi-row-2" style="border-bottom:1px solid var(--g2)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 30~34</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1991.05.26~1996.05.25</td>
-              <td id="fi-row-2-rate" style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">118.41%</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">118.41%</td>
             </tr>
             <tr id="fi-row-3" style="border-bottom:1px solid var(--g2);background:var(--g1)">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 35~39</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1986.05.26~1991.05.25</td>
-              <td id="fi-row-3-rate" style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">106.54%</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">106.54%</td>
             </tr>
             <tr id="fi-row-4">
               <td style="padding:7px 6px;text-align:center;font-weight:600">만 40~44</td>
               <td style="padding:7px 6px;text-align:center;color:var(--g6);font-size:10px">1981.05.26~1986.05.25</td>
-              <td id="fi-row-4-rate" style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">101.62%</td>
+              <td style="padding:7px 6px;text-align:center;font-weight:700;color:#dc2626">101.62%</td>
             </tr>
           </tbody>
         </table>
@@ -5035,180 +4729,6 @@ function doStampBond(){
 
 </div>
 
-<!-- ══ DSR 역산 탭 ══ -->
-<div class="panel" id="tab-dsr" style="padding:12px 12px 80px">
-  <div class="card">
-    <div class="ct">📐 DSR 역산 계산기</div>
-    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p)">
-      💡 소득과 기존 부채를 입력하면 <strong>DSR 40% 기준 최대 대출가능금액</strong>을 역산합니다 (스트레스DSR 반영)
-    </div>
-    <div class="f"><label>연소득 (만원)</label>
-      <input type="number" id="dsr-income" placeholder="예: 6000" inputmode="numeric" oninput="dsrCalc()">
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:12px 0 6px;text-transform:uppercase;letter-spacing:.5px">기존 부채 (없으면 0)</div>
-    <div class="frow">
-      <div class="f"><label>주담대 잔액(만원)</label><input type="number" id="dsr-mort-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
-      <div class="f"><label>금리(%)</label><input type="number" id="dsr-mort-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
-    </div>
-    <div class="f"><label>주담대 남은 기간(년)</label><input type="number" id="dsr-mort-term" placeholder="20" inputmode="numeric" oninput="dsrCalc()"></div>
-    <div class="frow">
-      <div class="f"><label>전세대출 잔액(만원)</label><input type="number" id="dsr-jeon-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
-      <div class="f"><label>금리(%)</label><input type="number" id="dsr-jeon-rate" placeholder="3.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
-    </div>
-    <div class="f"><label>전세대출 남은 기간(년)</label><input type="number" id="dsr-jeon-term" placeholder="2" inputmode="numeric" oninput="dsrCalc()"></div>
-    <div class="frow">
-      <div class="f"><label>신용대출 잔액(만원)</label><input type="number" id="dsr-credit-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
-      <div class="f"><label>금리(%)</label><input type="number" id="dsr-credit-rate" placeholder="5.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
-    </div>
-    <div class="frow">
-      <div class="f"><label>카드론 잔액(만원)</label><input type="number" id="dsr-card-bal" placeholder="0" inputmode="numeric" oninput="dsrCalc()"></div>
-      <div class="f"><label>금리(%)</label><input type="number" id="dsr-card-rate" placeholder="12.0" inputmode="decimal" step="0.01" oninput="dsrCalc()"></div>
-    </div>
-    <div class="f"><label>기타 월상환액 합계(만원) <span style="font-size:10px;color:var(--g4)">리스·할부 등</span></label>
-      <input type="number" id="dsr-etc" placeholder="0" inputmode="numeric" oninput="dsrCalc()">
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:14px 0 6px;text-transform:uppercase;letter-spacing:.5px">신규 대출 조건</div>
-    <div class="frow">
-      <div class="f"><label>금리유형</label>
-        <select id="dsr-rtype" onchange="dsrCalc()">
-          <option value="변동형">변동형</option>
-          <option value="혼합5년">혼합5년</option>
-          <option value="주기5년">주기5년</option>
-          <option value="고정형">고정형</option>
-        </select>
-      </div>
-      <div class="f"><label>지역</label>
-        <select id="dsr-zone" onchange="dsrCalc()">
-          <option value="수도권">수도권</option>
-          <option value="비수도권">비수도권</option>
-        </select>
-      </div>
-    </div>
-    <div class="frow">
-      <div class="f"><label>예상 금리(%)</label>
-        <input type="number" id="dsr-new-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="dsrCalc()">
-      </div>
-      <div class="f"><label>대출 기간(년)</label>
-        <input type="number" id="dsr-new-term" placeholder="30" value="30" inputmode="numeric" oninput="dsrCalc()">
-      </div>
-    </div>
-  </div>
-  <div class="card" id="dsr-result" style="display:none">
-    <div class="ct">📊 DSR 역산 결과</div>
-    <div class="rg" id="dsr-grid"></div>
-  </div>
-</div>
-
-<!-- ══ 대환 손익 계산기 탭 ══ -->
-<div class="panel" id="tab-refi" style="padding:12px 12px 80px">
-  <div class="card">
-    <div class="ct">🔄 대환(갈아타기) 손익 계산기</div>
-    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p)">
-      💡 중도상환수수료까지 포함하여 <strong>언제부터 이득인지</strong> 손익분기점을 계산합니다
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px">현재 대출</div>
-    <div class="f"><label>대출 잔액(만원)</label>
-      <input type="number" id="refi-bal" placeholder="예: 30000" inputmode="numeric" oninput="refiCalc()">
-    </div>
-    <div class="frow">
-      <div class="f"><label>현재 금리(%)</label>
-        <input type="number" id="refi-cur-rate" placeholder="4.5" inputmode="decimal" step="0.01" oninput="refiCalc()">
-      </div>
-      <div class="f"><label>남은 기간(개월)</label>
-        <input type="number" id="refi-cur-term" placeholder="240" inputmode="numeric" oninput="refiCalc()">
-      </div>
-    </div>
-    <div class="frow">
-      <div class="f"><label>중도상환수수료율(%)</label>
-        <input type="number" id="refi-fee-rate" placeholder="1.2" value="1.2" inputmode="decimal" step="0.01" oninput="refiCalc()">
-      </div>
-      <div class="f"><label>기타 부대비용(만원)</label>
-        <input type="number" id="refi-extra" placeholder="0" value="0" inputmode="numeric" oninput="refiCalc()">
-      </div>
-    </div>
-    <div class="f"><label>현재 상환방식</label>
-      <select id="refi-method" onchange="refiCalc()">
-        <option value="원리금균등">원리금균등</option>
-        <option value="원금균등">원금균등</option>
-        <option value="만기일시">만기일시(거치식)</option>
-      </select>
-    </div>
-    <div style="font-size:11px;font-weight:700;color:var(--g5);margin:14px 0 8px;text-transform:uppercase;letter-spacing:.5px">신규 대출</div>
-    <div class="frow">
-      <div class="f"><label>신규 금리(%)</label>
-        <input type="number" id="refi-new-rate" placeholder="3.5" inputmode="decimal" step="0.01" oninput="refiCalc()">
-      </div>
-      <div class="f"><label>신규 기간(개월)</label>
-        <input type="number" id="refi-new-term" placeholder="240" inputmode="numeric" oninput="refiCalc()">
-      </div>
-    </div>
-    <button class="cbtn" onclick="refiCalc(true)" style="margin-top:4px">손익 계산하기</button>
-  </div>
-  <div class="card" id="refi-result" style="display:none">
-    <div class="ct">📊 대환 손익 분석</div>
-    <div class="rg" id="refi-grid"></div>
-  </div>
-</div>
-
-<div class="panel" id="tab-forms" style="padding:12px 12px 80px">
-  <div class="card">
-    <div class="ct">🖨️ 서식함</div>
-    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p);line-height:1.6">
-      💡 자주 쓰는 대출 서류 양식(위임장, 개인정보 동의서 등)을 미리 저장해두고, 고객 상담 시 와이파이 프린터로 바로 인쇄하세요.
-    </div>
-    <div class="f"><label>서식 이름</label>
-      <input type="text" id="form-name" placeholder="예: 개인정보 수집·이용 동의서">
-    </div>
-    <div class="f"><label>파일 선택 (이미지 또는 PDF)</label>
-      <input type="file" id="form-file" accept="image/*,.pdf,application/pdf">
-    </div>
-    <button onclick="formAdd()" style="width:100%;height:42px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;margin-top:4px">➕ 서식 추가</button>
-  </div>
-  <div class="card">
-    <div class="ct">📁 저장된 서식</div>
-    <input type="text" id="form-search" placeholder="🔍 이름으로 검색" oninput="formsRender()" style="width:100%;height:38px;border:1px solid var(--g3);border-radius:8px;padding:0 12px;font-size:13px;margin-bottom:10px;box-sizing:border-box">
-    <div id="forms-list"></div>
-  </div>
-</div>
-
-<!-- 서식 미리보기 모달 -->
-<div id="form-preview-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999">
-  <div style="background:#fff;margin:20px;border-radius:12px;max-height:calc(100vh - 40px);overflow:auto;display:flex;flex-direction:column">
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--g2)">
-      <span id="form-preview-title" style="font-weight:700;font-size:15px"></span>
-      <button onclick="formPreviewClose()" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--g5)">✕</button>
-    </div>
-    <div id="form-preview-body" style="padding:12px;flex:1;overflow:auto;text-align:center"></div>
-    <div style="padding:12px 16px;border-top:1px solid var(--g2);display:flex;gap:8px">
-      <button id="form-print-btn" onclick="formPrint()" style="flex:1;height:44px;background:var(--p);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🖨️ 인쇄</button>
-      <button onclick="formDelete()" style="height:44px;padding:0 16px;background:#fee2e2;color:#dc2626;border:none;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer">🗑️ 삭제</button>
-    </div>
-  </div>
-</div>
-
-<!-- 바로가기 탭 -->
-<div class="panel" id="tab-links" style="padding:12px 12px 80px">
-  <div class="card">
-    <div class="ct">🔗 바로가기</div>
-    <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:14px;font-size:12px;color:var(--p);line-height:1.6">
-      💡 자주 쓰는 부동산 시세·매물·등기 정보 사이트로 바로 이동합니다. (새 탭에서 열림)
-    </div>
-  </div>
-  <div class="card">
-    <div class="ct">🏠 시세 · 매물 조회</div>
-    <button onclick="openLink('https://m.land.naver.com/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">네이버 부동산</button>
-    <button onclick="openLink('https://onland.kbstar.com/quics?page=C059744')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">KB부동산</button>
-    <button onclick="openLink('https://asil.kr/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">아실 (아파트 실거래가)</button>
-    <button onclick="openLink('https://hogangnono.com/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">호갱노노</button>
-    <button onclick="openLink('https://www.disco.re/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px; margin-bottom:0">디스코 (토지·빌딩)</button>
-  </div>
-  <div class="card">
-    <div class="ct">📑 등기 · 공적 정보</div>
-    <button onclick="openLink('https://www.iros.go.kr/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px">대법원 인터넷등기소 (등기부등본 열람·발급)</button>
-    <button onclick="openLink('https://www.gov.kr/')" style="display:block;width:100%;text-align:left;padding:12px 14px;background:var(--g1);border:1px solid var(--g3);border-radius:8px;font-size:14px;font-weight:600;color:var(--g7);cursor:pointer;margin-bottom:8px; margin-bottom:0">정부24 (건축물대장 · 토지이용계획)</button>
-  </div>
-</div>
-
 <!-- 영업지도 탭 -->
 <div class="panel" id="tab-map" style="padding:0;position:relative">
   <iframe id="jm-frame" src="about:blank"
@@ -5230,24 +4750,20 @@ var TAB_META=[
   {idx:9,label:'🏷️ 취득세',nbId:'nb9'},
   {idx:10,label:'📜 인지/채권',nbId:'nb11'},
   {idx:11,label:'📊 실적',nbId:'nb10'},
-  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'},
-  {idx:13,label:'📐 DSR역산',nbId:'nb13'},
-  {idx:14,label:'🔄 대환계산',nbId:'nb14'},
-  {idx:15,label:'🖨️ 서식함',nbId:'nb15'},
-  {idx:16,label:'🔗 바로가기',nbId:'nb16'}
+  {idx:12,label:'🗺️ 영업지도',nbId:'nb12'}
 ];
 var _tabOrder=null,_tabHidden=null;
 function loadTabConfig(){try{_tabOrder=JSON.parse(localStorage.getItem('tabOrder'))||null;_tabHidden=JSON.parse(localStorage.getItem('tabHidden'))||{};}catch(e){_tabOrder=null;_tabHidden={};}}
 function applyTabConfig(){
   loadTabConfig();if(!_tabOrder)return;
-  var drawerGrid=document.getElementById('drawer-grid');if(!drawerGrid)return;
-  var mainIds=['nb0','nb12','nb1','nb2','nb3','nb8'];
+  var nav=document.querySelector('.bnav');if(!nav)return;
+  var sortBtn=nav.querySelector('button:not([id^="nb"])');
+  // 저장된 순서에 없는 신규 탭은 끝에 자동 추가
   TAB_META.forEach(function(meta){if(_tabOrder.indexOf(meta.idx)<0)_tabOrder.push(meta.idx);});
   _tabOrder.forEach(function(idx){
     var meta=TAB_META[idx];if(!meta)return;
     var btn=document.getElementById(meta.nbId);if(!btn)return;
-    if(mainIds.indexOf(meta.nbId)>=0) return;
-    drawerGrid.appendChild(btn);
+    nav.insertBefore(btn,sortBtn);
     btn.style.display=(_tabHidden[idx])?'none':'';
   });
 }
@@ -5286,7 +4802,7 @@ function renderTabSortList(){
   if(!window._tsTempOrder){loadTabConfig();window._tsTempOrder=(_tabOrder||TAB_META.map(function(m){return m.idx;})).slice();window._tsTempHidden=Object.assign({},(_tabHidden||{}));}
   _renderSortModal();
 }
-(function(){applyTabConfig();renderTabSortList();addDocIssuerCols();})();
+(function(){applyTabConfig();renderTabSortList();})();
 
 /* ══ 전체 상품 비교 ══ */
 function calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc){
@@ -5319,35 +4835,6 @@ function calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc){
   return Math.max(mg,0);
 }
 
-// 전세대출 최대 한도 상한 반환 (보증금 무관, 신용점수 미입력시 최고등급 가정)
-function getJeonCap(prod,hc,rg,kcb,nice,isSpc){
-  var ek=kcb>0?kcb:999, en=nice>0?nice:999;
-  var sub=prod.sub;
-  if(sub==='HF'){
-    return hc>=1?20000:44400;
-  } else if(sub==='HUG'){
-    var hugCap;
-    if(en>=820||ek>=805) hugCap=rg==='수도권'?40000:32000;
-    else if(en>=740||ek>=655) hugCap=15000;
-    else if(en>=545||ek>=550) hugCap=7000;
-    else hugCap=0;
-    if(isSpc) hugCap=rg==='수도권'?40000:32000;
-    if(hc>=1) hugCap=Math.min(hugCap,20000);
-    return hugCap;
-  } else {
-    // SGI
-    var sgiCap;
-    if(ek>=805&&en>=820) sgiCap=50000;
-    else if(ek>=710&&en>=775) sgiCap=40000;
-    else if(ek>=805||en>=820) sgiCap=30000;
-    else if(ek>=655||en>=740) sgiCap=20000;
-    else if(ek>=550||en>=545) sgiCap=15000;
-    else sgiCap=0;
-    if(hc>=1) sgiCap=Math.min(sgiCap,30000);
-    return sgiCap;
-  }
-}
-
 function compareJeon(){
   var dep=parseFloat(document.getElementById('j-d').value)||0;
   var rg=gC('jrg'), hs=gC('hsc');
@@ -5359,18 +4846,16 @@ function compareJeon(){
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
   var jtc=gC('j-tier'); var tierAdd=0;
   TIER_ADJ.forEach(function(t){if(jtc&&jtc.indexOf(t.label)>=0)tierAdd=t.add;});
-  // 비교표: 각 상품 최대 우대 적용, 기준 구간 ≤2.49억(tierAdd=0) 고정
+  // 현재 선택된 우대 코드 (체크박스)
+  var selUw=getUwSelected('j');
+
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='jeon'&&p.term===term;}).forEach(function(prod){
-    var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
-    var limit,limitIsMax=false;
-    if(dep>0){
-      limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
-    }else{
-      limit=getJeonCap(prod,hc,rg,kcb,nice,isSpc);
-      limitIsMax=true;
-    }
-    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,limitIsMax:limitIsMax,index:prod.index,가산:prod.가산});
+    // 선택된 우대 중 이 상품에 적용 가능한 것만
+    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
+    var rInfo=calcFinalRate(prod,applicable,tierAdd);
+    var limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
+    results.push({name:prod.name,sub:prod.sub,rate:rInfo.final,limit:limit,index:prod.index,가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
   if(!results.length){alert('조건에 맞는 상품이 없습니다. 임차기간을 확인하세요.');return;}
@@ -5378,9 +4863,9 @@ function compareJeon(){
   var best=results[0];
   var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
     '<span style="font-size:24px">⭐</span>'+
-    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (최대 우대 · ≤2.49억 기준)</div>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (선택 우대 적용)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
-    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">'+(best.limitIsMax?'최대 ':'')+fm(best.limit)+'만</span>':"")+'</div></div></div>';
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
 
   var tableHtml='<div class="card"><div class="ct">📊 전체 상품 비교 · '+termSel+' · 선택 우대 적용</div>'+
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
@@ -5400,11 +4885,11 @@ function compareJeon(){
       '<td style="padding:7px 5px;'+tc+'">'+r.name+'</td>'+
       '<td style="padding:7px 3px;text-align:right;'+tc+'">+'+r.가산.toFixed(2)+'%</td>'+
       '<td style="padding:7px 3px;text-align:right;font-weight:700;'+tc+'">'+r.rate.toFixed(2)+'%</td>'+
-      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(r.limit>0?(r.limitIsMax?'최대 '+fm(r.limit)+'만':fm(r.limit)+'만'):'-')+'</td>'+
+      '<td style="padding:7px 3px;text-align:right;'+tc+'">'+(r.limit>0?fm(r.limit)+'만':'-')+'</td>'+
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대금리 기준 · 한도: 보증금 미입력 시 신용점수 조건별 최대 상한, 신용점수 미입력 시 최고등급 가정</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준 · 실제 한도는 심사 조건에 따라 다를 수 있습니다</div></div>';
 
   var el=document.getElementById('jeon-compare');
   el.innerHTML=bannerHtml+tableHtml;
@@ -5422,11 +4907,12 @@ function compareMort(){
   var tc2=gC('m-tier'); var tierAdd=0;
   TIER_ADJ.forEach(function(t){if(tc2&&tc2.indexOf(t.label)>=0)tierAdd=t.add;});
   var ltv=calcLTV(zone,housing,price);
-  var cap1015=get1015Cap(zone,price);
-  // 비교표: 각 상품 최대 우대 적용, 기준 구간 ≤2.49억(tierAdd=0) 고정
+  var selUw=getUwSelected('m');
+
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='mort';}).forEach(function(prod){
-    var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
+    var applicable=selUw.filter(function(code){return prod.우대조건.indexOf(code)>=0;});
+    var rInfo=calcFinalRate(prod,applicable,tierAdd);
     var rp=rInfo.final, r=rp/100;
     var st=(SR[rt]||SR['변동형'])[rg]||0, dr=r+st;
     var n=Math.round((yrs-grc)*12), dm=dr/12;
@@ -5434,7 +4920,6 @@ function compareMort(){
     var dsrLimit=(n>0&&dm>0)?(avail/12)*(1-Math.pow(1+dm,-n))/dm:0;
     var limit=0;
     if(!ltv.impossible) limit=ltv.limit!==null?Math.min(dsrLimit,ltv.limit):dsrLimit;
-    if(cap1015!==null) limit=Math.min(limit,cap1015);
     results.push({name:prod.name,rate:rp,limit:Math.max(Math.round(limit),0),가산:prod.가산});
   });
   results.sort(function(a,b){return a.rate-b.rate;});
@@ -5443,9 +4928,9 @@ function compareMort(){
   var best=results[0];
   var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
     '<span style="font-size:24px">⭐</span>'+
-    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (최대 우대 · ≤2.49억 기준)</div>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 주담대 상품 (선택 우대 적용)</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
-    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">'+(best.limitIsMax?'최대 ':'')+fm(best.limit)+'만</span>':"")+'</div></div></div>';
+    '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(price>0&&best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">최대 '+fm(best.limit)+'만</span>':'')+'</div></div></div>';
 
   var tableHtml='<div class="card"><div class="ct">📊 주담대 전체 상품 비교 · 선택 우대 적용</div>'+
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
@@ -5469,7 +4954,7 @@ function compareMort(){
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대 적용 · ≤2.49억 구간 기준'+(cap1015!==null?' · 10·15 시가 상한 '+fm(cap1015)+'만 적용':'')+'</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 선택된 우대금리 적용 기준</div></div>';
 
   var el=document.getElementById('mort-compare');
   el.innerHTML=bannerHtml+tableHtml;
@@ -5480,717 +4965,5 @@ function compareMort(){
 </script>
 
 
-<script>toggleScoreSection();</script>
-<script>
-// ══ DSR 역산 계산기 ══
-function dsrMonthly(bal,rate,termYrs){
-  if(!bal||!termYrs) return 0;
-  var r=rate/100/12,n=termYrs*12;
-  if(r===0) return bal/n;
-  return bal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
-}
-function dsrCalc(){
-  var income=parseFloat(document.getElementById('dsr-income').value)||0;
-  if(!income){document.getElementById('dsr-result').style.display='none';return;}
-  var mortBal=parseFloat(document.getElementById('dsr-mort-bal').value)||0;
-  var mortRate=parseFloat(document.getElementById('dsr-mort-rate').value)||3.5;
-  var mortTerm=parseFloat(document.getElementById('dsr-mort-term').value)||20;
-  var jeonBal=parseFloat(document.getElementById('dsr-jeon-bal').value)||0;
-  var jeonRate=parseFloat(document.getElementById('dsr-jeon-rate').value)||3.0;
-  var jeonTerm=parseFloat(document.getElementById('dsr-jeon-term').value)||2;
-  var creditBal=parseFloat(document.getElementById('dsr-credit-bal').value)||0;
-  var creditRate=parseFloat(document.getElementById('dsr-credit-rate').value)||5.0;
-  var cardBal=parseFloat(document.getElementById('dsr-card-bal').value)||0;
-  var cardRate=parseFloat(document.getElementById('dsr-card-rate').value)||12.0;
-  var etc=parseFloat(document.getElementById('dsr-etc').value)||0;
-  var mMort=dsrMonthly(mortBal,mortRate,mortTerm);
-  var mJeon=dsrMonthly(jeonBal,jeonRate,jeonTerm);
-  var mCredit=dsrMonthly(creditBal,creditRate,5);
-  var mCard=dsrMonthly(cardBal,cardRate,1);
-  var mTotal=mMort+mJeon+mCredit+mCard+etc;
-  var annIncome=income*10000;
-  var existDsr=annIncome>0?(mTotal*12*10000/annIncome*100):0;
-  var newRateType=document.getElementById('dsr-rtype').value;
-  var zone=document.getElementById('dsr-zone').value;
-  var newRate=parseFloat(document.getElementById('dsr-new-rate').value)||3.5;
-  var newTerm=parseFloat(document.getElementById('dsr-new-term').value)||30;
-  var stRates={'변동형':{'수도권':3.0,'비수도권':2.5},'혼합5년':{'수도권':2.4,'비수도권':2.0},'주기5년':{'수도권':1.2,'비수도권':1.0},'고정형':{'수도권':0,'비수도권':0}};
-  var st=(stRates[newRateType]&&stRates[newRateType][zone])||0;
-  var stressRate=newRate+st;
-  var maxMonthly=annIncome*0.4/12/10000;
-  var availMonthly=maxMonthly-mTotal;
-  function calcMaxLoan(monthly,rate,termYrs){
-    if(monthly<=0||termYrs<=0) return 0;
-    var r=rate/100/12,n=termYrs*12;
-    if(r===0) return monthly*n;
-    return monthly*(1-Math.pow(1+r,-n))/r;
-  }
-  var maxLoanNoStress=Math.max(0,Math.floor(calcMaxLoan(availMonthly,newRate,newTerm)));
-  var maxLoanStress=Math.max(0,Math.floor(calcMaxLoan(availMonthly,stressRate,newTerm)));
-  var bindingMax=Math.min(maxLoanNoStress,maxLoanStress);
-  var dsrOk=existDsr<=40;
-  document.getElementById('dsr-grid').innerHTML=
-    '<div class="ri"><div class="rl">현재 기존부채 DSR</div>'+
-    '<div class="rv big '+(dsrOk?'ok':'er')+'">'+existDsr.toFixed(1)+'%</div>'+
-    '<div style="font-size:11px;color:var(--g4);margin-top:3px">기존 월상환 합계: '+fm(Math.round(mTotal))+'만원/월</div></div>'+
-    '<div class="ri" style="background:var(--okl)"><div class="rl" style="color:var(--ok)">✅ DSR 40% 기준 최대 대출</div>'+
-    '<div class="rv big ok">'+fm(maxLoanNoStress)+'<span style="font-size:13px"> 만원</span></div>'+
-    '<div style="font-size:11px;color:var(--ok);margin-top:3px">적용금리 '+newRate.toFixed(2)+'% 기준</div></div>'+
-    '<div class="ri" style="background:#fef9c3"><div class="rl" style="color:#854d0e">⚡ 스트레스DSR 반영 최대</div>'+
-    '<div class="rv big" style="color:#854d0e">'+fm(bindingMax)+'<span style="font-size:13px"> 만원</span></div>'+
-    '<div style="font-size:11px;color:#854d0e;margin-top:3px">스트레스 +'+st.toFixed(1)+'% 가산 ('+newRateType+' · '+zone+')</div></div>'+
-    '<div class="ri w"><div class="rl">기존 부채 상세</div>'+
-    '<div style="font-size:12px;color:var(--g6);margin-top:6px;display:grid;grid-template-columns:1fr 1fr;gap:4px">'+
-    (mortBal>0?'<div>주담대</div><div style="text-align:right">'+fm(Math.round(mMort))+'만/월</div>':'')+
-    (jeonBal>0?'<div>전세대출</div><div style="text-align:right">'+fm(Math.round(mJeon))+'만/월</div>':'')+
-    (creditBal>0?'<div>신용대출(5년)</div><div style="text-align:right">'+fm(Math.round(mCredit))+'만/월</div>':'')+
-    (cardBal>0?'<div>카드론(1년)</div><div style="text-align:right">'+fm(Math.round(mCard))+'만/월</div>':'')+
-    (etc>0?'<div>기타</div><div style="text-align:right">'+fm(Math.round(etc))+'만/월</div>':'')+
-    '</div></div>'+
-    '<div class="ri"><div class="rl">남은 DSR 한도</div>'+
-    '<div class="rv '+(availMonthly>=0?'ok':'er')+'">'+fm(Math.round(availMonthly))+'<span style="font-size:11px"> 만원/월</span></div>'+
-    '<div style="font-size:11px;color:var(--g4);margin-top:2px">월 한도 '+fm(Math.round(maxMonthly))+'만 - 기존 '+fm(Math.round(mTotal))+'만</div></div>';
-  document.getElementById('dsr-result').style.display='block';
-}
-
-// ══ 대환 손익 계산기 ══
-function refiCalc(force){
-  var bal=parseFloat(document.getElementById('refi-bal').value)||0;
-  var curRate=parseFloat(document.getElementById('refi-cur-rate').value)||0;
-  var curTerm=parseInt(document.getElementById('refi-cur-term').value)||0;
-  var feeRate=parseFloat(document.getElementById('refi-fee-rate').value)||1.2;
-  var extra=parseFloat(document.getElementById('refi-extra').value)||0;
-  var method=document.getElementById('refi-method').value;
-  var newRate=parseFloat(document.getElementById('refi-new-rate').value)||0;
-  var newTerm=parseInt(document.getElementById('refi-new-term').value)||(curTerm||240);
-  if(!bal||!curRate||!newRate) return;
-  function monthlyAmt(principal,annRate,months,meth){
-    var r=annRate/100/12,n=months;
-    if(meth==='만기일시') return principal*r;
-    if(meth==='원금균등') return principal/n+principal*r;
-    if(r===0) return principal/n;
-    return principal*r*Math.pow(1+r,n)/(Math.pow(1+r,n)-1);
-  }
-  var curMonthly=Math.round(monthlyAmt(bal,curRate,curTerm,method));
-  var newMonthly=Math.round(monthlyAmt(bal,newRate,newTerm,'원리금균등'));
-  var saving=curMonthly-newMonthly;
-  var fee=Math.round(bal*feeRate/100);
-  var totalCost=fee+extra;
-  var breakEven=saving>0?Math.ceil(totalCost/saving):0;
-  var netSaving1y=Math.max(0,saving*12-totalCost);
-  var netSaving3y=Math.max(0,saving*36-totalCost);
-  var netSaving5y=Math.max(0,saving*60-totalCost);
-  var beSafe=breakEven>0&&breakEven<=60;
-  document.getElementById('refi-grid').innerHTML=
-    '<div class="ri w"><div class="rl">월 상환액 비교</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px">'+
-    '<div style="background:var(--g1);border-radius:8px;padding:10px;text-align:center">'+
-    '<div style="font-size:10px;color:var(--g4)">현재</div>'+
-    '<div style="font-size:18px;font-weight:800;color:var(--g7)">'+fm(curMonthly)+'<span style="font-size:11px">만원</span></div>'+
-    '<div style="font-size:10px;color:var(--g4)">'+curRate.toFixed(2)+'%</div></div>'+
-    '<div style="background:var(--okl);border-radius:8px;padding:10px;text-align:center">'+
-    '<div style="font-size:10px;color:var(--ok)">신규</div>'+
-    '<div style="font-size:18px;font-weight:800;color:var(--ok)">'+fm(newMonthly)+'<span style="font-size:11px">만원</span></div>'+
-    '<div style="font-size:10px;color:var(--ok)">'+newRate.toFixed(2)+'%</div></div></div></div>'+
-    '<div class="ri"><div class="rl">월 절감액</div>'+
-    '<div class="rv big '+(saving>0?'ok':'er')+'">'+fm(Math.abs(saving))+'<span style="font-size:13px"> 만원/월</span></div>'+
-    '<div style="font-size:11px;color:var(--g4);margin-top:2px">'+(saving>0?'절감':'오히려 증가')+'</div></div>'+
-    '<div class="ri"><div class="rl">중도상환수수료</div>'+
-    '<div class="rv">'+fm(fee)+'<span style="font-size:11px"> 만원</span></div>'+
-    '<div style="font-size:11px;color:var(--g4);margin-top:2px">잔액 '+fm(bal)+'만 × '+feeRate+'%'+(extra>0?' + 부대 '+fm(extra)+'만':'')+'</div></div>'+
-    (saving>0?'<div class="ri" style="'+(beSafe?'background:var(--okl)':'background:#fef9c3')+'">'+
-    '<div class="rl" style="color:'+(beSafe?'var(--ok)':'#854d0e')+'">⏱️ 손익분기점</div>'+
-    '<div class="rv big" style="color:'+(beSafe?'var(--ok)':'#854d0e')+'">'+breakEven+'<span style="font-size:13px"> 개월</span></div>'+
-    '<div style="font-size:11px;color:'+(beSafe?'var(--ok)':'#854d0e')+';margin-top:2px">'+
-    (breakEven<=12?'✅ 1년 안에 본전':breakEven<=36?'✅ 3년 안에 본전':breakEven<=60?'✅ 5년 안에 본전':'⚠️ 5년 후 손익분기')+
-    '</div></div>':'')+
-    '<div class="ri w"><div class="rl">기간별 순절감액</div>'+
-    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px">'+
-    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">1년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving1y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving1y)+'<span style="font-size:10px">만</span></div></div>'+
-    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">3년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving3y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving3y)+'<span style="font-size:10px">만</span></div></div>'+
-    '<div style="background:var(--g1);border-radius:8px;padding:8px;text-align:center"><div style="font-size:9px;color:var(--g4)">5년 후</div><div style="font-size:14px;font-weight:700;color:'+(netSaving5y>0?'var(--ok)':'var(--er)')+'">'+fm(netSaving5y)+'<span style="font-size:10px">만</span></div></div>'+
-    '</div></div>';
-  document.getElementById('refi-result').style.display='block';
-}
-
-/* ─────────────────────────────────────────────
-   카카오 공유하기
-───────────────────────────────────────────── */
-function saveKakaoKey(){
-  var key=(document.getElementById('kakao-app-key').value||'').trim();
-  var st=document.getElementById('kakao-key-status');
-  if(!key){st.style.display='block';st.style.color='var(--er)';st.textContent='앱 키를 입력해 주세요.';return;}
-  localStorage.setItem('kakao_app_key',key);
-  initKakao(key);
-  st.style.display='block';
-  if(typeof Kakao!=='undefined'&&Kakao.isInitialized()){
-    st.style.color='var(--ok)';st.textContent='✅ 카카오 앱 키가 저장됐습니다. 공유 버튼을 사용할 수 있어요!';
-  } else {
-    st.style.color='var(--er)';st.textContent='⚠️ 저장됐지만 초기화에 실패했습니다. 앱 키를 다시 확인해 주세요.';
-  }
-}
-
-function initKakao(key){
-  if(typeof Kakao==='undefined') return;
-  try{
-    if(Kakao.isInitialized()) Kakao.cleanup();
-    Kakao.init(key);
-  } catch(e){}
-}
-
-(function(){
-  var k=localStorage.getItem('kakao_app_key');
-  if(k){
-    var inp=document.getElementById('kakao-app-key');
-    if(inp) inp.value=k;
-    // Kakao SDK 로드 완료 후 초기화
-    function tryInit(){if(typeof Kakao!=='undefined'){initKakao(k);}else{setTimeout(tryInit,200);}}
-    if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',tryInit);}else{setTimeout(tryInit,0);}
-  }
-})();
-
-function kakaoShare(type){
-  var isMort=(type==='mort');
-  var data=isMort?_lastMort:_lastJeon;
-  if(!data){alert('먼저 계산하기를 눌러주세요.');return;}
-
-  // Kakao SDK 미초기화 → 앱 키 안내
-  if(typeof Kakao==='undefined'||!Kakao.isInitialized()){
-    var k=localStorage.getItem('kakao_app_key');
-    if(k){initKakao(k);}
-    if(typeof Kakao==='undefined'||!Kakao.isInitialized()){
-      if(confirm('카카오 앱 키가 등록되어 있지 않습니다.\n[업데이트] 탭 → [카카오 공유 설정]에서 앱 키를 등록하면 카카오톡으로 바로 공유할 수 있어요.\n\n지금 업데이트 탭으로 이동할까요?')){swTab(0);}
-      return;
-    }
-  }
-
-  var today=new Date();
-  var ds=today.getFullYear()+'.'+(today.getMonth()+1).toString().padStart(2,'0')+'.'+today.getDate().toString().padStart(2,'0');
-  var text='';
-  if(isMort){
-    var m=data;
-    text='🏦 주담대 예상 견적서 ('+ds+')\n';
-    text+='상품: '+(m.product||'').slice(0,25)+'\n';
-    text+='최대 한도: '+fm(Math.round(m.limit))+'만원\n';
-    text+='적용 금리: '+m.rate.toFixed(2)+'% ('+m.rateType+')\n';
-    text+='월 상환액: '+fm(Math.round(m.monthly))+'만원\n';
-    text+='대출 기간: '+m.term+'년\n';
-    text+='※ 참고용 예상치 · 실제 조건은 심사 후 확정';
-  } else {
-    var j=data;
-    text='🔑 전세대출 예상 견적서 ('+ds+')\n';
-    text+='보증사: '+(j.guarantor||'')+'\n';
-    text+='상품: '+(j.product||'').slice(0,25)+'\n';
-    text+='한도: '+fm(Math.round(j.limit))+'만원\n';
-    text+='적용 금리: '+j.rate.toFixed(2)+'%\n';
-    text+='월 이자: '+fm(Math.round(j.monthly))+'만원\n';
-    text+='※ 참고용 예상치 · 실제 조건은 심사 후 확정';
-  }
-
-  try{
-    Kakao.Share.sendDefault({
-      objectType:'text',
-      text:text,
-      link:{
-        mobileWebUrl:'https://jini-j.github.io/loan-jini/LOAN-JINI-v6-final.html',
-        webUrl:'https://jini-j.github.io/loan-jini/LOAN-JINI-v6-final.html'
-      },
-      buttons:[{
-        title:'LOAN-JINI 열기',
-        link:{
-          mobileWebUrl:'https://jini-j.github.io/loan-jini/LOAN-JINI-v6-final.html',
-          webUrl:'https://jini-j.github.io/loan-jini/LOAN-JINI-v6-final.html'
-        }
-      }]
-    });
-  } catch(e){
-    alert('카카오 공유 오류: '+e.message+'\n앱 키와 플랫폼 등록을 확인해 주세요.');
-  }
-}
-
-// ══ 견적서 이미지 생성 (Canvas PNG) ══
-function genEstimateImage(type){
-  var isMort=(type==='mort');
-  var data=isMort?_lastMort:_lastJeon;
-  if(!data){alert('먼저 계산하기를 눌러주세요.');return;}
-  var W=720,pad=20;
-  var lines=[];
-  var today=new Date();
-  var dateStr=today.getFullYear()+'.'+(today.getMonth()+1).toString().padStart(2,'0')+'.'+today.getDate().toString().padStart(2,'0');
-
-  // 높이 계산용 캔버스
-  var cv=document.createElement('canvas'); cv.width=W;
-  var ctx=cv.getContext('2d');
-  function wrapText(text,maxW){
-    ctx.font='11px sans-serif';
-    var words=text.split(''),line='',out=[];
-    for(var i=0;i<words.length;i++){var test=line+words[i];if(ctx.measureText(test).width>maxW&&line){out.push(line);line=words[i];}else line=test;}
-    if(line)out.push(line);return out;
-  }
-
-  var H=80+20; // header
-  var sections=[];
-  function addSection(label,value,sub,bg){H+=90;sections.push({label:label,value:value,sub:sub,bg:bg||'#f9fafb'});}
-
-  if(isMort){
-    var m=data;
-    H+=50; // 상품명 영역
-    addSection('적용 금리 (예상)',m.rate.toFixed(2)+'%','금리유형: '+m.rateType+(m.stressRate?' · 스트레스 +'+((m.stressRate)*100).toFixed(1)+'%':''),'#eff6ff');
-    addSection('최대 대출 한도',fm(Math.round(m.limit))+' 만원','월 상환: '+fm(Math.round(m.monthly))+'만원 · 기존부채 DSR '+m.existDsr.toFixed(1)+'%');
-    if(m.extraDiff>0) addSection('기타대출 상환 시 한도',fm(Math.round(m.limit0))+' 만원','▲ '+fm(m.extraDiff)+'만원 증가 · 월 '+fm(Math.round(m.monthly0))+'만원','#f0fdf4');
-  } else {
-    var j=data;
-    H+=50;
-    addSection('적용 금리 (예상)',j.rate.toFixed(2)+'%','보증기관: '+j.guarantor,'#eff6ff');
-    addSection('최대 한도',fm(j.limit)+' 만원','월 이자: '+fm(Math.round(j.monthly))+'만원 · 보증료: '+j.annualFee.toFixed(2)+'%/년');
-  }
-  H+=110+30; // 면책+하단
-
-  cv.height=H;
-  ctx=cv.getContext('2d');
-
-  // 배경
-  ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,W,H);
-  // 헤더
-  ctx.fillStyle='#1a56db'; ctx.fillRect(0,0,W,70);
-  ctx.fillStyle='#ffffff'; ctx.font='bold 20px sans-serif'; ctx.textAlign='left';
-  ctx.fillText(isMort?'🏦 주택담보대출 예상 견적서':'🔑 전세자금대출 예상 견적서',pad,42);
-  ctx.font='12px sans-serif'; ctx.textAlign='right';
-  ctx.fillText(dateStr+' · LOAN-JINI',W-pad,42);
-
-  var y=80;
-  // 상품명
-  var d=isMort?data:data;
-  ctx.fillStyle='#1f2937'; ctx.font='bold 15px sans-serif'; ctx.textAlign='left';
-  ctx.fillText('📌 '+(isMort?d.product:d.product),pad,y+18);
-  y+=40;
-
-  // 섹션
-  sections.forEach(function(s){
-    ctx.fillStyle=s.bg;
-    ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(pad,y,W-pad*2,80,8); else ctx.rect(pad,y,W-pad*2,80);
-    ctx.fill();
-    ctx.fillStyle='#6b7280'; ctx.font='11px sans-serif'; ctx.textAlign='left';
-    ctx.fillText(s.label,pad+16,y+20);
-    ctx.fillStyle='#111827'; ctx.font='bold 22px sans-serif';
-    ctx.fillText(s.value,pad+16,y+50);
-    if(s.sub){ctx.fillStyle='#6b7280'; ctx.font='11px sans-serif'; ctx.fillText(s.sub,pad+16,y+68);}
-    y+=90;
-  });
-
-  y+=10;
-  // 면책문구
-  ctx.fillStyle='#fef9c3';
-  ctx.beginPath(); if(ctx.roundRect) ctx.roundRect(pad,y,W-pad*2,100,8); else ctx.rect(pad,y,W-pad*2,100);
-  ctx.fill();
-  ctx.fillStyle='#92400e'; ctx.font='bold 12px sans-serif'; ctx.textAlign='left';
-  ctx.fillText('⚠️ 반드시 확인하세요',pad+14,y+20);
-  ctx.fillStyle='#78350f'; ctx.font='11px sans-serif';
-  var disc=['본 자료는 참고용 예상치이며 실제 대출 금리·한도는 금융기관 심사 결과에 따라 달라질 수 있습니다.',
-            '금리·우대조건·규제사항 등이 변경될 수 있으므로 최종 조건은 해당 금융기관에 확인하세요.',
-            '본 견적서는 법적 효력이 없으며 내용 변경 또는 오용에 대해 책임지지 않습니다.'];
-  disc.forEach(function(l,i){ctx.fillText(l,pad+14,y+38+i*18);});
-  y+=110;
-  // 하단
-  ctx.fillStyle='#e5e7eb'; ctx.fillRect(pad,y,W-pad*2,1);
-  ctx.fillStyle='#9ca3af'; ctx.font='11px sans-serif'; ctx.textAlign='center';
-  ctx.fillText('LOAN-JINI 대출 계산기 · '+dateStr,W/2,y+18);
-
-  cv.toBlob(function(blob){
-    var fname='대출견적서_'+dateStr.replace(/\./g,'')+'.png';
-    if(navigator.share){
-      var file=new File([blob],fname,{type:'image/png'});
-      if(navigator.canShare&&navigator.canShare({files:[file]})){
-        navigator.share({title:'대출 예상 견적서',files:[file]}).catch(function(e){
-          if(e.name!=='AbortError'){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();}
-        });
-        return;
-      }
-    }
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=fname;a.click();
-  },'image/png');
-}
-
-
-// ── 서식함 (IndexedDB 기반 서류 보관/인쇄) ──
-var FORMS_DB_NAME='loanjini_forms_db', FORMS_STORE='forms';
-var _formsDB=null, _formPreviewId=null;
-function formsDBOpen(cb){
-  if(_formsDB){cb(_formsDB);return;}
-  if(!window.indexedDB){alert('이 브라우저는 서식함 저장을 지원하지 않습니다.');return;}
-  var req=indexedDB.open(FORMS_DB_NAME,1);
-  req.onupgradeneeded=function(e){
-    var db=e.target.result;
-    if(!db.objectStoreNames.contains(FORMS_STORE)){
-      db.createObjectStore(FORMS_STORE,{keyPath:'id',autoIncrement:true});
-    }
-  };
-  req.onsuccess=function(e){_formsDB=e.target.result;cb(_formsDB);};
-  req.onerror=function(){alert('서식함 저장소를 열 수 없습니다.');};
-}
-function formAdd(){
-  var nameEl=document.getElementById('form-name');
-  var fileInput=document.getElementById('form-file');
-  var name=(nameEl.value||'').trim();
-  var file=fileInput.files[0];
-  if(!name){alert('서식 이름을 입력해주세요');return;}
-  if(!file){alert('파일을 선택해주세요');return;}
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var item={name:name,fileName:file.name,mimeType:file.type||'',dataUrl:e.target.result,date:new Date().toISOString().slice(0,10)};
-    formsDBOpen(function(db){
-      var tx=db.transaction(FORMS_STORE,'readwrite');
-      tx.objectStore(FORMS_STORE).add(item);
-      tx.oncomplete=function(){
-        nameEl.value='';
-        fileInput.value='';
-        formsRender();
-      };
-      tx.onerror=function(){alert('저장 실패');};
-    });
-  };
-  reader.readAsDataURL(file);
-}
-function formsRender(){
-  var q=(document.getElementById('form-search')||{}).value||'';
-  q=q.trim();
-  formsDBOpen(function(db){
-    var tx=db.transaction(FORMS_STORE,'readonly');
-    var items=[];
-    var cursorReq=tx.objectStore(FORMS_STORE).openCursor();
-    cursorReq.onsuccess=function(e){
-      var cursor=e.target.result;
-      if(cursor){
-        items.push(cursor.value);
-        cursor.continue();
-      } else {
-        renderFormsList(items,q);
-      }
-    };
-  });
-}
-function renderFormsList(items,q){
-  var listEl=document.getElementById('forms-list');
-  if(!listEl) return;
-  if(q) items=items.filter(function(it){return it.name.indexOf(q)>=0;});
-  items.sort(function(a,b){return (b.id||0)-(a.id||0);});
-  if(items.length===0){
-    listEl.innerHTML='<div style="text-align:center;padding:30px 10px;color:var(--g4);font-size:13px">'+(q?'검색 결과가 없습니다':'저장된 서식이 없습니다')+'</div>';
-    return;
-  }
-  var html='';
-  items.forEach(function(it){
-    var icon=formFileIcon(it);
-    html+='<div onclick="formPreview('+it.id+')" style="display:flex;align-items:center;gap:10px;background:#fff;border-radius:10px;padding:12px;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);cursor:pointer">';
-    html+='<div style="font-size:24px">'+icon+'</div>';
-    html+='<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600;color:var(--g7);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+it.name+'</div><div style="font-size:11px;color:var(--g4);margin-top:2px">'+it.date+'</div></div>';
-    html+='<div style="font-size:18px;color:var(--g4)">›</div>';
-    html+='</div>';
-  });
-  listEl.innerHTML=html;
-}
-// ── 파일 형식 판별 (mimeType + 확장자 기준) ──
-function formFileKind(it){
-  var mt=(it.mimeType||'').toLowerCase();
-  var fn=(it.fileName||'').toLowerCase();
-  if(mt.indexOf('pdf')>=0||/\.pdf$/.test(fn)) return 'pdf';
-  if(mt.indexOf('image')>=0||/\.(png|jpe?g|gif|webp|bmp|heic)$/.test(fn)) return 'image';
-  return 'other';
-}
-function formFileIcon(it){
-  var k=formFileKind(it);
-  if(k==='pdf') return '📄';
-  if(k==='image') return '🖼️';
-  var fn=(it.fileName||'').toLowerCase();
-  if(/\.(doc|docx|hwp|hwpx)$/.test(fn)) return '📝';
-  if(/\.(xls|xlsx)$/.test(fn)) return '📊';
-  return '📎';
-}
-function formPreview(id){
-  _formPreviewId=id;
-  formsDBOpen(function(db){
-    var tx=db.transaction(FORMS_STORE,'readonly');
-    tx.objectStore(FORMS_STORE).get(id).onsuccess=function(e){
-      var it=e.target.result;
-      if(!it)return;
-      document.getElementById('form-preview-title').textContent=it.name;
-      var body=document.getElementById('form-preview-body');
-      var kind=formFileKind(it);
-      var printBtn=document.getElementById('form-print-btn');
-      if(kind==='pdf'){
-        // dataUrl → Blob URL (모바일에서 embed+dataUrl 미지원 우회)
-        try{
-          var b64=it.dataUrl.split(',')[1];
-          var bin=atob(b64);
-          var arr=new Uint8Array(bin.length);
-          for(var bi=0;bi<bin.length;bi++) arr[bi]=bin.charCodeAt(bi);
-          var blob=new Blob([arr],{type:'application/pdf'});
-          var blobUrl=URL.createObjectURL(blob);
-          body.innerHTML='<iframe src="'+blobUrl+'" style="width:100%;height:65vh;border:none" id="form-pdf-iframe"></iframe>'+
-            '<div style="text-align:center;margin-top:8px"><a href="'+blobUrl+'" target="_blank" style="font-size:12px;color:var(--p)">새 탭에서 열기 →</a></div>';
-        }catch(e){
-          body.innerHTML='<div style="padding:30px 16px;font-size:13px;color:var(--g5)">PDF를 불러올 수 없습니다.<br>아래 다운로드 버튼을 이용해주세요.</div>';
-        }
-        if(printBtn){printBtn.textContent='🖨️ 인쇄';printBtn.onclick=formPrint;}
-      } else if(kind==='image'){
-        body.innerHTML='<img src="'+it.dataUrl+'" style="max-width:100%;border-radius:8px">';
-        if(printBtn){printBtn.textContent='🖨️ 인쇄';printBtn.onclick=formPrint;}
-      } else {
-        body.innerHTML='<div style="padding:40px 16px;color:var(--g5);font-size:13px;line-height:1.8">📎 <b>'+(it.fileName||it.name)+'</b><br><br>이 파일 형식은 앱 내 미리보기를 지원하지 않습니다.<br>아래 버튼으로 다운로드한 뒤 워드/한글 프로그램에서 열어 인쇄해주세요.</div>';
-        if(printBtn){printBtn.textContent='⬇️ 다운로드';printBtn.onclick=formDownload;}
-      }
-      document.getElementById('form-preview-modal').style.display='block';
-    };
-  });
-}
-function formDownload(){
-  if(_formPreviewId===null)return;
-  formsDBOpen(function(db){
-    var tx=db.transaction(FORMS_STORE,'readonly');
-    tx.objectStore(FORMS_STORE).get(_formPreviewId).onsuccess=function(e){
-      var it=e.target.result;
-      if(!it)return;
-      var a=document.createElement('a');
-      a.href=it.dataUrl;
-      a.download=it.fileName||it.name;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    };
-  });
-}
-function formPreviewClose(){
-  document.getElementById('form-preview-modal').style.display='none';
-  _formPreviewId=null;
-}
-function formPrint(){
-  if(_formPreviewId===null)return;
-  formsDBOpen(function(db){
-    var tx=db.transaction(FORMS_STORE,'readonly');
-    tx.objectStore(FORMS_STORE).get(_formPreviewId).onsuccess=function(e){
-      var it=e.target.result;
-      if(!it)return;
-      var w=window.open('','_blank');
-      if(!w){alert('팝업이 차단되었습니다. 팝업 허용 후 다시 시도해주세요.');return;}
-      var isPdf=formFileKind(it)==='pdf';
-      if(isPdf){
-        try{
-          var b64p=it.dataUrl.split(',')[1];
-          var binp=atob(b64p);
-          var arrp=new Uint8Array(binp.length);
-          for(var bj=0;bj<binp.length;bj++) arrp[bj]=binp.charCodeAt(bj);
-          var blobp=new Blob([arrp],{type:'application/pdf'});
-          var blobUrlP=URL.createObjectURL(blobp);
-          w.location.href=blobUrlP;
-          setTimeout(function(){try{w.focus();w.print();}catch(e){}},1200);
-        }catch(e2){
-          w.document.write('<html><head><title>'+it.name+'</title></head><body style="margin:0"><embed src="'+it.dataUrl+'" type="application/pdf" style="width:100%;height:100vh;border:none"></body></html>');
-          w.document.close();
-          setTimeout(function(){try{w.focus();w.print();}catch(e){}},800);
-        }
-      } else {
-        w.document.write('<html><head><title>'+it.name+'</title></head><body style="margin:0;text-align:center"><img src="'+it.dataUrl+'" style="max-width:100%" onload="window.focus();window.print()"></body></html>');
-        w.document.close();
-      }
-    };
-  });
-}
-function formDelete(){
-  if(_formPreviewId===null)return;
-  if(!confirm('이 서식을 삭제하시겠습니까?'))return;
-  var delId=_formPreviewId;
-  formsDBOpen(function(db){
-    var tx=db.transaction(FORMS_STORE,'readwrite');
-    tx.objectStore(FORMS_STORE).delete(delId);
-    tx.oncomplete=function(){
-      formPreviewClose();
-      formsRender();
-    };
-  });
-}
-
-
-
-// ── 전체 데이터 백업 / 복원 ──
-var BACKUP_LS_KEYS=['lj_crm_v1','loan_rates','apt_data','apt_data_prev','update_log','tabOrder','tabHidden','kakao_app_key'];
-function backupExport(){
-  var st=document.getElementById('backup-status');
-  if(st) st.textContent='⏳ 백업 파일 생성 중...';
-  var data={version:1,date:new Date().toISOString(),localStorage:{},forms:[]};
-  BACKUP_LS_KEYS.forEach(function(k){
-    var v=localStorage.getItem(k);
-    if(v!==null) data.localStorage[k]=v;
-  });
-  function finish(){
-    var json=JSON.stringify(data);
-    var blob=new Blob([json],{type:'application/json'});
-    var url=URL.createObjectURL(blob);
-    var a=document.createElement('a');
-    var dateStr=new Date().toISOString().slice(0,10);
-    a.href=url; a.download='LOAN-JINI_백업_'+dateStr+'.json'; a.style.display='none';
-    document.body.appendChild(a); a.click();
-    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(url);},2000);
-    if(st) st.textContent='✅ 백업 완료: '+a.download;
-  }
-  if(window.indexedDB){
-    formsDBOpen(function(db){
-      try{
-        var tx=db.transaction(FORMS_STORE,'readonly');
-        var items=[];
-        var cursorReq=tx.objectStore(FORMS_STORE).openCursor();
-        cursorReq.onsuccess=function(e){
-          var cursor=e.target.result;
-          if(cursor){ items.push(cursor.value); cursor.continue(); }
-          else { data.forms=items; finish(); }
-        };
-        cursorReq.onerror=finish;
-      }catch(e){finish();}
-    });
-  } else {
-    finish();
-  }
-}
-function backupRestore(input){
-  var file=input.files[0];
-  if(!file) return;
-  if(!confirm('백업 파일로 복원하면 현재 저장된 고객정보·서식함·설정이 백업 시점 데이터로 모두 교체됩니다.\n계속할까요?')){
-    input.value='';
-    return;
-  }
-  var st=document.getElementById('backup-status');
-  var reader=new FileReader();
-  reader.onload=function(e){
-    var data;
-    try{ data=JSON.parse(e.target.result); }
-    catch(err){ alert('백업 파일을 읽을 수 없습니다.'); input.value=''; return; }
-    if(!data||typeof data.localStorage!=='object'){ alert('올바른 백업 파일이 아닙니다.'); input.value=''; return; }
-    Object.keys(data.localStorage).forEach(function(k){
-      localStorage.setItem(k,data.localStorage[k]);
-    });
-    function done(){
-      if(st) st.textContent='✅ 복원 완료! 잠시 후 새로고침됩니다...';
-      setTimeout(function(){location.reload();},1000);
-    }
-    if(Array.isArray(data.forms)&&window.indexedDB){
-      formsDBOpen(function(db){
-        try{
-          var tx=db.transaction(FORMS_STORE,'readwrite');
-          var store=tx.objectStore(FORMS_STORE);
-          var clearReq=store.clear();
-          clearReq.onsuccess=function(){
-            data.forms.forEach(function(item){
-              var copy=Object.assign({},item);
-              delete copy.id;
-              store.add(copy);
-            });
-          };
-          tx.oncomplete=done;
-          tx.onerror=done;
-        }catch(e){done();}
-      });
-    } else {
-      done();
-    }
-  };
-  reader.readAsText(file);
-}
-
-
-
-// ── 바로가기 링크 ──
-function openLink(url){
-  window.open(url,'_blank');
-}
-
-
-
-// ── 대출서류 안내에 발급처 정보 통합 표시 ──
-var DOC_ISSUER=[
-  ['신분증','본인 확인 (주민등록증·운전면허증·여권)'],
-  ['재직증명서','회사 인사팀'],
-  ['소득금액증명원','홈택스 / 세무서'],
-  ['소득확인증명서','홈택스'],
-  ['원천징수영수증','홈택스 / 회사 인사팀'],
-  ['급여명세표','회사 인사팀'],
-  ['사업자등록증명원','홈택스 / 세무서'],
-  ['종합소득세','홈택스'],
-  ['확정신고납부서','홈택스 / 세무서'],
-  ['주민등록등본','정부24 / 주민센터'],
-  ['주민등록초본','정부24 / 주민센터'],
-  ['인감도장','주민센터 (방문 필수)'],
-  ['인감증명서','주민센터 (방문 필수)'],
-  ['가족관계증명서','정부24 / 주민센터'],
-  ['건물 등기사항전부증명서','대법원 인터넷등기소'],
-  ['등기사항전부증명서','대법원 인터넷등기소'],
-  ['등기권리증','본인 보관 (분실 시 매도인 확인)'],
-  ['매매계약서','본인 보관 (공인중개사)'],
-  ['전입세대열람내역','주민센터 (방문 필수)'],
-  ['확정일자 전세계약서','주민센터 / 법원 (확정일자)'],
-  ['임대소득','홈택스 / 임대차계약서'],
-  ['연금수령확인서','국민연금공단 / 정부24']
-];
-function findIssuerSingle(name){
-  for(var i=0;i<DOC_ISSUER.length;i++){
-    if(name.indexOf(DOC_ISSUER[i][0])>=0) return DOC_ISSUER[i][1];
-  }
-  return '-';
-}
-function findIssuer(name){
-  var parts=name.split(/[,·]/).map(function(s){return s.trim();}).filter(Boolean);
-  if(parts.length>1){
-    var results=[];
-    parts.forEach(function(p){
-      var iss=findIssuerSingle(p);
-      if(iss!=='-'&&results.indexOf(iss)<0) results.push(iss);
-    });
-    return results.length?results.join(' / '):'-';
-  }
-  return findIssuerSingle(name);
-}
-function addDocIssuerCols(){
-  ['dp0','dp1','dp2'].forEach(function(pid){
-    var panel=document.getElementById(pid);
-    if(!panel) return;
-    var table=panel.querySelector('table');
-    if(!table||table.dataset.issuerAdded) return;
-    table.dataset.issuerAdded='1';
-    var headRow=table.querySelector('thead tr');
-    if(headRow){
-      var th=document.createElement('th');
-      th.setAttribute('style','background:var(--g2);padding:7px 6px;text-align:left;font-size:11px;color:var(--g5);border-bottom:1px solid var(--g3)');
-      th.textContent='발급처';
-      headRow.appendChild(th);
-    }
-    table.querySelectorAll('tbody tr').forEach(function(tr){
-      var tds=tr.querySelectorAll('td');
-      if(tds.length<2) return;
-      var name=tds[0].textContent.replace(/^└\s*/,'').trim();
-      var td=document.createElement('td');
-      td.setAttribute('style','padding:8px 6px;color:var(--g5);font-size:10px;line-height:1.4');
-      td.textContent=findIssuer(name);
-      tr.appendChild(td);
-    });
-  });
-}
-
-
-// ── 장래예상소득 만기구간 선택 ──
-function setFiTerm(idx){
-  _fiTermIdx=idx;
-  [0,1,2,3].forEach(function(i){
-    var b=document.getElementById('fi-term-'+i);
-    if(!b)return;
-    if(i===idx){b.style.background='var(--p)';b.style.borderColor='var(--p)';b.style.color='#fff';b.style.fontWeight='700';}
-    else{b.style.background='var(--g1)';b.style.borderColor='var(--g3)';b.style.color='var(--g6)';b.style.fontWeight='600';}
-  });
-  // 참고표 증가율 갱신
-  FI_TABLE.forEach(function(r){
-    var el=document.getElementById(r.rowId+'-rate');
-    if(el) el.textContent=r.rates[idx]+'%';
-  });
-  calcFutureIncome();
-}
-
-</script>
 </body>
 </html>
