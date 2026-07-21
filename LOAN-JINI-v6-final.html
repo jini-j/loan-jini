@@ -324,16 +324,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div style="margin:12px 0 6px;font-size:11px;font-weight:700;color:var(--g4);text-transform:uppercase;letter-spacing:.5px">LTV 한도 (일반거래가 기준)</div>
     <div id="ltvd"></div>
   </div>
-</div>
-
-
 
 <!-- ══ 건축물대장 조회 카드 ══ -->
-<div class="card" id="bld-card" style="margin-top:12px">
+<div class="card" id="bld-card" style="margin-top:0">
   <div class="ct">🏢 건축물대장 조회</div>
   <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--p)">
     📌 지번(번지) 주소로 용도·승인일·위반건축물 여부를 확인합니다
   </div>
+
+  <!-- 10자리 통합코드 자동분리 -->
+  <div class="f">
+    <label>법정동 코드 자동입력 <span style="font-size:10px;color:var(--g4)">(10자리 붙여넣기 → 자동분리)</span></label>
+    <div style="display:flex;gap:6px">
+      <input type="text" id="bld-fullcode" maxlength="10" inputmode="numeric" placeholder="예: 1168010100" style="flex:1;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px" oninput="if(this.value.replace(/\D/g,'').length===10)bldAutoFill()">
+      <button onclick="bldAutoFill()" style="padding:10px 14px;background:var(--p);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap">자동입력</button>
+    </div>
+    <div style="font-size:10px;color:var(--g4);margin-top:4px">💡 <a href="https://www.code.go.kr/stdcode/regCodeL.do" target="_blank" style="color:var(--p)">행정표준코드 검색</a>에서 법정동 찾아 10자리 코드 붙여넣기</div>
+  </div>
+  <div style="border-top:1px dashed var(--g3);margin:8px 0 12px;position:relative"><span style="position:absolute;left:50%;transform:translateX(-50%);top:-9px;background:#fff;padding:0 8px;font-size:11px;color:var(--g4)">또는 직접 입력</span></div>
 
   <div class="f">
     <label>시도</label>
@@ -385,8 +393,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
     <div class="f">
-      <label>법정동코드 <span style="font-size:10px;color:var(--g4)">(5자리)</span></label>
-      <input type="text" id="bld-bjdong" maxlength="5" placeholder="예: 01500" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+      <label>법정동코드 <span style="font-size:10px;color:var(--g4)">(10자리 중 끝 5자리)</span></label>
+      <input type="text" id="bld-bjdong" maxlength="5" placeholder="예: 10100" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
     </div>
     <div class="f">
       <label>동 이름 <span style="font-size:10px;color:var(--g4)">(참고용)</span></label>
@@ -412,6 +420,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
 
   <button class="cbtn" onclick="fetchBldInfo()" style="width:100%">🔍 건축물대장 조회</button>
   <div id="bld-result" style="display:none;margin-top:14px"></div>
+</div>
 </div>
 
 <!-- ══ 주담대 탭 ══ -->
@@ -5574,6 +5583,28 @@ function refiCalc(force){
 ───────────────────────────────────────────── */
 
 /* ═══ 건축물대장 조회 ═══ */
+function bldAutoFill(){
+  var code = (document.getElementById('bld-fullcode').value||'').replace(/\D/g,'');
+  if(code.length !== 10){ alert('10자리 숫자 코드를 입력해주세요.\n예: 1168010100 (서울 강남구 역삼동)'); return; }
+  var siDo   = code.substring(0,2);
+  var siGunGu = code.substring(2,5);
+  var bjdong  = code.substring(5,10);
+  // 시도 드롭다운 설정
+  var sidoSel = document.getElementById('bld-sido');
+  sidoSel.value = siDo;
+  bldSidoChange();
+  // 서울(11)이면 구 드롭다운, 나머지면 직접입력
+  if(siDo === '11'){
+    document.getElementById('bld-gu-sel').value = siGunGu;
+  } else {
+    document.getElementById('bld-gungu').value = siGunGu;
+  }
+  document.getElementById('bld-bjdong').value = bjdong;
+  // 안내
+  var fc = document.getElementById('bld-fullcode');
+  fc.style.borderColor = 'var(--ok)';
+  setTimeout(function(){ fc.style.borderColor = 'var(--g3)'; }, 1500);
+}
 function bldSidoChange(){
   var sido = document.getElementById('bld-sido').value;
   var guRow = document.getElementById('bld-gu-row');
