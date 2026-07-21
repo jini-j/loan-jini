@@ -326,6 +326,94 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
   </div>
 </div>
 
+
+
+<!-- ══ 건축물대장 조회 카드 ══ -->
+<div class="card" id="bld-card" style="margin-top:12px">
+  <div class="ct">🏢 건축물대장 조회</div>
+  <div style="background:var(--pl);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:var(--p)">
+    📌 지번(번지) 주소로 용도·승인일·위반건축물 여부를 확인합니다
+  </div>
+
+  <div class="f">
+    <label>시도</label>
+    <select id="bld-sido" onchange="bldSidoChange()" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px;background:#fff">
+      <option value="11">서울특별시</option>
+      <option value="26">부산광역시</option>
+      <option value="27">대구광역시</option>
+      <option value="28">인천광역시</option>
+      <option value="29">광주광역시</option>
+      <option value="30">대전광역시</option>
+      <option value="31">울산광역시</option>
+      <option value="36">세종특별자치시</option>
+      <option value="41">경기도</option>
+      <option value="42">강원특별자치도</option>
+      <option value="43">충청북도</option>
+      <option value="44">충청남도</option>
+      <option value="45">전북특별자치도</option>
+      <option value="46">전라남도</option>
+      <option value="47">경상북도</option>
+      <option value="48">경상남도</option>
+      <option value="50">제주특별자치도</option>
+    </select>
+  </div>
+
+  <!-- 서울: 구 드롭다운 | 기타: 시군구코드 직접입력 -->
+  <div class="f" id="bld-gu-row">
+    <label>구/군 선택 <span style="font-size:10px;color:var(--g4)">(서울)</span></label>
+    <select id="bld-gu-sel" onchange="bldGuChange()" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px;background:#fff">
+      <option value="">-- 구 선택 --</option>
+      <option value="680">강남구</option><option value="740">강동구</option>
+      <option value="305">강북구</option><option value="500">강서구</option>
+      <option value="620">관악구</option><option value="215">광진구</option>
+      <option value="530">구로구</option><option value="545">금천구</option>
+      <option value="350">노원구</option><option value="320">도봉구</option>
+      <option value="230">동대문구</option><option value="590">동작구</option>
+      <option value="440">마포구</option><option value="410">서대문구</option>
+      <option value="650">서초구</option><option value="200">성동구</option>
+      <option value="290">성북구</option><option value="710">송파구</option>
+      <option value="470">양천구</option><option value="560">영등포구</option>
+      <option value="140">용산구</option><option value="380">은평구</option>
+      <option value="110">종로구</option><option value="120">중구</option>
+      <option value="260">중랑구</option>
+    </select>
+  </div>
+  <div class="f" id="bld-gungu-row" style="display:none">
+    <label>시군구코드 <span style="font-size:10px;color:var(--g4)">(3자리, 예: 030)</span></label>
+    <input type="text" id="bld-gungu" maxlength="3" placeholder="예: 030" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="f">
+      <label>법정동코드 <span style="font-size:10px;color:var(--g4)">(5자리)</span></label>
+      <input type="text" id="bld-bjdong" maxlength="5" placeholder="예: 01500" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+    </div>
+    <div class="f">
+      <label>동 이름 <span style="font-size:10px;color:var(--g4)">(참고용)</span></label>
+      <input type="text" id="bld-dong-name" placeholder="예: 상암동" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div class="f">
+      <label>번 <span style="font-size:10px;color:var(--g4)">(본번)</span></label>
+      <input type="number" id="bld-bun" placeholder="예: 1595" min="0" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+    </div>
+    <div class="f">
+      <label>지 <span style="font-size:10px;color:var(--g4)">(부번, 없으면 0)</span></label>
+      <input type="number" id="bld-ji" placeholder="0" min="0" value="0" style="width:100%;padding:10px;border:1.5px solid var(--g3);border-radius:10px;font-size:14px">
+    </div>
+  </div>
+
+  <div style="font-size:11px;color:var(--g4);margin:-4px 0 10px">
+    💡 법정동코드 모르면 →
+    <a href="https://www.code.go.kr/stdcode/regCodeL.do" target="_blank" style="color:var(--p)">행정표준코드 검색</a>
+  </div>
+
+  <button class="cbtn" onclick="fetchBldInfo()" style="width:100%">🔍 건축물대장 조회</button>
+  <div id="bld-result" style="display:none;margin-top:14px"></div>
+</div>
+
 <!-- ══ 주담대 탭 ══ -->
 <div class="panel" id="tab-m">
   <div class="card">
@@ -5484,6 +5572,137 @@ function refiCalc(force){
 /* ─────────────────────────────────────────────
    카카오 공유하기
 ───────────────────────────────────────────── */
+
+/* ═══ 건축물대장 조회 ═══ */
+function bldSidoChange(){
+  var sido = document.getElementById('bld-sido').value;
+  var guRow = document.getElementById('bld-gu-row');
+  var gunguRow = document.getElementById('bld-gungu-row');
+  if(sido === '11'){
+    guRow.style.display = '';
+    gunguRow.style.display = 'none';
+  } else {
+    guRow.style.display = 'none';
+    gunguRow.style.display = '';
+  }
+}
+function bldGuChange(){
+  // 구 선택 시 법정동코드 힌트 초기화
+  document.getElementById('bld-bjdong').value = '';
+  document.getElementById('bld-dong-name').value = '';
+}
+async function fetchBldInfo(){
+  var sido = document.getElementById('bld-sido').value;
+  var gungu, guSel = document.getElementById('bld-gu-sel').value;
+  if(sido === '11'){
+    if(!guSel){alert('구를 선택해주세요.');return;}
+    gungu = guSel;
+  } else {
+    gungu = (document.getElementById('bld-gungu').value||'').trim();
+    if(gungu.length !== 3){alert('시군구코드 3자리를 입력해주세요.');return;}
+  }
+  var bjdong = (document.getElementById('bld-bjdong').value||'').trim();
+  if(bjdong.length !== 5){alert('법정동코드 5자리를 입력해주세요.');return;}
+  var bun = parseInt(document.getElementById('bld-bun').value)||0;
+  var ji  = parseInt(document.getElementById('bld-ji').value)||0;
+  if(!bun){alert('번(본번)을 입력해주세요.');return;}
+
+  var res = document.getElementById('bld-result');
+  res.style.display = 'block';
+  res.innerHTML = '<div style="text-align:center;padding:20px;color:var(--g4)">⏳ 조회 중...</div>';
+
+  var prx = 'https://corsproxy.io/?';
+  var baseParams = '?serviceKey=' + encodeURIComponent(LOAN_API_KEY)
+    + '&siDoCode=' + sido
+    + '&siGunGuCode=' + gungu
+    + '&bjdongCode=' + bjdong
+    + '&bun=' + String(bun).padStart(4,'0')
+    + '&ji='  + String(ji).padStart(4,'0')
+    + '&numOfRows=5&pageNo=1&_type=json';
+  var urlBasis = 'https://apis.data.go.kr/1613000/ArchPmsService_v2/getApBasisOulnInfo' + baseParams;
+  var urlTitle = 'https://apis.data.go.kr/1613000/ArchPmsService_v2/getApTitleInfo' + baseParams;
+
+  try{
+    var [jsonBasis, jsonTitle] = await Promise.all([
+      fetch(prx + encodeURIComponent(urlBasis), {signal:AbortSignal.timeout(15000)}).then(r=>r.json()).catch(()=>null),
+      fetch(prx + encodeURIComponent(urlTitle), {signal:AbortSignal.timeout(15000)}).then(r=>r.json()).catch(()=>null)
+    ]);
+    var body = jsonBasis && jsonBasis.response && jsonBasis.response.body;
+    var items = body && body.items && body.items.item;
+    if(!items){ res.innerHTML = renderBldError('조회 결과 없음 — 코드·번지를 확인해주세요'); return; }
+    if(!Array.isArray(items)) items = [items];
+
+    var titleBody = jsonTitle && jsonTitle.response && jsonTitle.response.body;
+    var titleItems = titleBody && titleBody.items && titleBody.items.item;
+    if(titleItems && !Array.isArray(titleItems)) titleItems = [titleItems];
+
+    res.innerHTML = items.map(function(d,i){ return renderBldCard(d, titleItems && titleItems[i]); }).join('');
+  } catch(e){
+    res.innerHTML = renderBldError('조회 실패: ' + e.message);
+  }
+}
+function renderBldCard(d, titleData){
+  var today = new Date();
+  var useDay = d.useAprDay ? String(d.useAprDay) : '';
+  var age = '';
+  if(useDay.length >= 4){
+    var yr = parseInt(useDay.substring(0,4));
+    age = ' (' + (today.getFullYear() - yr) + '년)';
+  }
+  var useDate = useDay.length>=8 ? useDay.substring(0,4)+'.'+useDay.substring(4,6)+'.'+useDay.substring(6,8) : (useDay||'-');
+  var mainPurp = d.mainPurpsCdNm || d.etcPurps || '-';
+  var totArea  = d.totArea ? parseFloat(d.totArea).toFixed(1) + ' ㎡' : '-';
+  var platArea = d.platArea ? parseFloat(d.platArea).toFixed(1) + ' ㎡' : '-';
+  var grnd = d.grndFlrCnt || '-';
+  var ugnd = d.ugrndFlrCnt || 0;
+  var hhld = d.hhldCnt || '-';
+  var bcRat = d.bcRat ? parseFloat(d.bcRat).toFixed(1)+'%' : '-';
+  var vlRat = d.vlRat ? parseFloat(d.vlRat).toFixed(1)+'%' : '-';
+  var bldNm = d.bldNm || d.platPlcNm || '건축물';
+
+  // ── 위반건축물 여부: 표제부(getApTitleInfo) 응답으로 판별 ──
+  var isViol = false, violMsg = '', itgType = '';
+  if(titleData){
+    var rgNm = titleData.regstrGbCdNm || '';
+    var vlot  = String(titleData.vlotAr || '');
+    // regstrGbCdNm에 '위반' 포함 또는 vlotAr 값이 Y/1
+    if(rgNm.indexOf('위반') >= 0){ isViol = true; violMsg = rgNm; }
+    else if(vlot === 'Y' || vlot === '1'){ isViol = true; violMsg = '위반건축물'; }
+    // 집합건물 유형
+    itgType = titleData.itgBldGbCdNm || '';
+  }
+  var violBlock = titleData
+    ? (isViol
+        ? '<div style="margin-top:10px;padding:10px 12px;background:#fef2f2;border:1.5px solid #fca5a5;border-radius:8px;font-size:13px;color:#dc2626;font-weight:700">🚨 위반건축물 해당 — ' + violMsg + '</div>'
+        : '<div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;font-size:13px;color:#16a34a;font-weight:700">✅ 위반건축물 아님</div>')
+    : '<div style="margin-top:10px;padding:8px 10px;background:#fef9c3;border-radius:8px;font-size:11px;color:#854d0e">⚠️ 위반여부 조회 실패 — 건축HUB(eais.go.kr) 확인 필요</div>';
+
+  return '<div style="background:var(--g1);border-radius:12px;padding:14px;margin-bottom:10px">'
+    + '<div style="font-size:13px;font-weight:700;color:var(--g7);margin-bottom:10px">🏢 ' + bldNm + '</div>'
+    + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+    + bldCell('주용도', mainPurp, mainPurp.indexOf('위반')>=0?'var(--er)':'var(--g7)')
+    + bldCell('사용승인일', useDate + age, parseInt(age)>=30?'#c2410c':'var(--g7)')
+    + bldCell('연면적', totArea, 'var(--g7)')
+    + bldCell('대지면적', platArea, 'var(--g7)')
+    + bldCell('지상층수', grnd + '층' + (ugnd?'/지하'+ugnd+'층':''), 'var(--g7)')
+    + bldCell('세대수', hhld + (hhld!=='-'?' 세대':''), 'var(--g7)')
+    + bldCell('건폐율', bcRat, 'var(--g7)')
+    + bldCell('용적률', vlRat, 'var(--g7)')
+    + (itgType ? bldCell('건물유형', itgType, 'var(--p)') : '')
+    + '</div>'
+    + violBlock
+    + '</div>';
+}
+function bldCell(label, val, color){
+  return '<div style="background:#fff;border-radius:8px;padding:8px 10px">'
+    + '<div style="font-size:10px;color:var(--g4);margin-bottom:2px">' + label + '</div>'
+    + '<div style="font-size:13px;font-weight:700;color:' + (color||'var(--g7)') + '">' + val + '</div>'
+    + '</div>';
+}
+function renderBldError(msg){
+  return '<div style="background:#fff1f2;border-radius:10px;padding:12px;color:#be123c;font-size:13px">❌ ' + msg + '</div>';
+}
+
 function saveKakaoKey(){
   var key=(document.getElementById('kakao-app-key').value||'').trim();
   var st=document.getElementById('kakao-key-status');
