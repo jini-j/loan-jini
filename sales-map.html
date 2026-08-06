@@ -399,7 +399,7 @@ function prx(url){
   return proxies[0]+encodeURIComponent(url);
 }
 function fetchWithFallback(url){
-  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
+  var proxies=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
   function tryNext(i){
     if(i>=proxies.length) return Promise.resolve(null);
     return fetch(proxies[i]+encodeURIComponent(url),{
