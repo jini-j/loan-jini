@@ -394,20 +394,28 @@ function toggleCmp(){
 
 /* ═══ API ═══ */
 function buildUrl(ep,code,ym,rows){return 'https://apis.data.go.kr/1613000/'+ep+'/get'+ep+'?serviceKey='+encodeURIComponent(API_KEY)+'&pageNo=1&numOfRows='+(rows||1)+'&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';}
-function prx(url){
-  var proxies=['https://corsproxy.io/?','https://api.allorigins.win/raw?url='];
-  return proxies[0]+encodeURIComponent(url);
-}
+// CORS 프록시 목록 (순서대로 시도)
+var CORS_PROXIES=[
+  'https://api.allorigins.win/raw?url=',
+  'https://corsproxy.io/?',
+  'https://api.codetabs.com/v1/proxy?quest='
+];
 function fetchWithFallback(url){
-  var proxies=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
   function tryNext(i){
-    if(i>=proxies.length) return Promise.resolve(null);
-    return fetch(proxies[i]+encodeURIComponent(url),{
-      signal:(function(){try{return AbortSignal.timeout(8000);}catch(e){return undefined;}})()
-    }).then(function(r){
-      if(!r.ok) throw new Error('HTTP '+r.status);
-      return r.json();
-    }).catch(function(){return tryNext(i+1);});
+    if(i>=CORS_PROXIES.length) return Promise.resolve(null);
+    var sig=(function(){try{return AbortSignal.timeout(12000);}catch(e){return undefined;}})();
+    return fetch(CORS_PROXIES[i]+encodeURIComponent(url),{signal:sig})
+      .then(function(r){
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        return r.text();
+      })
+      .then(function(txt){
+        try{return JSON.parse(txt);}catch(e){throw new Error('JSON parse fail');}
+      })
+      .catch(function(e){
+        console.log('프록시['+i+'] 실패:',CORS_PROXIES[i],e.message||e);
+        return tryNext(i+1);
+      });
   }
   return tryNext(0);
 }

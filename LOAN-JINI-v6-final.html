@@ -1335,17 +1335,20 @@ function fetchRealTrade(guName,aptName,area,cb){
   var code=GU_CODES[guName];
   if(!code){cb(null);return;}
   var yms=getRTYMs(3);
-  // CORS 프록시 우선순위 (allorigins 우선 - corsproxy.io가 한국 정부API 403 차단)
-  var proxies=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?'];
-  var proxyIdx=0;
+  var CORS_PROXIES=['https://api.allorigins.win/raw?url=','https://corsproxy.io/?','https://api.codetabs.com/v1/proxy?quest='];
   var all=[],done=0,total=yms.length;
 
-  function tryFetch(ym, prx){
+  function tryFetch(ym, pi){
+    if(pi>=CORS_PROXIES.length){if(++done===total) cb(all.length?all:null);return;}
     var url='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    var sig=(function(){try{return AbortSignal.timeout(15000);}catch(e){return undefined;}})();
-    fetch(prx+encodeURIComponent(url),{signal:sig})
-      .then(function(r){return r.json();})
-      .then(function(data){
+    var sig=(function(){try{return AbortSignal.timeout(12000);}catch(e){return undefined;}})();
+    fetch(CORS_PROXIES[pi]+encodeURIComponent(url),{signal:sig})
+      .then(function(r){
+        if(!r.ok) throw new Error('HTTP '+r.status);
+        return r.text();
+      })
+      .then(function(txt){
+        var data=JSON.parse(txt);
         var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
         if(!Array.isArray(items)) items=items?[items]:[];
         items.forEach(function(it){
@@ -1353,21 +1356,17 @@ function fetchRealTrade(guName,aptName,area,cb){
           if(!aptNameMatch(it['아파트'].trim(), aptName)) return;
           var itA=parseFloat((it['전용면적']||'0').toString().trim());
           var areaM2=area*3.3;
-          if(Math.abs(itA-areaM2)<=15) all.push(it); // ±15㎡ 허용
+          if(Math.abs(itA-areaM2)<=15) all.push(it);
         });
         if(++done===total) cb(all.length?all:null);
       })
-      .catch(function(){
-        // 첫 프록시 실패 시 두 번째 프록시 시도
-        if(prx===proxies[0] && proxies[1]){
-          tryFetch(ym, proxies[1]);
-        } else {
-          if(++done===total) cb(all.length?all:null);
-        }
+      .catch(function(e){
+        console.log('실거래 프록시['+pi+'] 실패:',e.message||e);
+        tryFetch(ym, pi+1);
       });
   }
 
-  yms.forEach(function(ym){ tryFetch(ym, proxies[0]); });
+  yms.forEach(function(ym){ tryFetch(ym, 0); });
 }
 
 function renderRealTrade(items,kbPrice){
