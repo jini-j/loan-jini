@@ -580,6 +580,7 @@ function loadGuApt(guName,code){
         _aptMap[k][type]++; _aptMap[k][type+'Items'].push(it);
       });
     }
+    if(res[0]&&res[0].length){console.log('[DEBUG] 매매 첫번째 item 필드:', JSON.stringify(res[0][0]));console.log('[DEBUG] 거래유형값:', res[0][0]['거래유형']);}
     add(res[0],'buy'); add(res[1],'rent');
     var apts=Object.values(_aptMap).sort(function(a,b){return(b.buy+b.rent)-(a.buy+a.rent);});
     if(!apts.length){document.getElementById('apt-list').innerHTML='<div style="padding:14px;text-align:center;color:var(--g4)">데이터 없음</div>';return;}
