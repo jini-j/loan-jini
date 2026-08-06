@@ -417,10 +417,14 @@ function fetchCount(ep,code,ym){
     .catch(function(){return -1;});
 }
 function fetchItems(ep,code,ym,rows){
-  return fetch(prx(buildUrl(ep,code,ym,rows||30)),{signal:AbortSignal.timeout(15000)})
-    .then(function(r){return r.json();})
-    .then(function(d){var it=d.response&&d.response.body&&d.response.body.items&&d.response.body.items.item;if(!it)return[];return Array.isArray(it)?it:[it];})
-    .catch(function(){return[];});
+  // fetchWithFallback 사용 (corsproxy.io 실패 시 allorigins.win 자동 재시도)
+  return fetchWithFallback(buildUrl(ep,code,ym,rows||100))
+    .then(function(d){
+      var it=d&&d.response&&d.response.body&&d.response.body.items&&d.response.body.items.item;
+      if(!it) return [];
+      return Array.isArray(it)?it:[it];
+    })
+    .catch(function(){return [];});
 }
 
 /* ═══ 로드 ═══ */

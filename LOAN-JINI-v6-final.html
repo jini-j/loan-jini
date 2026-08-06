@@ -1342,7 +1342,8 @@ function fetchRealTrade(guName,aptName,area,cb){
 
   function tryFetch(ym, prx){
     var url='https://apis.data.go.kr/1613000/RTMSDataSvcAptTradeDev/getRTMSDataSvcAptTradeDev?serviceKey='+encodeURIComponent(LOAN_API_KEY)+'&pageNo=1&numOfRows=100&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';
-    fetch(prx+encodeURIComponent(url),{signal:AbortSignal.timeout(15000)})
+    var sig=(function(){try{return AbortSignal.timeout(15000);}catch(e){return undefined;}})();
+    fetch(prx+encodeURIComponent(url),{signal:sig})
       .then(function(r){return r.json();})
       .then(function(data){
         var items=((((data||{}).response||{}).body||{}).items||{}).item||[];
