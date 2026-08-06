@@ -28,9 +28,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn-s{background:var(--g2);color:var(--g6);border:1.5px solid var(--g3)}
 #map{width:100%;height:260px;border-radius:10px;overflow:hidden;margin-bottom:10px}
 /* est */
-.est-wrap{border-bottom:1px solid var(--g2)}.est-wrap:last-child{border-bottom:none}
-.est-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0}
-.nearby-apt-panel{margin:0 0 8px 33px;padding:8px 10px;background:var(--g1);border-radius:8px;font-size:11px;display:none}
+.est-item{display:flex;align-items:flex-start;gap:9px;padding:9px 0;border-bottom:1px solid var(--g2)}
+.est-item:last-child{border-bottom:none}
 .est-num{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;margin-top:2px;background:var(--p);color:#fff}
 .est-num.visited{background:var(--ok)}
 .est-num.fav{background:#f59e0b}
@@ -394,7 +393,6 @@ function toggleCmp(){
 
 /* ═══ API ═══ */
 function buildUrl(ep,code,ym,rows){return 'https://apis.data.go.kr/1613000/'+ep+'/get'+ep+'?serviceKey='+encodeURIComponent(API_KEY)+'&pageNo=1&numOfRows='+(rows||1)+'&LAWD_CD='+code+'&DEAL_YMD='+ym+'&_type=json';}
-// CORS 프록시 목록 (순서대로 시도)
 var CORS_PROXIES=[
   'https://api.allorigins.win/raw?url=',
   'https://corsproxy.io/?',
@@ -403,17 +401,17 @@ var CORS_PROXIES=[
 function fetchWithFallback(url){
   function tryNext(i){
     if(i>=CORS_PROXIES.length) return Promise.resolve(null);
-    var sig=(function(){try{return AbortSignal.timeout(12000);}catch(e){return undefined;}})();
+    var sig=(function(){try{return AbortSignal.timeout(20000);}catch(e){return undefined;}})();
     return fetch(CORS_PROXIES[i]+encodeURIComponent(url),{signal:sig})
       .then(function(r){
         if(!r.ok) throw new Error('HTTP '+r.status);
         return r.text();
       })
       .then(function(txt){
-        try{return JSON.parse(txt);}catch(e){throw new Error('JSON parse fail');}
+        try{return JSON.parse(txt);}catch(e){throw new Error('parse fail');}
       })
       .catch(function(e){
-        console.log('프록시['+i+'] 실패:',CORS_PROXIES[i],e.message||e);
+        console.warn('[프록시'+(i+1)+'] 실패:',e.message||e);
         return tryNext(i+1);
       });
   }
@@ -425,7 +423,6 @@ function fetchCount(ep,code,ym){
     .catch(function(){return -1;});
 }
 function fetchItems(ep,code,ym,rows){
-  // fetchWithFallback 사용 (corsproxy.io 실패 시 allorigins.win 자동 재시도)
   return fetchWithFallback(buildUrl(ep,code,ym,rows||100))
     .then(function(d){
       var it=d&&d.response&&d.response.body&&d.response.body.items&&d.response.body.items.item;
@@ -451,8 +448,8 @@ function loadGuMonthly(pr){
   var yms=pr.yms,done=0,total=SEOUL_GU.length*2*yms.length;
   guData=SEOUL_GU.map(function(g){return{name:g.name,code:g.code,buy:0,rent:0};});
   var _timeout=setTimeout(function(){
-    if(done<total){console.warn('타임아웃');finish();}
-  },60000);
+    if(done<total){console.warn('전체 타임아웃(120초)');finish();}
+  },120000);
   function tick(){
     done++;
     if(done===total){clearTimeout(_timeout);finish();}
@@ -465,7 +462,7 @@ function loadGuMonthly(pr){
     badge.className='badge badge-g';
     renderRank();
   }
-  var batch=5,idx=0;
+  var batch=3,idx=0;
   function nextBatch(){
     if(idx>=SEOUL_GU.length)return;
     var end=Math.min(idx+batch,SEOUL_GU.length);
@@ -484,7 +481,7 @@ function loadGuMonthly(pr){
       })(i);
     }
     idx=end;
-    if(idx<SEOUL_GU.length)setTimeout(nextBatch,600);
+    if(idx<SEOUL_GU.length)setTimeout(nextBatch,1500);
   }
   nextBatch();
 }
@@ -626,7 +623,7 @@ function showAptDetail(key){
       (avgR?'<div style="font-size:10px;color:var(--ok)">평균 '+fmtPrice(avgR)+'</div>':'')+
       (minR&&maxR2?'<div style="font-size:9px;color:var(--g4)">'+fmtPrice(minR)+'~'+fmtPrice(maxR2)+'</div>':'')+
     '</div>':'');
-  // 직거래/중개거래 비율 바 (거래유형 필드 있을 때만 표시)
+  // 직거래/중개거래 비율 바
   var allItems=apt.buyItems.concat(apt.rentItems);
   var hasType=allItems.some(function(it){return it['거래유형']||it.dealType;});
   var typeBarHtml='';
@@ -666,10 +663,10 @@ function getPrices(items,type){
   return items.map(function(it){return parseInt(((it[f]||it[af]||'0')+'').replace(/,/g,''))||0;}).filter(function(v){return v>0;});
 }
 function txTypeBadge(it){
-  var t=it['거래유형']||(it.dealType)||'';
+  var t=it['거래유형']||it.dealType||'';
   if(!t) return '';
   var direct=t.indexOf('직거래')>=0;
-  return '<span style="font-size:9px;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;'+(direct?'background:#fee2e2;color:#dc2626':'background:#dbeafe;color:#1d4ed8')+'">'+( direct?'직거래':'중개')+'</span>';
+  return '<span style="font-size:9px;padding:1px 4px;border-radius:3px;margin-left:3px;vertical-align:middle;'+(direct?'background:#fee2e2;color:#dc2626':'background:#dbeafe;color:#1d4ed8')+'">'+(direct?'직거래':'중개')+'</span>';
 }
 function makeTxTable(items,type){
   if(!items.length) return '<div style="padding:8px;text-align:center;font-size:11px;color:var(--g4)">내역 없음</div>';
@@ -814,77 +811,29 @@ function renderEstList(data,loc){
       var lastVisitHtml=lastVisit?'<span style="font-size:9px;color:var(--g4)">최근방문: '+lastVisit.date+'</span> ':'';
       var rvHtml='';
       if(rv){var dd2=dday(rv);rvHtml='<span class="'+(dd2<=3?'dday-soon':'dday-ok')+'" style="font-size:9px">재방문 D-'+dd2+'</span> ';}
-      html+='<div class="est-wrap">'+
-        '<div class="est-item">'+
-          '<div class="est-num '+numCls+'">'+numTxt+'</div>'+
-          '<div class="est-info">'+
-            '<div class="est-name">'+d.place_name+'</div>'+
-            '<div class="est-addr">'+(d.road_address_name||d.address_name)+'</div>'+
-            '<div class="est-dist">📍 '+dist+'m &nbsp;'+lastVisitHtml+rvHtml+'</div>'+
-            '<div class="est-tags">'+statusLabel(d.id)+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,12)+(memo.length>12?'…':'')+'</span>':'')+'</div>'+
-          '</div>'+
-          '<div class="est-actions">'+
-            '<div style="display:flex;gap:3px">'+
-              (d.phone?'<button class="btn-sm" onclick="window.open(\'tel:'+d.phone+'\')" style="color:var(--ok)">📞</button>':'')+
-              '<button class="btn-sm" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
-                (isFav?'⭐':'☆')+'</button>'+
-            '</div>'+
-            '<button class="btn-sm" onclick="cycleStatus(\''+d.id+'\')" style="font-size:9px">상태변경</button>'+
-            '<button class="btn-sm" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
-              (isAdded?'✅동선':'＋동선')+'</button>'+
-            '<button class="btn-sm" onclick="openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')">📝메모</button>'+
-            '<button class="btn-sm" onclick="toggleNearbyApt(\''+d.id+'\','+d.y+','+d.x+')" style="color:#7c3aed" id="napt-btn-'+d.id+'">🏢아파트</button>'+
-          '</div>'+
+      html+='<div class="est-item">'+
+        '<div class="est-num '+numCls+'">'+numTxt+'</div>'+
+        '<div class="est-info">'+
+          '<div class="est-name">'+d.place_name+'</div>'+
+          '<div class="est-addr">'+(d.road_address_name||d.address_name)+'</div>'+
+          '<div class="est-dist">📍 '+dist+'m &nbsp;'+lastVisitHtml+rvHtml+'</div>'+
+          '<div class="est-tags">'+statusLabel(d.id)+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,12)+(memo.length>12?'…':'')+'</span>':'')+'</div>'+
         '</div>'+
-        '<div class="nearby-apt-panel" id="nearby-apt-'+d.id+'"></div>'+
+        '<div class="est-actions">'+
+          '<div style="display:flex;gap:3px">'+
+            (d.phone?'<button class="btn-sm" onclick="window.open(\'tel:'+d.phone+'\')" style="color:var(--ok)">📞</button>':'')+
+            '<button class="btn-sm '+(isFav?'':'')+'" onclick="toggleFav(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\')">'+
+              (isFav?'⭐':'☆')+'</button>'+
+          '</div>'+
+          '<button class="btn-sm" onclick="cycleStatus(\''+d.id+'\')" style="font-size:9px">상태변경</button>'+
+          '<button class="btn-sm '+(isAdded?'':'')+'" onclick="addRoute(\''+d.id+'\',\''+escQ(d.place_name)+'\',\''+escQ(d.road_address_name||d.address_name)+'\','+d.y+','+d.x+',\''+escQ(d.phone||'')+'\',this)" style="'+(isAdded?'color:var(--ok)':'')+'">'+
+            (isAdded?'✅동선':'＋동선')+'</button>'+
+          '<button class="btn-sm" onclick="openMemo(\''+d.id+'\',\''+escQ(d.place_name)+'\')">📝메모</button>'+
+        '</div>'+
       '</div>';
     });
     document.getElementById('est-list').innerHTML=html;
 }
-/* ═══ 인근 아파트 ═══ */
-var _nearbyAptCache={};
-function toggleNearbyApt(id,lat,lng){
-  var el=document.getElementById('nearby-apt-'+id);
-  var btn=document.getElementById('napt-btn-'+id);
-  if(!el) return;
-  if(el.style.display==='block'){
-    el.style.display='none';
-    if(btn) btn.style.fontWeight='';
-    return;
-  }
-  el.style.display='block';
-  if(btn) btn.style.fontWeight='800';
-  if(_nearbyAptCache[id]){renderNearbyApt(id,_nearbyAptCache[id],lat,lng);return;}
-  el.innerHTML='<div style="text-align:center;padding:6px;color:var(--g4)">🔍 검색 중...</div>';
-  var loc=new kakao.maps.LatLng(lat,lng);
-  var r=Math.min(searchRadius,500);
-  ps.keywordSearch('아파트',function(data,status){
-    if(status===kakao.maps.services.Status.OK&&data.length){
-      _nearbyAptCache[id]=data;
-      renderNearbyApt(id,data,lat,lng);
-    } else {
-      el.innerHTML='<div style="text-align:center;padding:6px;color:var(--g4);font-size:10px">반경 내 아파트 없음</div>';
-    }
-  },{location:loc,radius:r,sort:kakao.maps.services.SortBy.DISTANCE});
-}
-function renderNearbyApt(id,data,lat,lng){
-  var el=document.getElementById('nearby-apt-'+id);
-  if(!el) return;
-  var list=data.slice(0,6);
-  el.innerHTML='<div style="font-size:10px;font-weight:700;color:#7c3aed;margin-bottom:6px">🏢 인근 아파트 ('+list.length+'곳)</div>'+
-    list.map(function(d){
-      var dist=distM(lat,lng,parseFloat(d.y),parseFloat(d.x));
-      return '<div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--g2)">'+
-        '<div>'+
-          '<div style="font-size:11px;font-weight:700;color:var(--g7)">'+d.place_name+'</div>'+
-          '<div style="font-size:9px;color:var(--g4)">📍 '+dist+'m · '+(d.road_address_name||d.address_name)+'</div>'+
-        '</div>'+
-        '<button class="btn-sm" onclick="document.getElementById(\'search-kw\').value=\''+escQ(d.place_name)+'\';swTab(1);setTimeout(searchAddr,400)" style="font-size:9px;color:var(--p)">거래조회</button>'+
-      '</div>';
-    }).join('')+
-    '<div style="font-size:9px;color:var(--g4);margin-top:4px;text-align:right">탭해서 해당 아파트 거래내역 조회</div>';
-}
-
 function distM(lat1,lng1,lat2,lng2){var R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;var a=Math.pow(Math.sin(dLat/2),2)+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.pow(Math.sin(dLng/2),2);return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));}
 
 /* ═══ 즐겨찾기 ═══ */
