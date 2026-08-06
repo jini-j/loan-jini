@@ -317,7 +317,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
       </div>
       <div style="margin-top:8px;display:flex;align-items:center;justify-content:space-between">
         <span style="font-size:10px;color:var(--g4)">출처: 국토교통부 실거래가공개시스템</span>
-        <button id="naver-land-link" onclick="openNaverLand()" style="font-size:11px;color:var(--p);text-decoration:none;font-weight:700;background:none;border:none;cursor:pointer;padding:0">🔗 네이버 부동산 →</button>
+        <a id="naver-land-link" href="#" onclick="if(_naverLandUrl){location.href=_naverLandUrl;}return false;" style="font-size:11px;color:var(--p);text-decoration:none;font-weight:700;cursor:pointer">🔗 네이버 부동산 →</a>
       </div>
     </div>
 
@@ -1307,7 +1307,7 @@ var LOAN_API_KEY='309f2867723c36600c6c0b64a974752d51b0a08e629a82b2526d3b703742cf
 var GU_CODES={'강남구':'11680','강동구':'11740','강북구':'11305','강서구':'11500','관악구':'11620','광진구':'11215','구로구':'11530','금천구':'11545','노원구':'11350','도봉구':'11320','동대문구':'11230','동작구':'11590','마포구':'11440','서대문구':'11410','서초구':'11650','성동구':'11200','성북구':'11290','송파구':'11710','양천구':'11470','영등포구':'11560','용산구':'11170','은평구':'11380','종로구':'11110','중구':'11140','중랑구':'11260'};
 var _naverLandUrl='';
 function openNaverLand(){
-  if(_naverLandUrl) window.open(_naverLandUrl,'_blank');
+  if(_naverLandUrl){var a=document.getElementById('naver-land-link');if(a)a.href=_naverLandUrl;}
 }
 
 function getRTYMs(n){
@@ -2079,7 +2079,7 @@ function showPriceRes(r){
 
   // 네이버 부동산 검색 링크 세팅
   var guName=GU[curGu];
-  if(_apt) _naverLandUrl='https://land.naver.com/search/?query='+encodeURIComponent(_apt+' '+guName);
+  if(_apt){_naverLandUrl='https://search.naver.com/search.naver?query='+encodeURIComponent(_apt+' '+guName+' 아파트 매매');var _nl=document.getElementById('naver-land-link');if(_nl)_nl.href=_naverLandUrl;}
 
   // 국토부 실거래가 비동기 조회
   var area=r[0]; // 평형(전용평) → fetchRealTrade 내에서 ×3.3 변환
