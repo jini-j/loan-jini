@@ -477,10 +477,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:var(--g2
     <div class="f">
       <label>대출금액 구간 (구간 가산금리)</label>
       <div class="chips" id="m-tier">
-        <button class="chip on" onclick="selC(this,'m-tier');onMortProdChange()">≤1.245억 (-0.03%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤2.49억 (기준)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">≤4.98억 (+0.14%)</button>
-        <button class="chip" onclick="selC(this,'m-tier');onMortProdChange()">&gt;4.98억 (+0.17%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤1.245억 (-0.03%)</button>
+        <button class="chip on" onclick="selC(this,'m-tier');updRateBox('m')">≤2.49억 (기준)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">≤4.98억 (+0.14%)</button>
+        <button class="chip" onclick="selC(this,'m-tier');updRateBox('m')">&gt;4.98억 (+0.17%)</button>
       </div>
     </div>
 
@@ -5360,12 +5360,21 @@ function compareJeon(){
   var isSpc=gC('jsc')==='신혼·청년';
   var termSel=gC('j-term')||'2년 이상';
   var term=termSel.indexOf('미만')>=0?'미만':'이상';
-  var jtc=gC('j-tier'); var tierAdd=0;
-  TIER_ADJ.forEach(function(t){if(jtc&&jtc.indexOf(t.label)>=0)tierAdd=t.add;});
-  // 비교표: 각 상품 최대 우대 적용, 기준 구간 ≤2.49억(tierAdd=0) 고정
+  var jtc=gC('j-tier'); var tierAdd=0, tierLabel='≤2.49억 (기준)';
+  TIER_ADJ.forEach(function(t){
+    if(jtc&&jtc.indexOf(t.label)>=0){
+      tierAdd=t.add;
+      tierLabel=t.label+(t.add===0?' (기준)':t.add>0?' (+'+t.add.toFixed(2)+'%)':' ('+t.add.toFixed(2)+'%)');
+    }
+  });
   var results=[];
   PRODUCTS.filter(function(p){return p.type==='jeon'&&p.term===term;}).forEach(function(prod){
-    var rInfo=calcFinalRate(prod,prod.우대조건,0);  // 최대 우대, 구간 기준(0)
+    // 보증금 입력 시 HUG·HF 지역별 보증금 한도 초과 상품 제외
+    if(dep>0&&(prod.sub==='HUG'||prod.sub==='HF')){
+      var depLim=rg==='수도권'?70000:50000;
+      if(dep>depLim) return;
+    }
+    var rInfo=calcFinalRate(prod,prod.우대조건,tierAdd);  // 최대 우대, 선택 구간 적용
     var limit,limitIsMax=false;
     if(dep>0){
       limit=calcJeonLimit(prod,dep,hc,rg,kcb,nice,isSpc);
@@ -5381,11 +5390,11 @@ function compareJeon(){
   var best=results[0];
   var bannerHtml='<div style="background:linear-gradient(135deg,var(--p),#1e40af);color:#fff;border-radius:10px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px">'+
     '<span style="font-size:24px">⭐</span>'+
-    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (최대 우대 · ≤2.49억 기준)</div>'+
+    '<div><div style="font-size:11px;opacity:.8">지금 가장 저렴한 전세 상품 (최대 우대 · '+tierLabel+')</div>'+
     '<div style="font-size:14px;font-weight:800;margin-top:2px">'+best.name+'</div>'+
     '<div style="font-size:22px;font-weight:900;margin-top:2px">'+best.rate.toFixed(2)+'%'+(best.limit>0?' &nbsp;<span style="font-size:14px;opacity:.9">'+(best.limitIsMax?'최대 ':'')+fm(best.limit)+'만</span>':"")+'</div></div></div>';
 
-  var tableHtml='<div class="card"><div class="ct">📊 전체 상품 비교 · '+termSel+' · 선택 우대 적용</div>'+
+  var tableHtml='<div class="card"><div class="ct">📊 전체 상품 비교 · '+termSel+' · '+tierLabel+' · 선택 우대 적용</div>'+
     '<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">'+
     '<thead><tr style="background:var(--p);color:#fff">'+
     '<th style="padding:7px 3px;text-align:center">순위</th>'+
@@ -5407,7 +5416,7 @@ function compareJeon(){
     '</tr>';
   });
   tableHtml+='</tbody></table></div>'+
-    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대금리 기준 · 한도: 보증금 미입력 시 신용점수 조건별 최대 상한, 신용점수 미입력 시 최고등급 가정</div></div>';
+    '<div style="font-size:10px;color:var(--g4);margin-top:5px">※ 최대 우대금리 기준 · 한도: 보증금 미입력 시 신용점수 조건별 최대 상한, 신용점수 미입력 시 최고등급 가정'+(dep>0?' · HUG·HF 보증금 한도(수도권 7억·지방 5억) 초과 시 목록에서 제외':'')+'</div></div>';
 
   var el=document.getElementById('jeon-compare');
   el.innerHTML=bannerHtml+tableHtml;

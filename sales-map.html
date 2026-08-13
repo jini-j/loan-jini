@@ -401,7 +401,7 @@ var CORS_PROXIES=[
 function fetchWithFallback(url){
   function tryNext(i){
     if(i>=CORS_PROXIES.length) return Promise.resolve(null);
-    var sig=(function(){try{return AbortSignal.timeout(20000);}catch(e){return undefined;}})();
+    var sig=(function(){try{return AbortSignal.timeout(8000);}catch(e){return undefined;}})();
     return fetch(CORS_PROXIES[i]+encodeURIComponent(url),{signal:sig})
       .then(function(r){
         if(!r.ok) throw new Error('HTTP '+r.status);
@@ -462,7 +462,7 @@ function loadGuMonthly(pr){
     badge.className='badge badge-g';
     renderRank();
   }
-  var batch=3,idx=0;
+  var batch=5,idx=0;
   function nextBatch(){
     if(idx>=SEOUL_GU.length)return;
     var end=Math.min(idx+batch,SEOUL_GU.length);
@@ -481,7 +481,7 @@ function loadGuMonthly(pr){
       })(i);
     }
     idx=end;
-    if(idx<SEOUL_GU.length)setTimeout(nextBatch,1500);
+    if(idx<SEOUL_GU.length)setTimeout(nextBatch,600);
   }
   nextBatch();
 }
@@ -654,6 +654,8 @@ function showAptDetail(key){
   document.getElementById('apt-modal-rent').innerHTML=makeTxTable(apt.rentItems,'rent');
   var navQ=apt.name+' '+apt.dong+' '+_curGuName;
   _aptNavQ=navQ;
+  _aptNavName=apt.name;
+  _aptNavGu=_curGuName;
   document.getElementById('apt-modal').style.display='flex';
 }
 function calcAvg(items,type){var vals=getPrices(items,type);return vals.length?Math.round(vals.reduce(function(s,v){return s+v;},0)/vals.length):0;}
@@ -699,8 +701,29 @@ function makeTxTable(items,type){
 function fmtPrice(man){if(!man)return '–';if(man>=10000){var e=Math.floor(man/10000),r=man%10000;return e+'억'+(r?' '+r+'만':'');}return man+'만원';}
 function closeAptModal(){document.getElementById('apt-modal').style.display='none';}
 function goToApt(q){document.getElementById('search-kw').value=q;swTab(1);setTimeout(searchAddr,600);}
-var _aptNavQ='';
-function navToApt(){closeAptModal();goToApt(_aptNavQ);}
+var _aptNavQ='',_aptNavName='',_aptNavGu='';
+function navToApt(){
+  closeAptModal();
+  var kw=_aptNavName+(_aptNavGu?' '+_aptNavGu:'');
+  document.getElementById('search-kw').value=kw;
+  swTab(1);
+  function doSearch(){
+    // 아파트 명칭으로 Kakao Places 키워드 검색 → 정확한 위치 확보 후 주변 중개사 탐색
+    ps.keywordSearch(kw,function(data,status){
+      if(status===kakao.maps.services.Status.OK&&data.length){
+        var loc=new kakao.maps.LatLng(data[0].y,data[0].x);
+        myLoc=loc;map.setCenter(loc);map.setLevel(4);
+        searchNearby(loc);
+      } else {
+        // 키워드 검색 실패 시 주소 검색으로 fallback
+        searchAddr();
+      }
+    },{category_group_code:'',radius:5000});
+  }
+  if(!_kakaoLoaded){loadKakaoSDK(function(){setTimeout(doSearch,300);});}
+  else if(!map||!ps){initMap();setTimeout(doSearch,600);}
+  else doSearch();
+}
 function escQ(s){return(s||'').replace(/'/g,"\\'");}
 
 /* ═══ 지도 ═══ */
