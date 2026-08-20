@@ -101,6 +101,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 /* dday */
 .dday-soon{color:var(--er);font-weight:700}
 .dday-ok{color:var(--ok);font-weight:700}
+/* ── 스마트 코스 ── */
+.course-item{display:flex;align-items:flex-start;gap:9px;padding:10px 0;border-bottom:1px solid var(--g2)}
+.course-item:last-child{border-bottom:none}
+.course-item.current{background:var(--pl);border:1.5px solid var(--p);border-radius:10px;padding:10px;margin:4px -2px}
+.course-item.done-item{opacity:.55}
+.course-num{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;margin-top:2px;background:var(--p);color:#fff}
+.course-num.done{background:var(--ok)}
+.course-num.gray{background:var(--g4)}
+.course-info{flex:1;min-width:0}
+.course-name{font-size:13px;font-weight:700;color:var(--g7)}
+.course-meta{font-size:10px;color:var(--g5);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.course-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:3px}
+.parking-bar{background:#fff;border:1.5px solid var(--g3);border-radius:10px;padding:9px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px}
+.mode-btn{padding:5px 11px;border-radius:20px;border:1.5px solid var(--g3);background:#fff;font-size:11px;font-weight:700;cursor:pointer;color:var(--g6)}
+.summary-box{border-radius:8px;padding:10px;text-align:center;flex:1}
+.summary-num{font-size:22px;font-weight:900}
+.summary-label{font-size:10px;color:var(--g5);margin-top:1px}
 </style>
 </head>
 <body>
@@ -199,29 +216,115 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
-<!-- 탭1: 부동산탐색 -->
+<!-- 탭1: 부동산탐색 (스마트 코스) -->
 <div id="p1" class="panel">
-  <div class="card">
-    <div class="row" style="margin-bottom:7px">
-      <input class="inp" id="search-kw" placeholder="아파트명 또는 주소 검색" style="flex:1" onkeydown="if(event.key==='Enter')searchAddr()">
-      <button class="btn btn-s" onclick="searchAddr()">검색</button>
+
+  <!-- 주차 위치 바 (항상 노출) -->
+  <div class="parking-bar">
+    <span style="font-size:16px">🚗</span>
+    <span id="parking-info" style="font-size:11px;color:var(--g5);flex:1">주차 위치 미저장</span>
+    <button onclick="saveParking()" style="padding:4px 10px;border-radius:20px;border:1.5px solid var(--p);background:var(--pl);color:var(--p);font-size:11px;font-weight:700;cursor:pointer">저장</button>
+    <button id="parking-nav-btn" onclick="returnToParking()" style="display:none;padding:4px 10px;border-radius:20px;border:1.5px solid var(--ok);background:#f0fdf4;color:var(--ok);font-size:11px;font-weight:700;cursor:pointer">돌아가기</button>
+  </div>
+
+  <!-- 모드1: 검색 -->
+  <div id="srch-mode">
+    <div class="card">
+      <div class="row" style="margin-bottom:7px">
+        <input class="inp" id="search-kw" placeholder="아파트명 검색 (예: 마포그랑자이)" style="flex:1" onkeydown="if(event.key==='Enter')doAptSearch()">
+        <button class="btn btn-s" onclick="doAptSearch()">검색</button>
+      </div>
+      <button class="btn" onclick="useMyLoc()" style="width:100%;background:#f0fdf4;color:var(--ok);border:1.5px solid #86efac;height:40px;font-size:13px">📍 현재 위치에서 찾기</button>
     </div>
-    <button class="btn" onclick="useMyLoc()" style="width:100%;background:#f0fdf4;color:var(--ok);border:1.5px solid #86efac;height:40px;font-size:13px">📍 현재 위치에서 찾기</button>
-  </div>
-  <div class="card" style="padding:9px 13px">
-    <div style="font-size:11px;color:var(--g5);margin-bottom:5px">탐색 반경</div>
-    <div style="display:flex;gap:5px">
-      <button class="fb" id="r300" onclick="setRadius(300)">300m</button>
-      <button class="fb on" id="r500" onclick="setRadius(500)">500m</button>
-      <button class="fb" id="r1000" onclick="setRadius(1000)">1km</button>
-      <button class="fb" id="r2000" onclick="setRadius(2000)">2km</button>
+    <div class="card" style="padding:9px 13px">
+      <div style="font-size:11px;color:var(--g5);margin-bottom:5px">탐색 반경</div>
+      <div style="display:flex;gap:5px">
+        <button class="fb" id="r300" onclick="setRadius(300)">300m</button>
+        <button class="fb on" id="r500" onclick="setRadius(500)">500m</button>
+        <button class="fb" id="r1000" onclick="setRadius(1000)">1km</button>
+        <button class="fb" id="r2000" onclick="setRadius(2000)">2km</button>
+      </div>
+    </div>
+    <div id="map"></div>
+    <!-- 재방문 이력 배지 -->
+    <div id="apt-hist-badge" style="display:none;margin-bottom:8px;background:#fef3c7;border-radius:10px;padding:9px 13px;font-size:11px;color:#92400e"></div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="card-title" id="est-count" style="margin:0">주변 공인중개사</span>
+        <button id="course-gen-btn" style="display:none;padding:5px 13px;border-radius:20px;border:none;background:var(--p);color:#fff;font-size:11px;font-weight:700;cursor:pointer" onclick="buildCourse()">📍 코스 생성</button>
+      </div>
+      <div id="est-list"><div class="empty"><div class="empty-icon">🔍</div>아파트명을 검색하세요</div></div>
     </div>
   </div>
-  <div id="map"></div>
-  <div class="card">
-    <div class="card-title" id="est-count">주변 공인중개사</div>
-    <div id="est-list"><div class="empty"><div class="empty-icon">🔍</div>위치를 검색하거나 현재 위치를 선택하세요</div></div>
+
+  <!-- 모드2: 코스 검토 -->
+  <div id="course-mode" style="display:none">
+    <div class="card" style="padding:11px 13px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+        <button class="mode-btn" onclick="backToSearch()">← 새 검색</button>
+        <span id="course-apt-title" style="font-weight:800;font-size:13px;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--p)"></span>
+      </div>
+      <div style="display:flex;gap:7px">
+        <div class="summary-box" style="background:var(--pl)">
+          <div class="summary-num" style="color:var(--p)" id="course-count">0</div>
+          <div class="summary-label">방문 예정</div>
+        </div>
+        <div class="summary-box" style="background:#f0fdf4">
+          <div class="summary-num" style="color:var(--ok)" id="course-time">-</div>
+          <div class="summary-label">예상 소요</div>
+        </div>
+        <div class="summary-box" style="background:#fef3c7">
+          <div class="summary-num" style="color:var(--warn)" id="course-dist">-</div>
+          <div class="summary-label">총 이동</div>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span class="card-title" style="margin:0">🗺️ 최적 방문 코스</span>
+        <span style="font-size:10px;color:var(--g4)">제외 시 자동 재정렬</span>
+      </div>
+      <div id="course-list"></div>
+    </div>
+    <div style="padding:0 0 16px">
+      <button onclick="startActive()" style="width:100%;height:50px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:16px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">🚀 영업 시작</button>
+    </div>
   </div>
+
+  <!-- 모드3: 영업 진행 -->
+  <div id="active-mode" style="display:none">
+    <div class="card" style="padding:11px 13px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <button class="mode-btn" onclick="backToCourse()">← 코스</button>
+        <span id="active-apt-title" style="font-weight:800;font-size:13px;flex:1;color:var(--p)"></span>
+        <button onclick="returnToParking()" style="padding:5px 10px;border-radius:20px;border:1.5px solid var(--warn);background:#fef3c7;color:var(--warn);font-size:11px;font-weight:700;cursor:pointer">🚗 주차</button>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px">
+        <span style="font-size:11px;color:var(--g5)">완료</span>
+        <span id="active-done" style="font-weight:900;color:var(--ok);font-size:18px">0</span>
+        <span style="color:var(--g4)">/</span>
+        <span id="active-total" style="font-weight:900;color:var(--p);font-size:18px">0</span>
+        <span style="font-size:11px;color:var(--g5)">곳</span>
+        <span id="active-remain" style="font-size:11px;color:var(--g4);margin-left:auto"></span>
+      </div>
+      <div style="height:6px;background:var(--g2);border-radius:3px;overflow:hidden">
+        <div id="active-progress-bar" style="height:6px;background:var(--ok);border-radius:3px;width:0%;transition:width .5s"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="active-list"></div>
+    </div>
+    <!-- 완료 요약 -->
+    <div id="done-summary" style="display:none" class="card">
+      <div class="card-title">🎉 오늘 영업 완료!</div>
+      <div id="done-summary-content" style="font-size:13px;color:var(--g6);line-height:1.9;margin-bottom:4px"></div>
+      <div style="display:flex;gap:7px;margin-top:12px">
+        <button onclick="backToSearch()" class="btn btn-s" style="flex:1;height:42px">새 검색</button>
+        <button onclick="shareDailySummary()" class="btn btn-p" style="flex:2;height:42px">📤 카카오 공유</button>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- 탭2: 오늘동선 -->
@@ -308,6 +411,17 @@ var placeStatus=_ls('pstatus',{});
 var visitHistory=_ls('vhist',[]);
 var filterType='all',periodKey='m0',sortDesc=true,showCmp=false;
 var guData=[],guDataPrev=[],_aptMap={},_curGuName='',curMemoId=null;
+/* ── 스마트 코스 상태 ── */
+var _estData=[];          // 마지막 검색 결과 원본
+var _courseList=[];       // 최적화된 코스 배열
+var _courseStartLat=null,_courseStartLng=null;
+var _searchAptName='';
+var _searchCenter=null;
+var _parkingLoc=_ls('parking_loc',null);
+var _aptHistory=_ls('apt_history',{});
+var _todayLog=_ls('today_log',{date:'',visits:[]});
+// 오늘 날짜 변경 시 초기화
+(function(){var t=todayStr();if(_todayLog.date!==t){_todayLog={date:t,visits:[]};_lsSet('today_log',_todayLog);}})();
 
 function saveStorage(){
   _lsSet('rl',routeList);
@@ -316,6 +430,326 @@ function saveStorage(){
   _lsSet('favs',favorites);
   _lsSet('pstatus',placeStatus);
   _lsSet('vhist',visitHistory);
+}
+
+/* ═══════════════════════════════════
+   스마트 코스 — 주차 / 검색 / 코스 / 영업
+═══════════════════════════════════ */
+
+/* ── 주차 위치 ── */
+function saveParking(){
+  function saved(lat,lng){
+    _parkingLoc={lat:lat,lng:lng};
+    _lsSet('parking_loc',_parkingLoc);
+    updateParkingBar();
+    toast('🚗 주차 위치 저장됨!');
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){saved(pos.coords.latitude,pos.coords.longitude);},
+      function(){
+        if(myLoc){saved(myLoc.getLat(),myLoc.getLng());}
+        else toast('위치를 가져올 수 없습니다');
+      },
+      {timeout:5000}
+    );
+  } else if(myLoc){
+    saved(myLoc.getLat(),myLoc.getLng());
+  } else {
+    toast('위치 서비스 미지원');
+  }
+}
+function updateParkingBar(){
+  var info=document.getElementById('parking-info');
+  var navBtn=document.getElementById('parking-nav-btn');
+  if(!info||!navBtn) return;
+  if(_parkingLoc){
+    var d=new Date();
+    info.innerHTML='🚗 주차 저장됨 <span style="font-size:9px;color:var(--g4)">('+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()+')</span>';
+    navBtn.style.display='inline-block';
+  } else {
+    info.textContent='주차 위치 미저장';
+    navBtn.style.display='none';
+  }
+}
+function returnToParking(){
+  if(!_parkingLoc){toast('저장된 주차 위치가 없습니다');return;}
+  walkTo(_parkingLoc.lat,_parkingLoc.lng,'주차 위치',null,null);
+}
+
+/* ── 아파트 검색 ── */
+function doAptSearch(){
+  var kw=document.getElementById('search-kw').value.trim();
+  if(!kw){alert('아파트명을 입력하세요');return;}
+  if(!_kakaoLoaded){loadKakaoSDK(function(){setTimeout(doAptSearch,300);});return;}
+  if(!map||!ps){initMap();setTimeout(doAptSearch,600);return;}
+  _searchAptName=kw;
+  checkAptHistory(kw);
+  document.getElementById('course-gen-btn').style.display='none';
+  document.getElementById('est-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--g4)"><div class="spin">⟳</div><div style="margin-top:6px;font-size:12px">검색 중...</div></div>';
+  ps.keywordSearch(kw,function(data,status){
+    if(status===kakao.maps.services.Status.OK&&data.length){
+      _searchCenter=new kakao.maps.LatLng(parseFloat(data[0].y),parseFloat(data[0].x));
+      myLoc=_searchCenter;
+      map.setCenter(_searchCenter);map.setLevel(4);
+      // 아파트 위치 별 마커
+      new kakao.maps.Marker({map:map,position:_searchCenter,
+        image:new kakao.maps.MarkerImage('https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png',new kakao.maps.Size(24,35))});
+      searchNearby(_searchCenter);
+    } else {
+      // fallback: address search
+      searchAddr();
+    }
+  },{radius:15000});
+}
+function checkAptHistory(aptName){
+  var badge=document.getElementById('apt-hist-badge');
+  if(!badge) return;
+  var hist=_aptHistory[aptName];
+  if(hist&&hist.length>0){
+    var last=hist[hist.length-1];
+    var days=Math.round((new Date()-new Date(last.date))/(1000*60*60*24));
+    badge.innerHTML='📋 <strong>'+aptName+'</strong> 최근 방문: <strong>'+days+'일 전</strong> · '+last.ids.length+'곳 방문 이력';
+    badge.style.display='block';
+  } else {
+    badge.style.display='none';
+  }
+}
+
+/* ── 최적 코스 생성 (최근접 이웃 알고리즘) ── */
+function nearestNeighbor(agencies,sLat,sLng){
+  var rem=agencies.slice(),route=[],cLat=sLat,cLng=sLng;
+  while(rem.length){
+    var bi=0,bd=Infinity;
+    rem.forEach(function(ag,i){
+      var d=distM(cLat,cLng,parseFloat(ag.y),parseFloat(ag.x));
+      if(d<bd){bd=d;bi=i;}
+    });
+    var ch=rem.splice(bi,1)[0];
+    ch._walkDist=bd;
+    route.push(ch);
+    cLat=parseFloat(ch.y);cLng=parseFloat(ch.x);
+  }
+  return route;
+}
+function calcCourseStats(route){
+  var totalM=0;
+  route.forEach(function(r){totalM+=(r._walkDist||0);});
+  var walkMin=Math.round(totalM/80);
+  var visitMin=route.length*5;
+  var total=walkMin+visitMin;
+  var distLabel=totalM>=1000?(totalM/1000).toFixed(1)+'km':Math.round(totalM)+'m';
+  var timeLabel=total>=60?Math.floor(total/60)+'h'+(total%60?total%60+'m':''):total+'분';
+  return {totalM:totalM,distLabel:distLabel,timeLabel:timeLabel};
+}
+function buildCourse(){
+  if(!_estData.length){toast('검색 결과가 없습니다');return;}
+  function gen(sLat,sLng){
+    _courseStartLat=sLat;_courseStartLng=sLng;
+    _courseList=nearestNeighbor(_estData.slice(),sLat,sLng);
+    _courseList.forEach(function(ag){ag._done=false;ag._visitTime='';});
+    showCourseMode();
+  }
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){gen(pos.coords.latitude,pos.coords.longitude);},
+      function(){
+        var c=_searchCenter||myLoc;
+        c?gen(c.getLat(),c.getLng()):gen(parseFloat(_estData[0].y),parseFloat(_estData[0].x));
+      },
+      {timeout:3000,maximumAge:10000}
+    );
+  } else {
+    var c=_searchCenter||myLoc;
+    c?gen(c.getLat(),c.getLng()):gen(parseFloat(_estData[0].y),parseFloat(_estData[0].x));
+  }
+}
+function excludeFromCourse(idx){
+  _courseList.splice(idx,1);
+  if(_courseList.length>1&&_courseStartLat){
+    _courseList=nearestNeighbor(_courseList.slice(),_courseStartLat,_courseStartLng);
+  }
+  renderCourseList();
+  toast('제외됨 · 코스 재정렬 완료');
+}
+
+/* ── 코스 모드 렌더링 ── */
+function showCourseMode(){
+  document.getElementById('srch-mode').style.display='none';
+  document.getElementById('course-mode').style.display='block';
+  document.getElementById('active-mode').style.display='none';
+  document.getElementById('course-apt-title').textContent=_searchAptName||'주변 부동산';
+  renderCourseList();
+}
+function renderCourseList(){
+  var active=_courseList.filter(function(ag){return !ag._done;});
+  var stats=calcCourseStats(active);
+  document.getElementById('course-count').textContent=active.length;
+  document.getElementById('course-time').textContent=stats.timeLabel;
+  document.getElementById('course-dist').textContent=stats.distLabel;
+  if(!_courseList.length){
+    document.getElementById('course-list').innerHTML='<div style="text-align:center;padding:20px;color:var(--g4)">코스가 비어 있습니다<br><button class="mode-btn" style="margin-top:10px" onclick="backToSearch()">← 다시 검색</button></div>';
+    return;
+  }
+  var html=_courseList.map(function(ag,i){
+    var memo=memos[ag.id]||'';
+    var status=placeStatus[ag.id]||'new';
+    var sTag=status==='reg'?'<span class="tag tag-reg">단골</span>':status==='hold'?'<span class="tag tag-hold">보류</span>':'';
+    var prevV=visitHistory.filter(function(h){return h.id===ag.id;}).slice(-1)[0];
+    var prevHtml=prevV?'<span style="font-size:9px;color:var(--g4)">방문:'+prevV.date+'</span>':'';
+    var walkHtml=ag._walkDist?'<span style="font-size:10px;color:var(--p)">🚶'+Math.round(ag._walkDist/80)+'분·'+Math.round(ag._walkDist)+'m</span>':'';
+    return '<div class="course-item'+(ag._done?' done-item':'')+'">'+
+      '<div class="course-num'+(ag._done?' done':'')+'">'+(ag._done?'✓':(i+1))+'</div>'+
+      '<div class="course-info">'+
+        '<div class="course-name">'+ag.place_name+'</div>'+
+        '<div class="course-meta">'+(ag.road_address_name||ag.address_name)+'</div>'+
+        '<div class="course-tags">'+sTag+walkHtml+prevHtml+(memo?'<span style="font-size:9px;color:var(--warn)">📝'+memo.substring(0,12)+'</span>':'')+'</div>'+
+      '</div>'+
+      (!ag._done?'<button onclick="excludeFromCourse('+i+')" style="margin-top:2px;padding:3px 8px;border-radius:10px;border:1px solid var(--er);background:#fee2e2;color:var(--er);font-size:10px;font-weight:700;cursor:pointer;flex-shrink:0">제외</button>':'')+
+    '</div>';
+  }).join('');
+  document.getElementById('course-list').innerHTML=html;
+}
+
+/* ── 영업 시작 / 진행 ── */
+function startActive(){
+  if(!_courseList.length){toast('코스가 비어 있습니다');return;}
+  document.getElementById('course-mode').style.display='none';
+  document.getElementById('active-mode').style.display='block';
+  document.getElementById('active-apt-title').textContent=_searchAptName||'';
+  document.getElementById('done-summary').style.display='none';
+  renderActiveList();
+  // 첫 번째 자동 길찾기 제안
+  var first=_courseList.find(function(ag){return !ag._done;});
+  if(first) setTimeout(function(){toast('첫 방문지: '+first.place_name+' ('+Math.round(first._walkDist||0)+'m)');},600);
+}
+function renderActiveList(){
+  var doneN=_courseList.filter(function(ag){return ag._done;}).length;
+  var total=_courseList.length;
+  document.getElementById('active-done').textContent=doneN;
+  document.getElementById('active-total').textContent=total;
+  var pct=total?Math.round(doneN/total*100):0;
+  document.getElementById('active-progress-bar').style.width=pct+'%';
+  var remaining=_courseList.filter(function(ag){return !ag._done;});
+  var stats=calcCourseStats(remaining);
+  document.getElementById('active-remain').textContent=remaining.length?'잔여 약 '+stats.timeLabel:'';
+  var firstUndoneIdx=_courseList.findIndex(function(ag){return !ag._done;});
+  var html=_courseList.map(function(ag,i){
+    var isDone=ag._done;
+    var isCurrent=i===firstUndoneIdx;
+    var itemClass='course-item'+(isDone?' done-item':isCurrent?' current':'');
+    var numClass='course-num'+(isDone?' done':isCurrent?'':' gray');
+    var timeHtml=isDone&&ag._visitTime?'<span style="font-size:9px;color:var(--g4)"> '+ag._visitTime+'</span>':'';
+    var actions='';
+    if(!isDone){
+      actions='<div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">'+
+        '<button onclick="walkToAgency('+i+')" style="padding:4px 9px;border-radius:10px;border:1.5px solid var(--p);background:var(--pl);color:var(--p);font-size:10px;font-weight:700;cursor:pointer">🚶 길찾기</button>'+
+        '<button onclick="markDone('+i+')" style="padding:4px 9px;border-radius:10px;border:1.5px solid var(--ok);background:#f0fdf4;color:var(--ok);font-size:10px;font-weight:700;cursor:pointer">✅ 완료</button>'+
+      '</div>';
+    }
+    return '<div class="'+itemClass+'">'+
+      '<div class="'+numClass+'">'+(isDone?'✓':(i+1))+'</div>'+
+      '<div class="course-info">'+
+        '<div class="course-name">'+ag.place_name+timeHtml+'</div>'+
+        '<div class="course-meta">'+(ag.road_address_name||ag.address_name)+'</div>'+
+        (ag._walkDist&&!isDone?'<div style="font-size:10px;color:var(--p);margin-top:2px">🚶 '+Math.round(ag._walkDist/80)+'분 ('+Math.round(ag._walkDist)+'m)</div>':'')+
+      '</div>'+
+      actions+
+    '</div>';
+  }).join('');
+  document.getElementById('active-list').innerHTML=html;
+  if(doneN===total&&total>0) showDoneSummary();
+}
+function walkToAgency(idx){
+  var ag=_courseList[idx];if(!ag)return;
+  var toLat=parseFloat(ag.y),toLng=parseFloat(ag.x);
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){walkTo(toLat,toLng,ag.place_name,pos.coords.latitude,pos.coords.longitude);},
+      function(){walkTo(toLat,toLng,ag.place_name,null,null);},
+      {timeout:3000}
+    );
+  } else {
+    walkTo(toLat,toLng,ag.place_name,null,null);
+  }
+}
+function walkTo(toLat,toLng,toName,fromLat,fromLng){
+  var url;
+  if(fromLat&&fromLng){
+    url='https://map.kakao.com/?map_type=TYPE_MAP&target=walk'+
+        '&rt='+fromLng+','+fromLat+','+toLng+','+toLat+
+        '&rt1='+encodeURIComponent('현위치')+
+        '&rt2='+encodeURIComponent(toName);
+  } else {
+    url='https://map.kakao.com/link/walk/'+encodeURIComponent(toName)+','+toLat+','+toLng;
+  }
+  location.href=url;
+}
+function markDone(idx){
+  var ag=_courseList[idx];if(!ag)return;
+  ag._done=true;
+  var d=new Date();
+  ag._visitTime=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+  // 방문 이력 저장
+  var now=todayStr();
+  visitHistory.unshift({id:ag.id,name:ag.place_name,addr:ag.road_address_name||ag.address_name,date:now,memo:memos[ag.id]||''});
+  if(visitHistory.length>200) visitHistory.pop();
+  // 오늘 로그
+  if(_todayLog.date!==now){_todayLog={date:now,visits:[]};}
+  _todayLog.visits.push({id:ag.id,name:ag.place_name,time:ag._visitTime,status:placeStatus[ag.id]||'new'});
+  _lsSet('today_log',_todayLog);
+  saveStorage();
+  renderActiveList();
+  // 자동 다음 길찾기 토스트
+  var next=_courseList.find(function(a,i){return i>idx&&!a._done;});
+  if(next){
+    setTimeout(function(){toast('다음 ▶ '+next.place_name+' ('+Math.round(next._walkDist||0)+'m)');},500);
+  }
+}
+function showDoneSummary(){
+  if(_searchAptName){
+    if(!_aptHistory[_searchAptName]) _aptHistory[_searchAptName]=[];
+    var ids=_courseList.map(function(ag){return ag.id;});
+    _aptHistory[_searchAptName].push({date:todayStr(),ids:ids});
+    if(_aptHistory[_searchAptName].length>10) _aptHistory[_searchAptName].shift();
+    _lsSet('apt_history',_aptHistory);
+  }
+  var total=_courseList.length;
+  var reg=_courseList.filter(function(ag){return placeStatus[ag.id]==='reg';}).length;
+  var hold=_courseList.filter(function(ag){return placeStatus[ag.id]==='hold';}).length;
+  var newN=total-reg-hold;
+  document.getElementById('done-summary-content').innerHTML=
+    '📅 '+todayStr()+'<br>'+
+    '🏢 아파트: <strong>'+(_searchAptName||'')+'</strong><br>'+
+    '✅ 방문 완료: <strong>'+total+'곳</strong><br>'+
+    '&nbsp; ⭐ 단골 '+reg+' · 🆕 신규 '+newN+' · ⏸ 보류 '+hold;
+  document.getElementById('done-summary').style.display='block';
+  document.getElementById('done-summary').scrollIntoView({behavior:'smooth'});
+}
+function shareDailySummary(){
+  var total=_courseList.length;
+  var reg=_courseList.filter(function(ag){return placeStatus[ag.id]==='reg';}).length;
+  var hold=_courseList.filter(function(ag){return placeStatus[ag.id]==='hold';}).length;
+  var newN=total-reg-hold;
+  var text='📊 오늘 영업 요약 ('+todayStr()+')\n🏢 아파트: '+(_searchAptName||'')+'\n✅ 방문: '+total+'곳\n  ⭐ 단골 '+reg+' · 🆕 신규 '+newN+' · ⏸ 보류 '+hold;
+  if(typeof Kakao!=='undefined'&&Kakao.isInitialized&&Kakao.isInitialized()){
+    Kakao.Share.sendDefault({objectType:'text',text:text,link:{mobileWebUrl:location.href,webUrl:location.href}});
+  } else {
+    try{navigator.clipboard.writeText(text).then(function(){toast('📋 클립보드에 복사됨!');});}
+    catch(e){toast('카카오 미연결 상태입니다');}
+  }
+}
+
+/* ── 모드 전환 ── */
+function backToSearch(){
+  document.getElementById('srch-mode').style.display='block';
+  document.getElementById('course-mode').style.display='none';
+  document.getElementById('active-mode').style.display='none';
+}
+function backToCourse(){
+  document.getElementById('course-mode').style.display='block';
+  document.getElementById('active-mode').style.display='none';
+  renderCourseList();
 }
 
 /* ═══ 탭 ═══ */
@@ -810,6 +1244,9 @@ function searchNearby(loc){
   ps.keywordSearch('공인중개사',onResult,{location:loc,radius:searchRadius,sort:kakao.maps.services.SortBy.DISTANCE});
 }
 function renderEstList(data,loc){
+    _estData=data||[];
+    var courseBtn=document.getElementById('course-gen-btn');
+    if(courseBtn) courseBtn.style.display=(_estData.length?'inline-block':'none');
     if(!data||!data.length){document.getElementById('est-list').innerHTML='<div class="empty"><div class="empty-icon">😢</div>검색 결과 없음</div>';return;}
     document.getElementById('est-count').textContent='주변 공인중개사 '+data.length+'곳';
     // 마커 초기화
@@ -916,6 +1353,7 @@ function updateBadges(){
   var fb=document.getElementById('fav-badge');
   var fc=Object.keys(favorites).length;
   if(fc){fb.textContent='⭐'+fc;fb.style.display='inline-block';}else fb.style.display='none';
+  updateParkingBar();
 }
 
 var routeMap=null,routeMarkers=[];
