@@ -439,8 +439,22 @@ function saveStorage(){
 /* ── 주차 위치 ── */
 function saveParking(){
   function saved(lat,lng){
-    _parkingLoc={lat:lat,lng:lng};
+    var note=prompt('🚗 주차 메모 입력 (선택)\n예: B2-15번, 1층 입구, 편의점 앞')||'';
+    var d=new Date();
+    var timeStr=d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes();
+    _parkingLoc={lat:lat,lng:lng,note:note,time:timeStr};
     _lsSet('parking_loc',_parkingLoc);
+    // 카카오 역지오코딩으로 주소 조회 (SDK 로드된 경우)
+    if(_kakaoLoaded&&geocoder){
+      geocoder.coord2Address(lng,lat,function(result,status){
+        if(status===kakao.maps.services.Status.OK&&result.length){
+          var addr=result[0].road_address?result[0].road_address.address_name:result[0].address.address_name;
+          _parkingLoc.addr=addr;
+          _lsSet('parking_loc',_parkingLoc);
+          updateParkingBar();
+        }
+      });
+    }
     updateParkingBar();
     toast('🚗 주차 위치 저장됨!');
   }
@@ -464,8 +478,9 @@ function updateParkingBar(){
   var navBtn=document.getElementById('parking-nav-btn');
   if(!info||!navBtn) return;
   if(_parkingLoc){
-    var d=new Date();
-    info.innerHTML='🚗 주차 저장됨 <span style="font-size:9px;color:var(--g4)">('+d.getHours()+':'+(d.getMinutes()<10?'0':'')+d.getMinutes()+')</span>';
+    var addrLine=_parkingLoc.addr?'<br><span style="font-size:10px;color:var(--g6)">📍 '+_parkingLoc.addr+'</span>':'';
+    var noteLine=_parkingLoc.note?'<br><span style="font-size:10px;color:var(--warn)">📝 '+_parkingLoc.note+'</span>':'';
+    info.innerHTML='<span style="font-size:11px;font-weight:700;color:var(--g7)">🚗 주차 저장됨</span> <span style="font-size:9px;color:var(--g4)">'+(_parkingLoc.time||'')+'</span>'+addrLine+noteLine;
     navBtn.style.display='inline-block';
   } else {
     info.textContent='주차 위치 미저장';
@@ -474,7 +489,16 @@ function updateParkingBar(){
 }
 function returnToParking(){
   if(!_parkingLoc){toast('저장된 주차 위치가 없습니다');return;}
-  walkTo(_parkingLoc.lat,_parkingLoc.lng,'주차 위치',null,null);
+  var p=_parkingLoc;
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      function(pos){walkTo(p.lat,p.lng,'주차 위치',pos.coords.latitude,pos.coords.longitude);},
+      function(){walkTo(p.lat,p.lng,'주차 위치',null,null);},
+      {timeout:3000}
+    );
+  } else {
+    walkTo(p.lat,p.lng,'주차 위치',null,null);
+  }
 }
 
 /* ── 아파트 검색 ── */
@@ -676,14 +700,18 @@ function walkToAgency(idx){
 function walkTo(toLat,toLng,toName,fromLat,fromLng){
   var url;
   if(fromLat&&fromLng){
-    url='https://map.kakao.com/?map_type=TYPE_MAP&target=walk'+
-        '&rt='+fromLng+','+fromLat+','+toLng+','+toLat+
-        '&rt1='+encodeURIComponent('현위치')+
-        '&rt2='+encodeURIComponent(toName);
+    // 구글 지도 도보 길찾기 (출발지→목적지)
+    url='https://www.google.com/maps/dir/?api=1'+
+        '&origin='+fromLat+','+fromLng+
+        '&destination='+toLat+','+toLng+
+        '&travelmode=walking';
   } else {
-    url='https://map.kakao.com/link/walk/'+encodeURIComponent(toName)+','+toLat+','+toLng;
+    // 출발지 없을 경우 목적지만 지정 (현위치에서 자동 출발)
+    url='https://www.google.com/maps/dir/?api=1'+
+        '&destination='+toLat+','+toLng+
+        '&travelmode=walking';
   }
-  location.href=url;
+  window.open(url,'_blank');  // 새 탭으로 열어 앱 연동
 }
 function markDone(idx){
   var ag=_courseList[idx];if(!ag)return;
