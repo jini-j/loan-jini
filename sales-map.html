@@ -262,6 +262,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
   <!-- 모드2: 코스 검토 -->
   <div id="course-mode" style="display:none">
+    <div style="padding:0 0 10px">
+      <button onclick="startActive()" style="width:100%;height:50px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:16px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">🚀 영업 시작</button>
+    </div>
     <div class="card" style="padding:11px 13px">
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
         <button class="mode-btn" onclick="backToSearch()">← 새 검색</button>
@@ -288,9 +291,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <span style="font-size:10px;color:var(--g4)">제외 시 자동 재정렬</span>
       </div>
       <div id="course-list"></div>
-    </div>
-    <div style="padding:0 0 16px">
-      <button onclick="startActive()" style="width:100%;height:50px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:16px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent">🚀 영업 시작</button>
     </div>
   </div>
 
@@ -713,12 +713,15 @@ function walkToAgency(idx){
 function walkTo(toLat,toLng,toName,fromLat,fromLng){
   var url;
   if(fromLat&&fromLng){
-    // 구글 지도 도보 길찾기 (출발지→목적지) dirflg=w: 도보
-    url='https://maps.google.com/maps?saddr='+fromLat+','+fromLng+
-        '&daddr='+toLat+','+toLng+'&dirflg=w';
+    // 구글 지도 공식 URL API - 도보
+    url='https://www.google.com/maps/dir/?api=1'+
+        '&origin='+fromLat+','+fromLng+
+        '&destination='+toLat+','+toLng+
+        '&travelmode=walking';
   } else {
-    // 출발지 없을 경우 현위치에서 자동 출발
-    url='https://maps.google.com/maps?daddr='+toLat+','+toLng+'&dirflg=w';
+    url='https://www.google.com/maps/dir/?api=1'+
+        '&destination='+toLat+','+toLng+
+        '&travelmode=walking';
   }
   window.open(url,'_blank');  // 새 탭으로 열어 앱 연동 (뒤로가기로 복귀)
 }
