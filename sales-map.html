@@ -220,11 +220,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 <div id="p1" class="panel">
 
   <!-- 주차 위치 바 (항상 노출) -->
-  <div class="parking-bar">
+  <div class="parking-bar" style="flex-wrap:wrap">
     <span style="font-size:16px">🚗</span>
-    <span id="parking-info" style="font-size:11px;color:var(--g5);flex:1">주차 위치 미저장</span>
-    <button onclick="saveParking()" style="padding:4px 10px;border-radius:20px;border:1.5px solid var(--p);background:var(--pl);color:var(--p);font-size:11px;font-weight:700;cursor:pointer">저장</button>
-    <button id="parking-nav-btn" onclick="returnToParking()" style="display:none;padding:4px 10px;border-radius:20px;border:1.5px solid var(--ok);background:#f0fdf4;color:var(--ok);font-size:11px;font-weight:700;cursor:pointer">돌아가기</button>
+    <span id="parking-info" style="font-size:11px;color:var(--g5);flex:1;min-width:0">주차 위치 미저장</span>
+    <div style="display:flex;gap:5px;align-items:center">
+      <button onclick="saveParking()" style="padding:4px 10px;border-radius:20px;border:1.5px solid var(--p);background:var(--pl);color:var(--p);font-size:11px;font-weight:700;cursor:pointer">저장</button>
+      <button id="parking-nav-btn" onclick="returnToParking()" style="display:none;padding:4px 10px;border-radius:20px;border:1.5px solid var(--ok);background:#f0fdf4;color:var(--ok);font-size:11px;font-weight:700;cursor:pointer">돌아가기</button>
+      <button id="parking-reset-btn" onclick="clearParking()" style="display:none;padding:4px 8px;border-radius:20px;border:1.5px solid var(--g3);background:#fff;color:var(--g5);font-size:11px;cursor:pointer">× 초기화</button>
+    </div>
   </div>
 
   <!-- 모드1: 검색 -->
@@ -476,16 +479,26 @@ function saveParking(){
 function updateParkingBar(){
   var info=document.getElementById('parking-info');
   var navBtn=document.getElementById('parking-nav-btn');
+  var rstBtn=document.getElementById('parking-reset-btn');
   if(!info||!navBtn) return;
   if(_parkingLoc){
     var addrLine=_parkingLoc.addr?'<br><span style="font-size:10px;color:var(--g6)">📍 '+_parkingLoc.addr+'</span>':'';
     var noteLine=_parkingLoc.note?'<br><span style="font-size:10px;color:var(--warn)">📝 '+_parkingLoc.note+'</span>':'';
-    info.innerHTML='<span style="font-size:11px;font-weight:700;color:var(--g7)">🚗 주차 저장됨</span> <span style="font-size:9px;color:var(--g4)">'+(_parkingLoc.time||'')+'</span>'+addrLine+noteLine;
+    info.innerHTML='<span style="font-size:11px;font-weight:700;color:var(--g7)">주차 저장됨</span> <span style="font-size:9px;color:var(--g4)">'+(_parkingLoc.time||'')+'</span>'+addrLine+noteLine;
     navBtn.style.display='inline-block';
+    if(rstBtn) rstBtn.style.display='inline-block';
   } else {
     info.textContent='주차 위치 미저장';
     navBtn.style.display='none';
+    if(rstBtn) rstBtn.style.display='none';
   }
+}
+function clearParking(){
+  if(!confirm('주차 위치를 초기화할까요?')) return;
+  _parkingLoc=null;
+  _lsSet('parking_loc',null);
+  updateParkingBar();
+  toast('주차 위치가 초기화되었습니다');
 }
 function returnToParking(){
   if(!_parkingLoc){toast('저장된 주차 위치가 없습니다');return;}
@@ -700,18 +713,14 @@ function walkToAgency(idx){
 function walkTo(toLat,toLng,toName,fromLat,fromLng){
   var url;
   if(fromLat&&fromLng){
-    // 구글 지도 도보 길찾기 (출발지→목적지)
-    url='https://www.google.com/maps/dir/?api=1'+
-        '&origin='+fromLat+','+fromLng+
-        '&destination='+toLat+','+toLng+
-        '&travelmode=walking';
+    // 구글 지도 도보 길찾기 (출발지→목적지) dirflg=w: 도보
+    url='https://maps.google.com/maps?saddr='+fromLat+','+fromLng+
+        '&daddr='+toLat+','+toLng+'&dirflg=w';
   } else {
-    // 출발지 없을 경우 목적지만 지정 (현위치에서 자동 출발)
-    url='https://www.google.com/maps/dir/?api=1'+
-        '&destination='+toLat+','+toLng+
-        '&travelmode=walking';
+    // 출발지 없을 경우 현위치에서 자동 출발
+    url='https://maps.google.com/maps?daddr='+toLat+','+toLng+'&dirflg=w';
   }
-  window.open(url,'_blank');  // 새 탭으로 열어 앱 연동
+  window.open(url,'_blank');  // 새 탭으로 열어 앱 연동 (뒤로가기로 복귀)
 }
 function markDone(idx){
   var ag=_courseList[idx];if(!ag)return;
